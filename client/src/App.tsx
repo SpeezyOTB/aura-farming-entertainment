@@ -11,6 +11,8 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/shadow-khan"} component={ShadowKhan} />
+      <Route path={"/dragon-fist-x"} component={DragonFistX} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -27,12 +29,13 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider
-        defaultTheme="light"
-        // switchable
+        defaultTheme="dark"
       >
         <TooltipProvider>
           <Toaster />
+          <Navbar />
           <Router />
+          <Footer />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
@@ -40,3 +43,7 @@ function App() {
 }
 
 export default App;
+import ShadowKhan from "./pages/ShadowKhan";
+import DragonFistX from "./pages/DragonFistX";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
