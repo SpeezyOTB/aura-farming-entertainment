@@ -41,4 +41,4 @@ function App() {
 
 export default App;
 import DragonFistXGame from "./pages/DragonFistXGame";
-      <Route path={"/dragon-fist-x/game"} component={DragonFistXGame} />
+      <Route path={"/dfx-game"} component={DragonFistXGame} />

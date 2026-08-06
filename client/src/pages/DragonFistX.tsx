@@ -106,7 +106,7 @@ export default function DragonFistX() {
             The Dragon Fist X demo is live. Choose your fighter, go Player vs CPU or Player vs Player, and feel the dragon energy.
           </p>
           <a
-            href="/dragon-fist-x/game"
+            href="/dfx-game"
             className="inline-flex items-center gap-3 px-10 py-4 rounded font-bold text-sm tracking-wider uppercase transition-all duration-200 active:scale-[0.97]"
             style={{
               fontFamily: "'Orbitron', monospace",
@@ -117,7 +117,7 @@ export default function DragonFistX() {
           >
             ⚔️ Enter the Arena
           </a>
-          <p className="text-xs text-white/30 mt-3">aurafarmingentertainment.com/dragon-fist-x/game</p>
+          <p className="text-xs text-white/30 mt-3">aurafarmingentertainment.com/dfx-game</p>
         </div>
       </section>
 
