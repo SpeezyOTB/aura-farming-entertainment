@@ -5,7 +5,11 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-
+import ShadowKhan from "./pages/ShadowKhan";
+import DragonFistX from "./pages/DragonFistX";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 function Router() {
   return (
@@ -13,24 +17,17 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/shadow-khan"} component={ShadowKhan} />
       <Route path={"/dragon-fist-x"} component={DragonFistX} />
+      <Route path={"/privacy-policy"} component={PrivacyPolicy} />
       <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="dark"
-      >
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
           <Navbar />
@@ -43,7 +40,3 @@ function App() {
 }
 
 export default App;
-import ShadowKhan from "./pages/ShadowKhan";
-import DragonFistX from "./pages/DragonFistX";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";

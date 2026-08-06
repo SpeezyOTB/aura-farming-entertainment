@@ -40,7 +40,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative w-9 h-9 flex-shrink-0">
             <img
-              src="/manus-storage/afe-logo-icon_5624d13c.png"
+              src="/manus-storage/afe-logo-official_b4d1f352.png"
               alt="Aura Farming Entertainment Logo"
               className="w-full h-full object-contain"
             />

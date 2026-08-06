@@ -108,21 +108,23 @@ export default function Home() {
             <motion.h1
               custom={1}
               variants={fadeUp}
-              className="text-6xl sm:text-7xl lg:text-8xl font-bold leading-none mb-6"
+              className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-3"
               style={{ fontFamily: "'Rajdhani', sans-serif" }}
             >
-              Your Aura.
-              <br />
-              <span
-                className="text-glow-purple"
-                style={{ color: "oklch(0.75 0.25 290)" }}
-              >
-                Your Legend.
-              </span>
+              Welcome to Aura Farming Entertainment
             </motion.h1>
 
-            <motion.p
+            <motion.h2
               custom={2}
+              variants={fadeUp}
+              className="text-2xl sm:text-3xl font-semibold mb-6"
+              style={{ fontFamily: "'Rajdhani', sans-serif", color: "oklch(0.75 0.25 290)" }}
+            >
+              The Next Generation of Media
+            </motion.h2>
+
+            <motion.p
+              custom={3}
               variants={fadeUp}
               className="text-lg text-white/70 max-w-xl mb-10 leading-relaxed"
             >
@@ -131,7 +133,7 @@ export default function Home() {
               aura defines your destiny.
             </motion.p>
 
-            <motion.div custom={3} variants={fadeUp} className="flex flex-wrap gap-4">
+            <motion.div custom={4} variants={fadeUp} className="flex flex-wrap gap-4">
               <Link
                 href="/shadow-khan"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded font-semibold text-sm tracking-wider uppercase transition-all duration-200 active:scale-[0.97]"

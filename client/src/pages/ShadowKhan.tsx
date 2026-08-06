@@ -151,9 +151,9 @@ export default function ShadowKhan() {
             {/* Preview card */}
             <motion.div
               initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
               className="relative"
             >
               <div
@@ -161,9 +161,9 @@ export default function ShadowKhan() {
                 style={{ boxShadow: "0 0 60px oklch(0.72 0.22 140 / 0.15)" }}
               >
                 <img
-                  src="/manus-storage/shadow-khan-banner_6926713d.jpg"
-                  alt="Shadow'Khan TCG gameplay"
-                  className="w-full object-cover"
+                  src="/manus-storage/shadowkhan-card-back_9c787043.png"
+                  alt="Shadow'Khan TCG card back"
+                  className="w-full object-cover max-h-[480px]"
                 />
               </div>
               {/* Floating badge */}
