@@ -1,6 +1,6 @@
 /* ============================================================
  * Dragon Fist X Page — Aura Farming Entertainment
- * Design: Aura Pulse — full-screen teaser video experience
+ * Design: Aura Pulse — teaser video + play demo section
  * ============================================================ */
 import { useEffect } from "react";
 import { motion } from "framer-motion";
@@ -15,21 +15,18 @@ export default function DragonFistX() {
 
       {/* ── Full-screen video section ── */}
       <section className="flex-1 flex flex-col items-center justify-center pt-20 pb-12 px-4 relative overflow-hidden">
-        {/* Red aura radial glow background */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background: "radial-gradient(ellipse 80% 60% at 50% 50%, oklch(0.55 0.22 25 / 0.1) 0%, transparent 70%)",
           }}
         />
-
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="relative z-10 w-full max-w-4xl"
         >
-          {/* Header */}
           <div className="text-center mb-8">
             <p
               className="text-xs font-bold tracking-[0.3em] text-[oklch(0.7_0.22_25)] mb-3 uppercase"
@@ -46,7 +43,6 @@ export default function DragonFistX() {
             <p className="text-white/60 text-lg">Official Teaser</p>
           </div>
 
-          {/* Video player */}
           <div
             className="relative rounded-xl overflow-hidden border border-[oklch(0.55_0.22_25/0.4)]"
             style={{
@@ -65,7 +61,6 @@ export default function DragonFistX() {
             />
           </div>
 
-          {/* Footer note */}
           <div className="text-center mt-6">
             <div
               className="inline-flex items-center gap-3 px-6 py-2.5 rounded border text-xs font-semibold tracking-wider uppercase"
@@ -83,6 +78,47 @@ export default function DragonFistX() {
             </div>
           </div>
         </motion.div>
+      </section>
+
+      {/* ── Play Demo Section ── */}
+      <section className="py-16 relative overflow-hidden">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse 80% 100% at 50% 50%, oklch(0.55 0.28 290 / 0.06) 0%, transparent 70%)",
+          }}
+        />
+        <div className="absolute inset-0 border-y border-[oklch(0.55_0.22_25/0.12)]" />
+        <div className="container relative z-10 text-center">
+          <p
+            className="text-xs font-bold tracking-[0.3em] text-[oklch(0.55_0.28_290)] mb-3 uppercase"
+            style={{ fontFamily: "'Orbitron', monospace" }}
+          >
+            Available Now
+          </p>
+          <h2
+            className="text-4xl sm:text-5xl font-bold text-white mb-4"
+            style={{ fontFamily: "'Rajdhani', sans-serif" }}
+          >
+            Play the Demo
+          </h2>
+          <p className="text-white/60 mb-8 max-w-md mx-auto">
+            The Dragon Fist X demo is live. Choose your fighter, go Player vs CPU or Player vs Player, and feel the dragon energy.
+          </p>
+          <a
+            href="/dragon-fist-x/game"
+            className="inline-flex items-center gap-3 px-10 py-4 rounded font-bold text-sm tracking-wider uppercase transition-all duration-200 active:scale-[0.97]"
+            style={{
+              fontFamily: "'Orbitron', monospace",
+              background: "oklch(0.55 0.22 25)",
+              color: "oklch(0.97 0 0)",
+              boxShadow: "0 0 40px oklch(0.55 0.22 25 / 0.4)",
+            }}
+          >
+            ⚔️ Enter the Arena
+          </a>
+          <p className="text-xs text-white/30 mt-3">aurafarmingentertainment.com/dragon-fist-x/game</p>
+        </div>
       </section>
 
     </div>
