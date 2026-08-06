@@ -266,10 +266,24 @@ export default function Home() {
                     </h3>
                     <p className="text-sm text-white/60">
                       An epic anime-inspired fighting game where warriors harness dragon energy to dominate their foes.
-                    </p>
-                    <div className="mt-4 flex items-center gap-2 text-[oklch(0.55_0.22_25)] text-xs font-semibold tracking-wider uppercase group-hover:gap-3 transition-all duration-200">
-                      <span>Learn More</span>
-                      <span>→</span>
+                   </p>
+                    <div className="mt-4 flex items-center gap-3 flex-wrap">
+                      <div className="flex items-center gap-2 text-[oklch(0.55_0.22_25)] text-xs font-semibold tracking-wider uppercase group-hover:gap-3 transition-all duration-200">
+                        <span>Learn More</span>
+                        <span>→</span>
+                      </div>
+                      <a
+                        href="/dragon-fist-x/game"
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all duration-200 active:scale-[0.97] hover:shadow-[0_0_16px_oklch(0.55_0.22_25/0.5)]"
+                        style={{
+                          fontFamily: "'Orbitron', monospace",
+                          background: "oklch(0.55 0.22 25)",
+                          color: "oklch(0.97 0 0)",
+                        }}
+                      >
+                        ⚔️ Play Demo
+                      </a>
                     </div>
                   </div>
                 </div>
