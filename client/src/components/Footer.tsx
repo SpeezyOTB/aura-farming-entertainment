@@ -107,15 +107,6 @@ export default function Footer() {
             <p className="text-xs text-white/30">
               &copy; 2026 International Plainfield LLC. All rights reserved.
             </p>
-            <p className="text-xs text-white/20 mt-0.5">
-              Operating as Aura Farming Entertainment &nbsp;·&nbsp;{" "}
-              <a
-                href="mailto:business@internationalplayingfield.com"
-                className="hover:text-white/50 transition-colors duration-200"
-              >
-                business@internationalplayingfield.com
-              </a>
-            </p>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[oklch(0.55_0.28_290)]" />

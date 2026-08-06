@@ -101,7 +101,7 @@ export default function ShadowKhan() {
                 className="text-4xl font-bold text-white mb-6"
                 style={{ fontFamily: "'Rajdhani', sans-serif" }}
               >
-                Enter the Shadow Realm
+              Rise as the Shadow Khan
               </h2>
               <p className="text-white/70 leading-relaxed mb-4">
                 Shadow'Khan is a strategic two-player online card game where the goal is to
@@ -110,7 +110,7 @@ export default function ShadowKhan() {
               </p>
               <p className="text-white/70 leading-relaxed mb-8">
                 Master the shadows. Outmaneuver your opponent. Claim victory through superior
-                strategy and relentless pressure. The Shadow Realm awaits those bold enough to enter.
+                strategy and relentless pressure. Only the most cunning player will rise to become the Shadow Khan master.
               </p>
 
               {/* Feature list */}
@@ -205,10 +205,10 @@ export default function ShadowKhan() {
             className="text-5xl sm:text-6xl font-bold text-white mb-4"
             style={{ fontFamily: "'Rajdhani', sans-serif" }}
           >
-            The Shadow Realm Awaits
+            Become the Shadow Khan Master
           </h2>
           <p className="text-white/60 mb-8 max-w-md mx-auto">
-            Your opponent's deck won't drain itself. Enter the Shadow Realm and claim your victory.
+            Drain your opponent's deck. Outplay every challenger. Claim your title as the Shadow Khan master.
           </p>
           <button
             onClick={handlePlay}
@@ -220,7 +220,7 @@ export default function ShadowKhan() {
               boxShadow: "0 0 40px oklch(0.72 0.22 140 / 0.4)",
             }}
           >
-            Claim Your Shadow ↗
+            Claim Your Title ↗
           </button>
         </div>
       </section>
