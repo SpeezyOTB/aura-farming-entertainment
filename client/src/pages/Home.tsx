@@ -241,51 +241,55 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
             >
-              <Link href="/dragon-fist-x" className="block group">
-                <div className="relative overflow-hidden rounded-lg border border-[oklch(0.55_0.22_25/0.3)] hover:border-[oklch(0.55_0.22_25/0.7)] transition-all duration-300 hover:shadow-[0_0_40px_oklch(0.55_0.22_25/0.2)]">
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src="/manus-storage/dragon-fist-x-banner_a4ca3ea0.jpg"
-                      alt="Dragon Fist X"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.08_0.01_285)] via-transparent to-transparent" />
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <span
-                      className="text-xs font-bold tracking-widest text-[oklch(0.55_0.22_25)] uppercase mb-2 block"
+              <div className="relative overflow-hidden rounded-lg border border-[oklch(0.55_0.22_25/0.3)] hover:border-[oklch(0.55_0.22_25/0.7)] transition-all duration-300 hover:shadow-[0_0_40px_oklch(0.55_0.22_25/0.2)]">
+                <div className="aspect-video overflow-hidden">
+                  <img
+                    src="/manus-storage/dragon-fist-x-banner_a4ca3ea0.jpg"
+                    alt="Dragon Fist X"
+                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.05_0.01_285)] via-[oklch(0.05_0.01_285/0.4)] to-transparent" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <span
+                    className="text-xs font-bold tracking-widest text-[oklch(0.55_0.22_25)] uppercase mb-2 block"
+                    style={{ fontFamily: "'Orbitron', monospace" }}
+                  >
+                    Anime / Video Game
+                  </span>
+                  <h3
+                    className="text-3xl font-bold text-white mb-2"
+                    style={{ fontFamily: "'Rajdhani', sans-serif" }}
+                  >
+                    Dragon Fist X
+                  </h3>
+                  <p className="text-sm text-white/60 mb-4">
+                    An epic anime-inspired fighting game where warriors harness dragon energy to dominate their foes.
+                  </p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Link
+                      href="/dragon-fist-x"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all duration-200 active:scale-[0.97] border border-white/30 hover:border-white/60 text-white/80 hover:text-white"
                       style={{ fontFamily: "'Orbitron', monospace" }}
                     >
-                      Anime / Video Game
-                    </span>
-                    <h3
-                      className="text-3xl font-bold text-white mb-2"
-                      style={{ fontFamily: "'Rajdhani', sans-serif" }}
+                      Watch Teaser Trailer
+                    </Link>
+                    <a
+                      href="https://fightergame-j95rkwu8.manus.space"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all duration-200 active:scale-[0.97] hover:shadow-[0_0_16px_oklch(0.55_0.22_25/0.5)]"
+                      style={{
+                        fontFamily: "'Orbitron', monospace",
+                        background: "oklch(0.55 0.22 25)",
+                        color: "oklch(0.97 0 0)",
+                      }}
                     >
-                      Dragon Fist X
-                    </h3>
-                    <p className="text-sm text-white/60">
-                      An epic anime-inspired fighting game where warriors harness dragon energy to dominate their foes.
-                   </p>
-                    <div className="mt-4 flex items-center gap-3 flex-wrap">
-                      <a
-                        href="https://fightergame-j95rkwu8.manus.space"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all duration-200 active:scale-[0.97] hover:shadow-[0_0_16px_oklch(0.55_0.22_25/0.5)]"
-                        style={{
-                          fontFamily: "'Orbitron', monospace",
-                          background: "oklch(0.55 0.22 25)",
-                          color: "oklch(0.97 0 0)",
-                        }}
-                      >
-                        Play Demo
-                      </a>
-                    </div>
+                      Play Demo
+                    </a>
                   </div>
                 </div>
-              </Link>
+              </div>
             </motion.div>
           </div>
         </div>
