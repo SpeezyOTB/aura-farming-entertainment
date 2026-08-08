@@ -322,32 +322,43 @@ export default function Home() {
                 className="text-xs font-bold tracking-[0.3em] text-[oklch(0.55_0.22_25)] mb-3 uppercase"
                 style={{ fontFamily: "'Orbitron', monospace" }}
               >
-              The Studio
+              About Us
               </p>
               <h2
                 className="text-5xl font-bold text-white mb-6"
                 style={{ fontFamily: "'Rajdhani', sans-serif" }}
               >
-                Farming Aura,
+                Built From Vision,
                 <br />
-                <span style={{ color: "oklch(0.75 0.25 290)" }}>Crafting Legends</span>
+                <span style={{ color: "oklch(0.75 0.25 290)" }}>Driven by Purpose</span>
               </h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                Aura Farming Entertainment is an independent creative studio dedicated to building
-                immersive anime-inspired gaming experiences. We believe every player carries a unique
-                aura — a power waiting to be unleashed.
+                Aura Farming Entertainment is a subdivision of{" "}
+                <span className="text-white/90 font-semibold">International Playing Field LLC</span>,
+                founded by Joseph Johnson — known professionally as{" "}
+                <span className="text-white/90 font-semibold">Speezy OTB</span>. Joseph is the
+                creator of Shadow'Khan TCG and Dragon Fist X, two properties he first conceived at
+                the age of 13. Over the years, he has taken the time to carefully refine these
+                concepts, and is now bringing them to life through a combination of traditional
+                creative methods and modern technology.
+              </p>
+              <p className="text-white/70 leading-relaxed mb-4">
+                In 2015, Joseph lost his eyesight — yet his creative vision never wavered. He has
+                continued to develop, build, and push forward, proving that the most powerful
+                stories are born from resilience.
               </p>
               <p className="text-white/70 leading-relaxed mb-8">
-                From competitive card games to action-packed video games, our projects are designed
-                to put that power in your hands. We are just getting started.
+                The mission of Aura Farming Entertainment is to become a major force in the
+                entertainment industry by delivering fresh, unique takes on classic mediums —
+                spanning video games, trading card games, and animation. Every project is built
+                with an emphasis on eye-catching visuals and emotionally resonant storytelling,
+                offering audiences worlds that feel both timeless and entirely new.
               </p>
-
-              {/* Stats row */}
               <div className="flex flex-wrap gap-8">
                 {[
                   { value: "2", label: "Active Projects", color: "oklch(0.55 0.28 290)" },
-                  { value: "∞", label: "Aura Potential", color: "oklch(0.72 0.22 140)" },
-                  { value: "1", label: "Studio", color: "oklch(0.55 0.22 25)" },
+                  { value: "10+", label: "Years in Development", color: "oklch(0.72 0.22 140)" },
+                  { value: "1", label: "Unstoppable Vision", color: "oklch(0.55 0.22 25)" },
                 ].map((stat) => (
                   <div key={stat.label}>
                     <p
