@@ -106,7 +106,7 @@ export default function DragonFistX() {
             The Dragon Fist X demo is live. Choose your fighter, go Player vs CPU or Player vs Player, and feel the dragon energy.
           </p>
           <a
-            href="https://fightergame-j95rkwu8.manus.space"
+            href="https://aurafarmingentertainment.com/games/dragonfistx"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 px-10 py-4 rounded font-bold text-sm tracking-wider uppercase transition-all duration-200 active:scale-[0.97]"

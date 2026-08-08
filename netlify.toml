@@ -16,3 +16,9 @@
   to = "https://fightergame-j95rkwu8.manus.space"
   status = 302
   force = true
+
+[[redirects]]
+  from = "/dragonfistx"
+  to = "https://fightergame-j95rkwu8.manus.space"
+  status = 302
+  force = true
