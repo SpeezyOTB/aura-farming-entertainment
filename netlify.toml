@@ -7,10 +7,8 @@
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
-  conditions = {Role = []}
 
-# Dragon Fist X game redirect
+# Dragon Fist X game redirects
 [[redirects]]
   from = "/games/dragonfistx"
   to = "https://fightergame-j95rkwu8.manus.space"
