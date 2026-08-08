@@ -1,0 +1,18 @@
+[build]
+  command = "pnpm run build"
+  publish = "dist/public"
+
+# SPA routing — serve index.html for all routes so React Router works
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+  conditions = {Role = []}
+
+# Dragon Fist X game redirect
+[[redirects]]
+  from = "/games/dragonfistx"
+  to = "https://fightergame-j95rkwu8.manus.space"
+  status = 302
+  force = true
