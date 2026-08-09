@@ -50,7 +50,7 @@ export default function DragonFistX() {
             }}
           >
             <video
-              src="/manus-storage/dfx-teaser_e24a3f48.mp4"
+              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/QHLLIIbCPXyLoWHt.mp4"
               controls
               autoPlay
               muted
