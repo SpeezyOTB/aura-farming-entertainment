@@ -81,8 +81,8 @@ export default function Footer() {
         <div className="flex flex-wrap gap-x-6 gap-y-2 mb-8 pb-8 border-b border-white/5">
           {[
             { href: "/", label: "Home" },
-            { href: "/shadow-khan", label: "Shadow'Khan TCG" },
-            { href: "/dragon-fist-x", label: "Dragon Fist X" },
+            { href: "/shadowkhantcg", label: "Shadow'Khan TCG" },
+            { href: "/dfx", label: "Dragon Fist X" },
             { href: "/privacy-policy", label: "Privacy Policy" },
           ].map((link) => (
             <Link

@@ -23,8 +23,8 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/shadow-khan", label: "Shadow'Khan TCG" },
-    { href: "/dragon-fist-x", label: "Dragon Fist X" },
+    { href: "/shadowkhantcg", label: "Shadow'Khan TCG" },
+    { href: "/dfx", label: "Dragon Fist X" },
   ];
 
   return (

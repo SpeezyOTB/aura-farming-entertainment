@@ -15,8 +15,8 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/shadow-khan"} component={ShadowKhan} />
-      <Route path={"/dragon-fist-x"} component={DragonFistX} />
+      <Route path={"/shadowkhantcg"} component={ShadowKhan} />
+      <Route path={"/dfx"} component={DragonFistX} />
       <Route path={"/privacy-policy"} component={PrivacyPolicy} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

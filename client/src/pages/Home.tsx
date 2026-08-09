@@ -135,7 +135,7 @@ export default function Home() {
 
             <motion.div custom={4} variants={fadeUp} className="flex flex-wrap gap-4">
               <Link
-                href="/shadow-khan"
+                href="/shadowkhantcg"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded font-semibold text-sm tracking-wider uppercase transition-all duration-200 active:scale-[0.97]"
                 style={{
                   fontFamily: "'Orbitron', monospace",
@@ -146,7 +146,7 @@ export default function Home() {
                 Shadow'Khan TCG
               </Link>
               <Link
-                href="/dragon-fist-x"
+                href="/dfx"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded font-semibold text-sm tracking-wider uppercase border border-[oklch(0.55_0.22_25/0.6)] text-white hover:border-[oklch(0.55_0.22_25)] hover:shadow-[0_0_20px_oklch(0.55_0.22_25/0.3)] transition-all duration-200 active:scale-[0.97]"
                 style={{ fontFamily: "'Orbitron', monospace" }}
               >
@@ -199,7 +199,7 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
             >
-              <Link href="/shadow-khan" className="block group">
+              <Link href="/shadowkhantcg" className="block group">
                 <div className="relative overflow-hidden rounded-lg border border-[oklch(0.72_0.22_140/0.3)] hover:border-[oklch(0.72_0.22_140/0.7)] transition-all duration-300 hover:shadow-[0_0_40px_oklch(0.72_0.22_140/0.2)]">
                   <div className="aspect-video overflow-hidden">
                     <img
@@ -268,7 +268,7 @@ export default function Home() {
                   </p>
                   <div className="flex items-center gap-3 flex-wrap">
                     <Link
-                      href="/dragon-fist-x"
+                      href="/dfx"
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all duration-200 active:scale-[0.97] border border-white/30 hover:border-white/60 text-white/80 hover:text-white"
                       style={{ fontFamily: "'Orbitron', monospace" }}
                     >
