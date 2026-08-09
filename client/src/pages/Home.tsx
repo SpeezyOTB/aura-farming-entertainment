@@ -82,7 +82,7 @@ export default function Home() {
         {/* Background image */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/manus-storage/afe-hero-bg_6e41c74f.jpg')" }}
+          style={{ backgroundImage: "url('https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/VDDWVFyKVQaybPkx.jpg')" }}
         />
         {/* Dark overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.08_0.01_285/0.6)] via-[oklch(0.08_0.01_285/0.4)] to-[oklch(0.08_0.01_285)]" />
@@ -203,7 +203,7 @@ export default function Home() {
                 <div className="relative overflow-hidden rounded-lg border border-[oklch(0.72_0.22_140/0.3)] hover:border-[oklch(0.72_0.22_140/0.7)] transition-all duration-300 hover:shadow-[0_0_40px_oklch(0.72_0.22_140/0.2)]">
                   <div className="aspect-video overflow-hidden">
                     <img
-                      src="/manus-storage/shadow-khan-banner_6926713d.jpg"
+                      src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/zUUViDXJddUsiKHy.jpg"
                       alt="Shadow'Khan TCG"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
@@ -244,7 +244,7 @@ export default function Home() {
               <div className="relative overflow-hidden rounded-lg border border-[oklch(0.55_0.22_25/0.3)] hover:border-[oklch(0.55_0.22_25/0.7)] transition-all duration-300 hover:shadow-[0_0_40px_oklch(0.55_0.22_25/0.2)]">
                 <div className="aspect-video overflow-hidden">
                   <img
-                    src="/manus-storage/dragon-fist-x-banner_a4ca3ea0.jpg"
+                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/EPvhyfNHwWIWXtli.jpg"
                     alt="Dragon Fist X"
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                   />
@@ -307,7 +307,7 @@ export default function Home() {
       <section className="relative py-24 overflow-hidden" style={{ marginTop: "-1px" }}>
         <div
           className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: "url('/manus-storage/afe-about-bg_0cdcd556.jpg')" }}
+          style={{ backgroundImage: "url('https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/CiYFqARsMytBkFsE.jpg')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.08_0.01_285)] via-[oklch(0.08_0.01_285/0.8)] to-[oklch(0.08_0.01_285/0.6)]" />
         <div className="container relative z-10">

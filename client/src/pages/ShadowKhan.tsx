@@ -30,7 +30,7 @@ export default function ShadowKhan() {
       <section className="relative min-h-[70vh] flex items-end overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/manus-storage/shadow-khan-banner_6926713d.jpg')" }}
+          style={{ backgroundImage: "url('https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/zUUViDXJddUsiKHy.jpg')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.08_0.01_285)] via-[oklch(0.08_0.01_285/0.5)] to-[oklch(0.08_0.01_285/0.2)]" />
         {/* Green aura radial glow */}
@@ -161,7 +161,7 @@ export default function ShadowKhan() {
                 style={{ boxShadow: "0 0 60px oklch(0.72 0.22 140 / 0.15)" }}
               >
                 <img
-                  src="/manus-storage/shadowkhan-card-back_9c787043.png"
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/sdzuIsYfatxyznWX.png"
                   alt="Shadow'Khan TCG card back"
                   className="w-full object-cover max-h-[480px]"
                 />

@@ -45,7 +45,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="flex items-center gap-4">
             <img
-              src="/manus-storage/afe-logo-official_b4d1f352.png"
+              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/TaJmNUcewyfbFuHC.png"
               alt="AFE Logo"
               className="w-14 h-14 object-contain"
             />
