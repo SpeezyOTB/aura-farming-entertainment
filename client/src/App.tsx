@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import ShadowKhan from "./pages/ShadowKhan";
 import DragonFistX from "./pages/DragonFistX";
+import DFXDemo from "./pages/DFXDemo";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -17,6 +18,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/shadowkhantcg"} component={ShadowKhan} />
       <Route path={"/dfx"} component={DragonFistX} />
+      <Route path={"/dfx/demo"} component={DFXDemo} />
       <Route path={"/privacy-policy"} component={PrivacyPolicy} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
@@ -40,5 +42,4 @@ function App() {
 }
 
 export default App;
-import DragonFistXGame from "./pages/DragonFistXGame";
-      <Route path={"/dfx-game"} component={DragonFistXGame} />
+
