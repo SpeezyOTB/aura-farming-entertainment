@@ -275,7 +275,7 @@ export default function Home() {
                       Watch Teaser Trailer
                     </Link>
                     <a
-                        href="https://aurafarmingentertainment.com/games/dragonfistx"
+                        href="https://aurafarmingentertainment.com/dfx/demo"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold tracking-wider uppercase transition-all duration-200 active:scale-[0.97] hover:shadow-[0_0_16px_oklch(0.55_0.22_25/0.5)]"
