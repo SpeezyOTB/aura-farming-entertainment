@@ -130,7 +130,7 @@ export default function DragonFistX() {
             Experience Dragon Fist X firsthand. Choose your fighter, go Player vs CPU or Player vs Player, and feel the dragon energy for yourself.
           </p>
           <a
-            href="https://aurafarmingentertainment.com/game"
+            href="https://aurafarmingentertainment.com/dfx/demo"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 px-10 py-4 rounded font-bold text-sm tracking-wider uppercase transition-all duration-200 active:scale-[0.97]"

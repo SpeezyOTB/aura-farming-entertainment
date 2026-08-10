@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dfx-game
+
+Sitemap: https://aurafarmingentertainment.com/sitemap.xml
+

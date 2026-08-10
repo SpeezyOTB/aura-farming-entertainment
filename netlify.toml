@@ -4,6 +4,12 @@
 
 # Dragon Fist X game redirects — all paths go straight to the original game
 [[redirects]]
+  from = "/dfx/demo"
+  to = "https://fightergame-j95rkwu8.manus.space"
+  status = 302
+  force = true
+
+[[redirects]]
   from = "/game"
   to = "https://fightergame-j95rkwu8.manus.space"
   status = 302
