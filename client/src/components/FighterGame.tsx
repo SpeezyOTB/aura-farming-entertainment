@@ -98,16 +98,19 @@ const CHARS: Record<string, Omit<FighterConfig, 'id' | 'startX' | 'facingRight'>
   },
   shuraku: {
     name: 'Shuraku',
-    title: 'The Spirit of Darkness',
+    title: 'The Dark Sovereign',
     color: '#8800ff',
     energyColor: '#cc44ff',
     spriteUrl: SHURAKU_SPRITE,
     iconUrl: SHURAKU_SPRITE,
-    maxHealth: 190,
-    moveSpeedMult: 1.12,
+    maxHealth: 185,
+    punchDamageBonus: 1,
+    kickDamageBonus: 2,
+    moveSpeedMult: 0.88,
     boostDuration: 25,
     hasShadowBarrier: true,
     hasGrab: true,
+    hasDominionStyle: true,
   },
 };
 
@@ -641,14 +644,14 @@ export default function FighterGame() {
   }, [pollHUD]);
 
   // Deterministic visual test route used only by ?demo screenshots. Adding
-  // ?demo=kai opens a Kai-vs-Akari spectator match for stance verification.
+  // ?demo=kai or ?demo=shuraku opens that fighter versus Akari for stance verification.
   const demoStarted = useRef(false);
   useEffect(() => {
     const demoParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('demo') : null;
     const isDemo = demoParam !== null;
     if (!isDemo || screen !== 'select' || demoStarted.current) return;
     demoStarted.current = true;
-    const fighter = demoParam === 'kai' ? 'kai' : 'ryu';
+    const fighter = demoParam === 'kai' || demoParam === 'shuraku' ? demoParam : 'ryu';
     const timer = window.setTimeout(() => startFight(fighter, 'akari', 'cvc'), 30);
     return () => window.clearTimeout(timer);
   }, [screen, startFight]);

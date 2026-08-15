@@ -42,6 +42,7 @@ export interface FighterConfig {
   hasIcarusStyle?: boolean;       // Ryu: Icarus guard stance, flame trails, signature finishers
   hasAphroditeStyle?: boolean;    // Akari: evasive stance, petal energy, spinning finishers
   hasTempestStyle?: boolean;      // Kai: precision martial-artist stance, counter guard, wind finishers
+  hasDominionStyle?: boolean;     // Shuraku: composed powerhouse stance and shadow-pressure presentation
 }
 
 export interface GameState {

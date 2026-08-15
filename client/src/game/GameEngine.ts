@@ -136,6 +136,8 @@ export class GameEngine {
     this.pulseWaves = [];
     this.p1Combo.clear();
     this.p2Combo.clear();
+    this.cpu?.reset();
+    this.cpu2?.reset();
     this.sound.stopFightMusic();
     this.cinematic.stop();
     this.lastTime = performance.now();
@@ -330,6 +332,11 @@ export class GameEngine {
       if (p1.hasTempestStyle) {
         const specialUsed = p1.boostActive ? p1.activateTornado() : p1.activateTempestGuard();
         if (specialUsed) this.sound.play('tornado-whoosh', 0.72);
+      } else if (p1.hasGrab) {
+        if (p1.grab(p2)) {
+          this.sound.play('shuraku-punch', 0.78);
+          this.sound.play('block-impact', 0.65);
+        }
       } else if ((p1 as any).activateTeleport) {
         const opp = this.p1 === p1 ? this.p2 : this.p1;
         if ((p1 as any).activateTeleport(opp)) {
@@ -397,6 +404,11 @@ export class GameEngine {
         if (p2.hasTempestStyle) {
           const specialUsed = p2.boostActive ? p2.activateTornado() : p2.activateTempestGuard();
           if (specialUsed) this.sound.play('tornado-whoosh', 0.72);
+        } else if (p2.hasGrab) {
+          if (p2.grab(p1)) {
+            this.sound.play('shuraku-punch', 0.78);
+            this.sound.play('block-impact', 0.65);
+          }
         } else if ((p2 as any).activateTeleport) {
           const opp = this.p2 === p2 ? this.p1 : this.p2;
           if ((p2 as any).activateTeleport(opp)) this.sound.play('galva-teleport-vanish', 0.9);
@@ -681,9 +693,47 @@ export class GameEngine {
   }
 
   private resolveGrabThrow(fighter: Fighter) {
-    if (fighter.state === 'grab' && fighter.stateTimer <= 0) {
+    if (fighter.state !== 'grab' || !fighter.grabTarget) return;
+
+    const target = fighter.grabTarget;
+    const direction = fighter.facingRight ? 1 : -1;
+    // Keep the restrained opponent close to Shuraku and visibly engaged in the hold.
+    target.x = fighter.centerX + direction * FIGHTER_WIDTH * 0.42 - FIGHTER_WIDTH / 2;
+    target.y = fighter.y + 6;
+    target.vx = 0;
+    target.vy = 0;
+    target.isOnGround = true;
+    target.state = 'grabbed';
+    target.stateTimer = Math.max(0.05, fighter.stateTimer);
+    target.grabbedBy = fighter;
+    target.grappleStruggleTimer = Math.max(0.05, fighter.stateTimer);
+
+    // Apply one controlled damage tick during the restraint, then complete the throw.
+    if (!fighter.grappleSqueezeApplied && fighter.stateTimer <= 0.58) {
+      const damage = fighter.boostActive ? 5 : 3;
+      target.health = Math.max(0, target.health - damage);
+      target.hitFlash = 0.14;
+      target.consecutiveHits = 0;
+      target.energy = 0;
+      fighter.grappleSqueezeApplied = true;
+      fighter.onAttackLanded();
+      this.sound.play('block-impact', 0.82);
+      this.triggerImpact(true);
+      for (let i = 0; i < 10; i++) {
+        this.sparks.push({
+          x: target.centerX + (Math.random() - 0.5) * 34,
+          y: target.y + FIGHTER_HEIGHT * (0.22 + Math.random() * 0.32),
+          ttl: 0.16 + Math.random() * 0.16,
+          color: '#d1a0ff',
+          size: 4 + Math.random() * 7,
+        });
+      }
+    }
+
+    if (fighter.stateTimer <= 0) {
       fighter.executeThrow();
-      this.sound.play('ko', 0.5); // throw impact sound
+      this.sound.play('ko', 0.5);
+      this.triggerImpact(true);
     }
   }
 
@@ -927,6 +977,8 @@ export class GameEngine {
     this.renderAphroditeStance(this.p2);
     this.renderTempestStance(this.p1);
     this.renderTempestStance(this.p2);
+    this.renderDominionStance(this.p1);
+    this.renderDominionStance(this.p2);
 
     // Fighters
     this.renderFighter(this.p1, this.p1Image);
@@ -1204,9 +1256,10 @@ export class GameEngine {
     const icarusStance = f.hasIcarusStyle ? f.icarusStanceBlend : 0;
     const aphroditeStance = f.hasAphroditeStyle ? f.aphroditeStanceBlend : 0;
     const tempestStance = f.hasTempestStyle ? f.tempestStanceBlend : 0;
-    const scaleX = 1 + squashT * 0.14 + icarusStance * 0.025 - aphroditeStance * 0.02 - tempestStance * 0.015;
-    const scaleY = 1 - squashT * 0.11 - icarusStance * 0.045 + aphroditeStance * 0.018 + tempestStance * 0.024;
-    const stanceY = icarusStance * 6 - aphroditeStance * 2 + tempestStance * 2;
+    const dominionStance = f.hasDominionStyle ? f.dominionStanceBlend : 0;
+    const scaleX = 1 + squashT * 0.14 + icarusStance * 0.025 - aphroditeStance * 0.02 - tempestStance * 0.015 + dominionStance * 0.018;
+    const scaleY = 1 - squashT * 0.11 - icarusStance * 0.045 + aphroditeStance * 0.018 + tempestStance * 0.024 + dominionStance * 0.03;
+    const stanceY = icarusStance * 6 - aphroditeStance * 2 + tempestStance * 2 - dominionStance * 3;
 
     // Contact shadow anchors transparent sprites to the stone stage.
     if (f.isOnGround && f.state !== 'ko') {
@@ -1218,6 +1271,13 @@ export class GameEngine {
       ctx.ellipse(f.x + FIGHTER_WIDTH / 2, GROUND_Y - 5, FIGHTER_WIDTH * 0.42, 11, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
+    }
+
+    if (f.state === 'grabbed') {
+      const struggle = Math.sin(performance.now() / 70) * 0.035;
+      ctx.translate(f.centerX, f.y + FIGHTER_HEIGHT * 0.52);
+      ctx.rotate(struggle);
+      ctx.translate(-f.centerX, -(f.y + FIGHTER_HEIGHT * 0.52));
     }
 
     if (img) {
@@ -1237,6 +1297,7 @@ export class GameEngine {
     }
 
     ctx.restore();
+    if (f.state === 'grabbed') this.renderGrabStruggle(f);
     // State icon above head
     const icon = f.state === 'grabbed' ? '😱'
                : f.state === 'thrown'  ? '💨'
@@ -1389,6 +1450,76 @@ export class GameEngine {
       ctx.beginPath();
       ctx.arc(cx, cy, 50, t * 8, t * 8 + Math.PI * 1.55);
       ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  private renderDominionStance(f: Fighter) {
+    if (!f.hasDominionStyle) return;
+    const intensity = f.dominionStanceBlend;
+    if (intensity < 0.04) return;
+
+    const { ctx } = this;
+    const t = performance.now() / 1000;
+    const cx = f.centerX;
+    const cy = f.y + FIGHTER_HEIGHT * 0.52;
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha = 0.10 + intensity * 0.18;
+    const aura = ctx.createRadialGradient(cx, cy, 10, cx, cy, 90);
+    aura.addColorStop(0, 'rgba(240,220,255,0.52)');
+    aura.addColorStop(0.40, 'rgba(142,42,230,0.27)');
+    aura.addColorStop(1, 'rgba(48,0,94,0)');
+    ctx.fillStyle = aura;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 82, 66, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Slow, vertical shadow bands keep the stance imposing rather than frantic.
+    for (let i = 0; i < 3; i++) {
+      const x = cx + (i - 1) * 32 + Math.sin(t * 1.8 + i) * 5;
+      ctx.globalAlpha = 0.22 + intensity * 0.12;
+      ctx.strokeStyle = i === 1 ? '#e5c9ff' : '#923eff';
+      ctx.shadowColor = '#7c22d5';
+      ctx.shadowBlur = 15;
+      ctx.lineWidth = 2.7;
+      ctx.beginPath();
+      ctx.moveTo(x, cy + 38);
+      ctx.quadraticCurveTo(x + Math.sin(t * 2 + i) * 10, cy, x + (i - 1) * 8, cy - 52);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  private renderGrabStruggle(f: Fighter) {
+    if (!f.grabbedBy) return;
+    const { ctx } = this;
+    const holder = f.grabbedBy;
+    const t = performance.now() / 1000;
+    const shoulderY = f.y + FIGHTER_HEIGHT * 0.30;
+    const handY = holder.y + FIGHTER_HEIGHT * 0.35;
+    const dir = holder.centerX > f.centerX ? 1 : -1;
+
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = '#effaff';
+    ctx.shadowColor = '#bcdfff';
+    ctx.shadowBlur = 7;
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    for (const arm of [-1, 1]) {
+      const sx = f.centerX + arm * FIGHTER_WIDTH * 0.20;
+      const elbowX = f.centerX + dir * 24 + arm * 18 + Math.sin(t * 12 + arm) * 4;
+      const elbowY = shoulderY + 38 + Math.sin(t * 10 + arm) * 5;
+      const handX = holder.centerX - dir * FIGHTER_WIDTH * 0.22;
+      ctx.beginPath();
+      ctx.moveTo(sx, shoulderY);
+      ctx.quadraticCurveTo(elbowX, elbowY, handX, handY);
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(handX, handY, 5, 0, Math.PI * 2);
+      ctx.fill();
     }
     ctx.restore();
   }

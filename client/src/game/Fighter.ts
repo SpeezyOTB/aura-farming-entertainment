@@ -100,6 +100,7 @@ export class Fighter {
   readonly hasIcarusStyle: boolean;
   readonly hasAphroditeStyle: boolean;
   readonly hasTempestStyle: boolean;
+  readonly hasDominionStyle: boolean;
 
   // ── Ryu: Icarus fighting style ─────────────────────────────
   // Ryu settles into a low guard between exchanges, then converts that coiled
@@ -108,6 +109,7 @@ export class Fighter {
   icarusStanceBlend = 0;
   aphroditeStanceBlend = 0;
   tempestStanceBlend = 0;
+  dominionStanceBlend = 0;
   attackVariant: 'normal' | 'icarus-jab' | 'phoenix-heel' | 'skybreaker' | 'ashen-sweep' | 'rose-jab' | 'petal-kick' | 'venus-spin' | 'silk-sweep' | 'wind-jab' | 'tempest-kick' | 'cyclone-wheel' | 'reed-sweep' | 'tempest-counter' = 'normal';
   comboDamageOverride: number | null = null;
 
@@ -119,6 +121,9 @@ export class Fighter {
   lightningBarrierActive = false;
   lightningBarrierCooldown = 0;
   grabTarget: Fighter | null = null;  // Shuraku grab target
+  grabbedBy: Fighter | null = null;
+  grappleSqueezeApplied = false;
+  grappleStruggleTimer = 0;
   throwTimer = 0;
   tornadoActive = false;
   tornadoTimer = 0;
@@ -171,6 +176,7 @@ export class Fighter {
     this.hasIcarusStyle = cfg.hasIcarusStyle ?? false;
     this.hasAphroditeStyle = cfg.hasAphroditeStyle ?? false;
     this.hasTempestStyle = cfg.hasTempestStyle ?? false;
+    this.hasDominionStyle = cfg.hasDominionStyle ?? false;
     this.initHairAndCloth();
   }
 
@@ -477,6 +483,9 @@ export class Fighter {
     this.lightningBarrierTimer = 0;
     this.lightningBarrierCooldown = 0;
     this.grabTarget = null;
+    this.grabbedBy = null;
+    this.grappleSqueezeApplied = false;
+    this.grappleStruggleTimer = 0;
     this.teleportCooldown = 0;
     this.teleportPhase = 'none';
     this.teleportTimer = 0;
@@ -485,6 +494,7 @@ export class Fighter {
     this.icarusStanceBlend = 0;
     this.aphroditeStanceBlend = 0;
     this.tempestStanceBlend = 0;
+    this.dominionStanceBlend = 0;
     this.tempestGuardTimer = 0;
     this.tempestGuardCooldown = 0;
     this.attackVariant = 'normal';
@@ -649,6 +659,7 @@ export class Fighter {
     }
     if (this.tempestGuardTimer > 0) this.tempestGuardTimer -= dt;
     if (this.tempestGuardCooldown > 0) this.tempestGuardCooldown -= dt;
+    if (this.grappleStruggleTimer > 0) this.grappleStruggleTimer -= dt;
 
     // ── Projectile movement ────────────────────────────────
     this.projectiles = this.projectiles.filter(p => {
@@ -691,6 +702,13 @@ export class Fighter {
     const tempestTarget = canSettleIntoTempest ? 1 : 0;
     const tempestSpeed = canSettleIntoTempest ? 8.5 : 13;
     this.tempestStanceBlend += (tempestTarget - this.tempestStanceBlend) * Math.min(1, dt * tempestSpeed);
+
+    // Shuraku stands tall and almost motionless, projecting confidence in close-range exchanges.
+    const canSettleIntoDominion = this.hasDominionStyle && this.isOnGround
+      && (this.state === 'idle' || this.state === 'walk') && !this.isBlocking;
+    const dominionTarget = canSettleIntoDominion ? 1 : 0;
+    const dominionSpeed = canSettleIntoDominion ? 5.4 : 10;
+    this.dominionStanceBlend += (dominionTarget - this.dominionStanceBlend) * Math.min(1, dt * dominionSpeed);
 
     // Boost tick
     if (this.boostActive) {
@@ -1038,12 +1056,16 @@ export class Fighter {
 
   grab(target: Fighter): boolean {
     if (!this.hasGrab || !this.canAttack() || !this.isOnGround) return false;
-    if (Math.abs(this.centerX - target.centerX) > 120) return false; // must be close
+    if (Math.abs(this.centerX - target.centerX) > 135) return false; // must be close
     this.state = 'grab';
-    this.stateTimer = 0.4;
+    this.stateTimer = 0.95;
     this.grabTarget = target;
+    this.grappleSqueezeApplied = false;
     target.state = 'grabbed';
-    target.stateTimer = 0.4;
+    target.stateTimer = 0.95;
+    target.grabbedBy = this;
+    target.grappleStruggleTimer = 0.95;
+    target.vx = 0;
     return true;
   }
 
@@ -1056,7 +1078,10 @@ export class Fighter {
     target.vy = -400;
     target.isOnGround = false;
     target.stateTimer = 1.0;
+    target.grabbedBy = null;
+    target.grappleStruggleTimer = 0;
     this.grabTarget = null;
+    this.grappleSqueezeApplied = false;
     this.state = 'idle';
   }
 

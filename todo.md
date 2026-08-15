@@ -7,3 +7,7 @@
 - [x] Review Kai's existing combat configuration and available move hooks.
 - [x] Implement Kai's disciplined martial-artist stance, precision footwork, counters, and Tempest move variations.
 - [x] Test Kai's spectator combat profile and validate the production build, then publish the change.
+- [x] Review Shuraku's existing grab mechanics, render hooks, and CPU behavior.
+- [x] Add Shuraku's arrogant powerhouse stance and stylized grapple sequence.
+- [x] Add the grabbed opponent's visible struggle reaction and limit CPU Shuraku to three grapples per match.
+- [x] Test Shuraku's spectator combat profile and validate the production build, then publish the change.

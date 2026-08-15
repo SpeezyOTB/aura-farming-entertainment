@@ -12,6 +12,7 @@ export class CpuAI {
   private blockTimer = 0;
   private comboCount = 0;
   private reactionCooldown = 0;
+  private shurakuGrapplesUsed = 0;
 
   constructor(personality: Personality = 'ryu') {
     this.personality = personality;
@@ -21,6 +22,7 @@ export class CpuAI {
     this.startDelay = 0.7 + Math.random() * 0.6;
     this.actionTimer = 0; this.pauseTimer = 0;
     this.blockTimer = 0; this.comboCount = 0; this.reactionCooldown = 0;
+    this.shurakuGrapplesUsed = 0;
   }
 
   update(cpu: Fighter, opp: Fighter, dt: number) {
@@ -205,7 +207,7 @@ export class CpuAI {
     }
   }
 
-  // ── SHURAKU: patient, punishes mistakes, shadow barrier, grab ────────────
+  // ── SHURAKU: arrogant spacing, brutal punishers, and a three-use grapple cap ──
   private updateShuraku(cpu: Fighter, opp: Fighter,
     dist: number, attackRange: number, closeRange: number, goLeft: boolean) {
     const r = Math.random();
@@ -214,14 +216,21 @@ export class CpuAI {
       goLeft ? cpu.moveLeft(0.016) : cpu.moveRight(0.016);
       if (r < 0.10) { (cpu as any).activateShadowBarrier?.(); this.pauseTimer = 0.5; }
     } else if (dist <= closeRange) {
-      if (oppLowHealth && r < 0.25) {
+      if (this.shurakuGrapplesUsed < 3 && !opp.isBlocking && r < 0.18) {
+        if (cpu.grab(opp)) {
+          this.shurakuGrapplesUsed += 1;
+          this.pauseTimer = 1.0;
+          return;
+        }
+      }
+      if (oppLowHealth && r < 0.30) {
         cpu.punch(); this.pauseTimer = 0.15;
         setTimeout(() => cpu.kick(), 120);
-      } else if (r < 0.38) {
+      } else if (r < 0.46) {
         cpu.punch(); this.pauseTimer = 0.42 + Math.random() * 0.2;
-      } else if (r < 0.55) {
+      } else if (r < 0.66) {
         cpu.kick(); this.pauseTimer = 0.48 + Math.random() * 0.25;
-      } else if (r < 0.68) {
+      } else if (r < 0.80) {
         (cpu as any).backJump?.() || cpu.tryDash(goLeft ? 'right' : 'left', performance.now()/1000);
         this.pauseTimer = 0.6 + Math.random() * 0.4;
       } else { this.pauseTimer = 0.4 + Math.random() * 0.3; }
