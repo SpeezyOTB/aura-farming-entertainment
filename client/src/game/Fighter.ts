@@ -99,6 +99,7 @@ export class Fighter {
   readonly hasTeleport: boolean;
   readonly hasIcarusStyle: boolean;
   readonly hasAphroditeStyle: boolean;
+  readonly hasTempestStyle: boolean;
 
   // ── Ryu: Icarus fighting style ─────────────────────────────
   // Ryu settles into a low guard between exchanges, then converts that coiled
@@ -106,7 +107,8 @@ export class Fighter {
   // not a defensive invulnerability state.
   icarusStanceBlend = 0;
   aphroditeStanceBlend = 0;
-  attackVariant: 'normal' | 'icarus-jab' | 'phoenix-heel' | 'skybreaker' | 'ashen-sweep' | 'rose-jab' | 'petal-kick' | 'venus-spin' | 'silk-sweep' = 'normal';
+  tempestStanceBlend = 0;
+  attackVariant: 'normal' | 'icarus-jab' | 'phoenix-heel' | 'skybreaker' | 'ashen-sweep' | 'rose-jab' | 'petal-kick' | 'venus-spin' | 'silk-sweep' | 'wind-jab' | 'tempest-kick' | 'cyclone-wheel' | 'reed-sweep' | 'tempest-counter' = 'normal';
   comboDamageOverride: number | null = null;
 
   // ── Ability state ─────────────────────────────────────────
@@ -120,6 +122,8 @@ export class Fighter {
   throwTimer = 0;
   tornadoActive = false;
   tornadoTimer = 0;
+  tempestGuardTimer = 0;
+  tempestGuardCooldown = 0;
   // Galva lightning teleport
   teleportCooldown = 0;     // 15s cooldown
   teleportPhase: 'none' | 'vanish' | 'reappear' = 'none';
@@ -166,6 +170,7 @@ export class Fighter {
     this.hasTeleport = cfg.hasTeleport ?? false;
     this.hasIcarusStyle = cfg.hasIcarusStyle ?? false;
     this.hasAphroditeStyle = cfg.hasAphroditeStyle ?? false;
+    this.hasTempestStyle = cfg.hasTempestStyle ?? false;
     this.initHairAndCloth();
   }
 
@@ -304,6 +309,7 @@ export class Fighter {
     this.comboDamageOverride = null;
     this.attackVariant = this.hasIcarusStyle && this.isOnGround && this.icarusStanceBlend > 0.25 ? 'icarus-jab'
       : this.hasAphroditeStyle && this.isOnGround && this.aphroditeStanceBlend > 0.18 ? 'rose-jab'
+      : this.hasTempestStyle && this.isOnGround && this.tempestStanceBlend > 0.18 ? 'wind-jab'
       : 'normal';
     if (this.attackVariant === 'icarus-jab') {
       this.vx += (this.facingRight ? 1 : -1) * 85;
@@ -312,6 +318,10 @@ export class Fighter {
     if (this.attackVariant === 'rose-jab') {
       this.vx += (this.facingRight ? 1 : -1) * 60;
       this.spawnAphroditePetals(5, '#ff79be');
+    }
+    if (this.attackVariant === 'wind-jab') {
+      this.vx += (this.facingRight ? 1 : -1) * 50;
+      this.spawnTempestWind(4, '#b9f5ff');
     }
     return true;
   }
@@ -324,9 +334,11 @@ export class Fighter {
     this.comboDamageOverride = null;
     this.attackVariant = this.hasIcarusStyle && this.isOnGround ? 'phoenix-heel'
       : this.hasAphroditeStyle && this.isOnGround ? 'petal-kick'
+      : this.hasTempestStyle && this.isOnGround ? 'tempest-kick'
       : 'normal';
     if (this.attackVariant === 'phoenix-heel') this.spawnIcarusEmbers(4, '#ffb11b');
     if (this.attackVariant === 'petal-kick') this.spawnAphroditePetals(5, '#ff6fae');
+    if (this.attackVariant === 'tempest-kick') this.spawnTempestWind(6, '#8ceeff');
     return true;
   }
 
@@ -338,7 +350,7 @@ export class Fighter {
     this.attackPhase = 'startup';
     this.attackLanded = false;
     this.comboDamageOverride = null;
-    this.attackVariant = this.hasIcarusStyle ? 'skybreaker' : this.hasAphroditeStyle ? 'venus-spin' : 'normal';
+    this.attackVariant = this.hasIcarusStyle ? 'skybreaker' : this.hasAphroditeStyle ? 'venus-spin' : this.hasTempestStyle ? 'cyclone-wheel' : 'normal';
     if (this.attackVariant === 'skybreaker') {
       this.vx += (this.facingRight ? 1 : -1) * 125;
       this.spawnIcarusEmbers(10, '#ff6b1a');
@@ -346,6 +358,10 @@ export class Fighter {
     if (this.attackVariant === 'venus-spin') {
       this.vx += (this.facingRight ? 1 : -1) * 90;
       this.spawnAphroditePetals(12, '#ff4da0');
+    }
+    if (this.attackVariant === 'cyclone-wheel') {
+      this.vx += (this.facingRight ? 1 : -1) * 105;
+      this.spawnTempestWind(12, '#6de4ff');
     }
     return true;
   }
@@ -358,9 +374,10 @@ export class Fighter {
     this.attackPhase = 'startup';
     this.attackLanded = false;
     this.comboDamageOverride = null;
-    this.attackVariant = this.hasIcarusStyle ? 'ashen-sweep' : this.hasAphroditeStyle ? 'silk-sweep' : 'normal';
+    this.attackVariant = this.hasIcarusStyle ? 'ashen-sweep' : this.hasAphroditeStyle ? 'silk-sweep' : this.hasTempestStyle ? 'reed-sweep' : 'normal';
     if (this.attackVariant === 'ashen-sweep') this.spawnIcarusEmbers(8, '#ff8a24');
     if (this.attackVariant === 'silk-sweep') this.spawnAphroditePetals(8, '#ffc0e6');
+    if (this.attackVariant === 'reed-sweep') this.spawnTempestWind(8, '#9cf2ff');
     return true;
   }
 
@@ -467,6 +484,9 @@ export class Fighter {
     this.chargedAttackType = null;
     this.icarusStanceBlend = 0;
     this.aphroditeStanceBlend = 0;
+    this.tempestStanceBlend = 0;
+    this.tempestGuardTimer = 0;
+    this.tempestGuardCooldown = 0;
     this.attackVariant = 'normal';
     this.comboDamageOverride = null;
     this.hairStrands.forEach(s => { s.vx = 0; s.vy = 0; });
@@ -483,6 +503,10 @@ export class Fighter {
       const petals = this.attackVariant === 'venus-spin' ? 16 : 8;
       const pink = this.attackVariant === 'silk-sweep' ? '#ffd1ec' : '#ff65ad';
       this.spawnAphroditePetals(petals, pink);
+    }
+    if (this.hasTempestStyle && this.attackVariant !== 'normal') {
+      const gusts = this.attackVariant === 'cyclone-wheel' ? 16 : this.attackVariant === 'tempest-counter' ? 14 : 8;
+      this.spawnTempestWind(gusts, this.attackVariant === 'tempest-counter' ? '#ffffff' : '#8deeff');
     }
     if (this.boostActive || this.boostCooldown > 0) return;
     this.consecutiveHits += 1;
@@ -547,6 +571,24 @@ export class Fighter {
     }
   }
 
+  // Kai's controlled wind trails reflect disciplined footwork instead of raw force.
+  spawnTempestWind(count: number, color: string) {
+    if (!this.hasTempestStyle) return;
+    const forward = this.facingRight ? 1 : -1;
+    for (let i = 0; i < count; i++) {
+      this.particles.push({
+        x: this.x + FIGHTER_WIDTH * (0.22 + Math.random() * 0.56),
+        y: this.y + FIGHTER_HEIGHT * (0.18 + Math.random() * 0.62),
+        vx: forward * (45 + Math.random() * 130) + (Math.random() - 0.5) * 100,
+        vy: -35 - Math.random() * 145,
+        life: 0.20 + Math.random() * 0.28,
+        maxLife: 0.48,
+        size: 3 + Math.random() * 5,
+        color,
+      });
+    }
+  }
+
   spawnDashDust(dir: 'left' | 'right') {
     const cx = this.x + FIGHTER_WIDTH / 2;
     const gy = GROUND_Y;
@@ -605,6 +647,8 @@ export class Fighter {
       this.tornadoTimer -= dt;
       if (this.tornadoTimer <= 0) { this.tornadoActive = false; this.tornadoTimer = 0; }
     }
+    if (this.tempestGuardTimer > 0) this.tempestGuardTimer -= dt;
+    if (this.tempestGuardCooldown > 0) this.tempestGuardCooldown -= dt;
 
     // ── Projectile movement ────────────────────────────────
     this.projectiles = this.projectiles.filter(p => {
@@ -641,6 +685,12 @@ export class Fighter {
     const aphroditeTarget = canSettleIntoAphrodite ? 1 : 0;
     const aphroditeSpeed = canSettleIntoAphrodite ? 7.5 : 12;
     this.aphroditeStanceBlend += (aphroditeTarget - this.aphroditeStanceBlend) * Math.min(1, dt * aphroditeSpeed);
+
+    const canSettleIntoTempest = this.hasTempestStyle && this.isOnGround
+      && (this.state === 'idle' || this.state === 'walk') && !this.isBlocking;
+    const tempestTarget = canSettleIntoTempest ? 1 : 0;
+    const tempestSpeed = canSettleIntoTempest ? 8.5 : 13;
+    this.tempestStanceBlend += (tempestTarget - this.tempestStanceBlend) * Math.min(1, dt * tempestSpeed);
 
     // Boost tick
     if (this.boostActive) {
@@ -956,6 +1006,22 @@ export class Fighter {
     this.state = 'special';
     this.stateTimer = 2.0;
     return true;
+  }
+
+  // Kai's high-skill special: a brief counter window with a modest cooldown.
+  activateTempestGuard(): boolean {
+    if (!this.hasTempestStyle || this.tempestGuardTimer > 0 || this.tempestGuardCooldown > 0 || !this.canAttack()) return false;
+    this.tempestGuardTimer = 0.30;
+    this.tempestGuardCooldown = 2.2;
+    this.state = 'special';
+    this.stateTimer = 0.30;
+    this.attackVariant = 'tempest-counter';
+    this.spawnTempestWind(9, '#d7faff');
+    return true;
+  }
+
+  isTempestGuarding() {
+    return this.hasTempestStyle && this.tempestGuardTimer > 0;
   }
 
   // ── Ability: Aerial Kick (high jump + kick) ───────────────

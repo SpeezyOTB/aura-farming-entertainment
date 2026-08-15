@@ -41,6 +41,7 @@ export interface FighterConfig {
   hasTeleport?: boolean;          // Galva lightning teleport
   hasIcarusStyle?: boolean;       // Ryu: Icarus guard stance, flame trails, signature finishers
   hasAphroditeStyle?: boolean;    // Akari: evasive stance, petal energy, spinning finishers
+  hasTempestStyle?: boolean;      // Kai: precision martial-artist stance, counter guard, wind finishers
 }
 
 export interface GameState {

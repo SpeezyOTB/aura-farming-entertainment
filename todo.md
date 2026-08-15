@@ -4,3 +4,6 @@
 - [x] Update Play Demo links to use the merged local game route.
 - [x] Verify game loading, controls, audio, and route behavior locally.
 - [ ] Commit and push the merged project to GitHub for Netlify deployment.
+- [x] Review Kai's existing combat configuration and available move hooks.
+- [x] Implement Kai's disciplined martial-artist stance, precision footwork, counters, and Tempest move variations.
+- [x] Test Kai's spectator combat profile and validate the production build, then publish the change.

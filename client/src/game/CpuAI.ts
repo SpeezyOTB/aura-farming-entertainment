@@ -168,32 +168,40 @@ export class CpuAI {
     }
   }
 
-  // ── KAI: quick dashes, aerial attacks, tornado special ───────────────────
-  private updateKai(cpu: Fighter, _opp: Fighter,
+  // ── KAI: disciplined spacing, precise counters, controlled Tempest finishers ──
+  private updateKai(cpu: Fighter, opp: Fighter,
     dist: number, attackRange: number, closeRange: number, goLeft: boolean) {
     const r = Math.random();
+    if (opp.isAttacking && dist <= attackRange + 35 && r < 0.48) {
+      if (cpu.activateTempestGuard()) {
+        this.pauseTimer = 0.34;
+        return;
+      }
+    }
     if (dist > attackRange + 50) {
-      if (r < 0.30) { cpu.tryDash(goLeft ? 'left' : 'right', performance.now()/1000); this.pauseTimer = 0.15; }
-      else { goLeft ? cpu.moveLeft(0.016) : cpu.moveRight(0.016); }
+      if (r < 0.18) { cpu.tryDash(goLeft ? 'left' : 'right', performance.now()/1000); this.pauseTimer = 0.15; }
+      else { goLeft ? cpu.moveLeft(0.016) : cpu.moveRight(0.016); this.pauseTimer = 0.08; }
     } else if (dist <= closeRange) {
-      if (r < 0.28) {
-        (cpu as any).forwardJump?.() || cpu.jump(); this.pauseTimer = 0.3;
-        setTimeout(() => cpu.kick(), 180);
-      } else if (r < 0.50) {
-        cpu.punch(); this.actionTimer = 0.20; this.comboCount++;
-        if (this.comboCount >= 3) { this.comboCount = 0; this.pauseTimer = 0.5 + Math.random() * 0.3; }
-      } else if (r < 0.65) {
-        cpu.kick(); this.comboCount = 0; this.pauseTimer = 0.35 + Math.random() * 0.2;
-      } else if (r < 0.75) {
-        (cpu as any).activateTornado?.(); this.pauseTimer = 0.8;
+      if (r < 0.20) {
+        cpu.backdash(); this.pauseTimer = 0.24;
+      } else if (r < 0.48) {
+        cpu.punch(); this.actionTimer = 0.18; this.comboCount++;
+        if (this.comboCount >= 3) { this.comboCount = 0; this.pauseTimer = 0.34; }
+      } else if (r < 0.66) {
+        cpu.roundhouse(); this.comboCount = 0; this.pauseTimer = 0.42;
+      } else if (r < 0.80) {
+        cpu.sweep(); this.comboCount = 0; this.pauseTimer = 0.40;
+      } else if (cpu.boostActive && r < 0.92) {
+        cpu.activateTornado(); this.pauseTimer = 0.65;
       } else {
-        (cpu as any).backJump?.() || cpu.tryDash(goLeft ? 'right' : 'left', performance.now()/1000);
-        this.pauseTimer = 0.4 + Math.random() * 0.3; this.comboCount = 0;
+        (cpu as any).forwardJump?.() || cpu.jump(); this.pauseTimer = 0.28;
+        setTimeout(() => cpu.kick(), 150);
       }
     } else {
-      if (r < 0.55) { goLeft ? cpu.moveLeft(0.016) : cpu.moveRight(0.016); }
-      else if (r < 0.70) { cpu.punch(); this.pauseTimer = 0.3; }
-      else { this.pauseTimer = 0.25; }
+      if (r < 0.48) { goLeft ? cpu.moveLeft(0.016) : cpu.moveRight(0.016); }
+      else if (r < 0.66) { cpu.punch(); this.pauseTimer = 0.28; }
+      else if (r < 0.80) { cpu.roundhouse(); this.pauseTimer = 0.34; }
+      else { this.pauseTimer = 0.22; }
     }
   }
 

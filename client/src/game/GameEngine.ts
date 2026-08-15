@@ -325,9 +325,12 @@ export class GameEngine {
     if (p1Block) p1.startBlock(); else p1.stopBlock();
     // P1 get-up from prone (X key)
     if (input.wasPressed('KeyX')) p1.tryGetUp();
-    // E key: Galva teleport (or other specials)
+    // E key / gamepad special: character-specific special moves.
     if (input.wasPressed('KeyE') || (gp1?.specialJust ?? false)) {
-      if ((p1 as any).activateTeleport) {
+      if (p1.hasTempestStyle) {
+        const specialUsed = p1.boostActive ? p1.activateTornado() : p1.activateTempestGuard();
+        if (specialUsed) this.sound.play('tornado-whoosh', 0.72);
+      } else if ((p1 as any).activateTeleport) {
         const opp = this.p1 === p1 ? this.p2 : this.p1;
         if ((p1 as any).activateTeleport(opp)) {
           this.sound.play('galva-teleport-vanish', 0.9);
@@ -390,6 +393,15 @@ export class GameEngine {
       if (p2Block) p2.startBlock(); else p2.stopBlock();
       // P2 get-up from prone (M key)
       if (input.wasPressed('KeyM')) p2.tryGetUp();
+      if (input.wasPressed('KeyP') || (gp2?.specialJust ?? false)) {
+        if (p2.hasTempestStyle) {
+          const specialUsed = p2.boostActive ? p2.activateTornado() : p2.activateTempestGuard();
+          if (specialUsed) this.sound.play('tornado-whoosh', 0.72);
+        } else if ((p2 as any).activateTeleport) {
+          const opp = this.p2 === p2 ? this.p1 : this.p2;
+          if ((p2 as any).activateTeleport(opp)) this.sound.play('galva-teleport-vanish', 0.9);
+        }
+      }
     }
   }
 
@@ -464,6 +476,27 @@ export class GameEngine {
         if (Math.random() < 0.4) this.sound.play('miss-whoosh', 0.3);
       }
       if (rectsOverlap(atk, body)) {
+        // Kai's Tempest Guard is a narrow, timing-based parry. It trades no armor
+        // for a guaranteed close-range counter if the player reads an incoming hit.
+        if (defender.isTempestGuarding()) {
+          defender.tempestGuardTimer = 0;
+          defender.state = 'kick';
+          defender.stateTimer = 0.34;
+          defender.attackPhase = 'active';
+          defender.attackLanded = false;
+          defender.attackVariant = 'tempest-counter';
+          defender.vx += (defender.facingRight ? 1 : -1) * 95;
+          defender.spawnTempestWind(16, '#e2fbff');
+          attacker.state = 'hit';
+          attacker.stateTimer = 0.48;
+          attacker.vx = (attacker.centerX > defender.centerX ? 1 : -1) * 280;
+          attacker.hitFlash = 0.16;
+          defender.onAttackLanded();
+          this.sound.play('tornado-whoosh', 0.78);
+          this.sound.play('block-impact', 0.85);
+          this.triggerImpact(true);
+          return;
+        }
         const isKick = attacker.state === 'kick' || attacker.state === 'airkick'
           || attacker.state === 'roundhouse' || attacker.state === 'sweep';
         const isRoundhouse = attacker.state === 'roundhouse';
@@ -479,6 +512,11 @@ export class GameEngine {
         if (attacker.attackVariant === 'petal-kick') base += 1;
         if (attacker.attackVariant === 'venus-spin') base += 2;
         if (attacker.attackVariant === 'silk-sweep') base += 1;
+        if (attacker.attackVariant === 'wind-jab') base += 1;
+        if (attacker.attackVariant === 'tempest-kick') base += 1;
+        if (attacker.attackVariant === 'cyclone-wheel') base += 2;
+        if (attacker.attackVariant === 'reed-sweep') base += 1;
+        if (attacker.attackVariant === 'tempest-counter') base += 2;
         const isCharged = attacker.isChargingAttack && attacker.chargedAttackType === (isKick ? 'kick' : 'punch');
         // Sweep always trips opponent into prone; roundhouse has 1.5x knockback
         if (isSweep && !defender.isBlocking) {
@@ -499,7 +537,7 @@ export class GameEngine {
           this.sound.playRandom(['kick-impact','kick-impact2','kick-impact3'], 0.85);
           // Sparks
           const bdy = defender.getBodyRect();
-          const sweepColor = attacker.hasIcarusStyle ? '#ff7918' : attacker.hasAphroditeStyle ? '#ffc0e6' : '#fff';
+          const sweepColor = attacker.hasIcarusStyle ? '#ff7918' : attacker.hasAphroditeStyle ? '#ffc0e6' : attacker.hasTempestStyle ? '#9cf2ff' : '#fff';
           for (let i = 0; i < 12; i++) this.sparks.push({ x: bdy.x + bdy.w/2 + (Math.random()-0.5)*30, y: bdy.y + bdy.h*0.8 + (Math.random()-0.5)*10, ttl: 0.2+Math.random()*0.2, color: sweepColor, size: 4+Math.random()*8 });
           attacker.comboDamageOverride = null;
           return; // skip normal receiveHit
@@ -554,8 +592,9 @@ export class GameEngine {
           const col = attacker.boostActive ? attacker.energyColor
             : attacker.hasIcarusStyle ? '#ff7a18'
             : attacker.hasAphroditeStyle ? '#ff65ad'
+            : attacker.hasTempestStyle ? '#8deeff'
             : '#fff';
-          const sparkCount = attacker.attackVariant === 'skybreaker' || attacker.attackVariant === 'venus-spin' ? 16 : 8;
+          const sparkCount = attacker.attackVariant === 'skybreaker' || attacker.attackVariant === 'venus-spin' || attacker.attackVariant === 'cyclone-wheel' || attacker.attackVariant === 'tempest-counter' ? 16 : 8;
           for (let i = 0; i < sparkCount; i++) {
             this.sparks.push({
               x: cx + (Math.random()-0.5)*30,
@@ -597,6 +636,12 @@ export class GameEngine {
           : step.type === 'sweep' ? 'silk-sweep'
           : step.type === 'kick' ? 'petal-kick'
           : step.type === 'punch' ? 'rose-jab'
+          : 'normal';
+      } else if (attacker.hasTempestStyle) {
+        attacker.attackVariant = step.type === 'roundhouse' ? 'cyclone-wheel'
+          : step.type === 'sweep' ? 'reed-sweep'
+          : step.type === 'kick' ? 'tempest-kick'
+          : step.type === 'punch' ? 'wind-jab'
           : 'normal';
       }
       if (isAir && !attacker.isOnGround) {
@@ -880,6 +925,8 @@ export class GameEngine {
     this.renderIcarusStance(this.p2);
     this.renderAphroditeStance(this.p1);
     this.renderAphroditeStance(this.p2);
+    this.renderTempestStance(this.p1);
+    this.renderTempestStance(this.p2);
 
     // Fighters
     this.renderFighter(this.p1, this.p1Image);
@@ -1156,9 +1203,10 @@ export class GameEngine {
     const squashT = f.squashTimer > 0 ? f.squashTimer / 0.06 : 0;
     const icarusStance = f.hasIcarusStyle ? f.icarusStanceBlend : 0;
     const aphroditeStance = f.hasAphroditeStyle ? f.aphroditeStanceBlend : 0;
-    const scaleX = 1 + squashT * 0.14 + icarusStance * 0.025 - aphroditeStance * 0.02;
-    const scaleY = 1 - squashT * 0.11 - icarusStance * 0.045 + aphroditeStance * 0.018;
-    const stanceY = icarusStance * 6 - aphroditeStance * 2;
+    const tempestStance = f.hasTempestStyle ? f.tempestStanceBlend : 0;
+    const scaleX = 1 + squashT * 0.14 + icarusStance * 0.025 - aphroditeStance * 0.02 - tempestStance * 0.015;
+    const scaleY = 1 - squashT * 0.11 - icarusStance * 0.045 + aphroditeStance * 0.018 + tempestStance * 0.024;
+    const stanceY = icarusStance * 6 - aphroditeStance * 2 + tempestStance * 2;
 
     // Contact shadow anchors transparent sprites to the stone stage.
     if (f.isOnGround && f.state !== 'ko') {
@@ -1291,6 +1339,56 @@ export class GameEngine {
       ctx.ellipse(0, 0, 7, 3.5, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  private renderTempestStance(f: Fighter) {
+    if (!f.hasTempestStyle) return;
+    const intensity = Math.max(f.tempestStanceBlend, f.attackVariant === 'normal' ? 0 : 0.72);
+    if (intensity < 0.04) return;
+
+    const { ctx } = this;
+    const t = performance.now() / 1000;
+    const cx = f.x + FIGHTER_WIDTH / 2;
+    const cy = f.y + FIGHTER_HEIGHT * 0.58;
+    const forward = f.facingRight ? 1 : -1;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha = 0.12 + 0.16 * intensity;
+    const glow = ctx.createRadialGradient(cx, cy, 8, cx, cy, 78);
+    glow.addColorStop(0, 'rgba(232,253,255,0.78)');
+    glow.addColorStop(0.42, 'rgba(98,222,255,0.30)');
+    glow.addColorStop(1, 'rgba(43,161,255,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 72, 52, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Three narrow wind lines give Kai a compact, forward-ready silhouette.
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 3; i++) {
+      const y = cy - 24 + i * 21;
+      const drift = Math.sin(t * 7 + i * 1.7) * 8;
+      ctx.strokeStyle = i === 1 ? '#e6fdff' : '#77e7ff';
+      ctx.shadowColor = '#55dfff';
+      ctx.shadowBlur = 13;
+      ctx.lineWidth = 2.6 - i * 0.35;
+      ctx.beginPath();
+      ctx.moveTo(cx - forward * 24, y + drift * 0.25);
+      ctx.quadraticCurveTo(cx + forward * 8, y - 10 - drift, cx + forward * (52 + i * 12), y - 4 + drift * 0.35);
+      ctx.stroke();
+    }
+    if (f.isTempestGuarding()) {
+      ctx.globalAlpha = 0.8;
+      ctx.strokeStyle = '#ffffff';
+      ctx.shadowColor = '#aef5ff';
+      ctx.shadowBlur = 24;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 50, t * 8, t * 8 + Math.PI * 1.55);
+      ctx.stroke();
     }
     ctx.restore();
   }

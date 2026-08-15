@@ -84,16 +84,17 @@ const CHARS: Record<string, Omit<FighterConfig, 'id' | 'startX' | 'facingRight'>
   },
   kai: {
     name: 'Kai',
-    title: 'The Spirit of Tempest',
+    title: 'The Tempest Master',
     color: '#60c8ff',
     energyColor: '#a0e8ff',
     spriteUrl: KAI_SPRITE,
     iconUrl: KAI_SPRITE,
-    moveSpeedMult: 1.18,
-    jumpVelocityMult: 1.35,
+    moveSpeedMult: 1.12,
+    jumpVelocityMult: 1.2,
     boostDuration: 25,
     hasAerialKick: true,
     hasTornado: true,
+    hasTempestStyle: true,
   },
   shuraku: {
     name: 'Shuraku',
@@ -639,14 +640,16 @@ export default function FighterGame() {
     setTimeout(tick, 60);
   }, [pollHUD]);
 
-  // Deterministic visual test route used only by ?demo screenshots. It opens a
-  // live Ryu-vs-Akari Spectator match without changing normal player flow.
+  // Deterministic visual test route used only by ?demo screenshots. Adding
+  // ?demo=kai opens a Kai-vs-Akari spectator match for stance verification.
   const demoStarted = useRef(false);
   useEffect(() => {
-    const isDemo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('demo');
+    const demoParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('demo') : null;
+    const isDemo = demoParam !== null;
     if (!isDemo || screen !== 'select' || demoStarted.current) return;
     demoStarted.current = true;
-    const timer = window.setTimeout(() => startFight('ryu', 'akari', 'cvc'), 30);
+    const fighter = demoParam === 'kai' ? 'kai' : 'ryu';
+    const timer = window.setTimeout(() => startFight(fighter, 'akari', 'cvc'), 30);
     return () => window.clearTimeout(timer);
   }, [screen, startFight]);
 
