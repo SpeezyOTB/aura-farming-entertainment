@@ -2,29 +2,23 @@
   command = "pnpm run build"
   publish = "dist/public"
 
-# Dragon Fist X game redirects — all paths go straight to the original game
+# Dragon Fist X game aliases — retain compatibility while keeping gameplay on this site
 [[redirects]]
   from = "/game"
-  to = "https://fightergame-j95rkwu8.manus.space"
-  status = 302
+  to = "/dragonfistx"
+  status = 301
   force = true
 
 [[redirects]]
   from = "/games/dragonfistx"
-  to = "https://fightergame-j95rkwu8.manus.space"
-  status = 302
+  to = "/dragonfistx"
+  status = 301
   force = true
 
 [[redirects]]
-  from = "/dragonfistx"
-  to = "https://fightergame-j95rkwu8.manus.space"
-  status = 302
-  force = true
-
-[[redirects]]
-  from = "/dfx"
-  to = "https://fightergame-j95rkwu8.manus.space"
-  status = 302
+  from = "/dfx/demo"
+  to = "/dragonfistx"
+  status = 301
   force = true
 
 # SPA routing — serve index.html for all other routes

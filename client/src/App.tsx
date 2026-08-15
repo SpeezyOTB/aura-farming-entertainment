@@ -1,12 +1,13 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import ShadowKhan from "./pages/ShadowKhan";
 import DragonFistX from "./pages/DragonFistX";
+import DragonFistXGameLocal from "./pages/DragonFistXGameLocal";
 import DFXDemo from "./pages/DFXDemo";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Navbar from "./components/Navbar";
@@ -18,6 +19,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/shadowkhantcg"} component={ShadowKhan} />
       <Route path={"/dfx"} component={DragonFistX} />
+      <Route path={"/dragonfistx"} component={DragonFistXGameLocal} />
       <Route path={"/dfx/demo"} component={DFXDemo} />
       <Route path={"/privacy-policy"} component={PrivacyPolicy} />
       <Route path={"/404"} component={NotFound} />
@@ -27,14 +29,17 @@ function Router() {
 }
 
 function App() {
+  const [location] = useLocation();
+  const isGameRoute = location === "/dragonfistx";
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
-          <Navbar />
+          {!isGameRoute && <Navbar />}
           <Router />
-          <Footer />
+          {!isGameRoute && <Footer />}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
@@ -42,4 +47,3 @@ function App() {
 }
 
 export default App;
-

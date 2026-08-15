@@ -1,0 +1,6 @@
+- [x] Inspect the uploaded Dragon Fist X source archive and identify its build system, assets, and entry point.
+- [x] Decide the lowest-risk integration approach for the Aura Farming React and Netlify deployment.
+- [x] Add the game to the Aura Farming codebase at the `/dragonfistx` route.
+- [x] Update Play Demo links to use the merged local game route.
+- [x] Verify game loading, controls, audio, and route behavior locally.
+- [ ] Commit and push the merged project to GitHub for Netlify deployment.
