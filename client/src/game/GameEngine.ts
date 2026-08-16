@@ -807,10 +807,11 @@ export class GameEngine {
     opponent.energy = 0;
     opponent.vx = direction * (opponent.isBlocking ? 260 : 420);
     if (!opponent.isBlocking && opponent.isAlive) {
-      opponent.state = 'launch';
-      opponent.vy = -360;
+      opponent.state = 'thrown';
+      opponent.vx = direction * 680;
+      opponent.vy = -460;
       opponent.isOnGround = false;
-      opponent.stateTimer = 0.75;
+      opponent.stateTimer = 1.15;
     }
     fighter.onAttackLanded();
     if (!opponent.isAlive) {

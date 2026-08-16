@@ -603,6 +603,17 @@ export default function FighterGame() {
         eng.p1.grab(eng.p2);
       }, 80);
     }
+    if (params.get('showcase') === 'slam' && cfg.p1Key === 'galva') {
+      window.setTimeout(() => {
+        eng.p1.x = 500;
+        eng.p2.x = 650;
+        eng.p1.facingRight = true;
+        eng.p2.facingRight = false;
+        eng.p1.boostActive = true;
+        eng.p1.boostTimer = 2;
+        eng.p1.activateGroundSlam();
+      }, 80);
+    }
     setGameOver(null);
     setCurrentMode(cfg.mode);
     setModeLabel(cfg.mode === 'cpu' ? 'VS CPU' : cfg.mode === 'cvc' ? 'SPECTATOR' : 'VS PLAYER');
@@ -665,7 +676,7 @@ export default function FighterGame() {
     demoStarted.current = true;
     const fighter = demoParam === 'kai' || demoParam === 'shuraku' || demoParam === 'galva' ? demoParam : 'ryu';
     const showcase = new URLSearchParams(window.location.search).get('showcase');
-    const timer = window.setTimeout(() => startFight(fighter, 'akari', showcase === 'grapple' ? 'pvp' : 'cvc'), 30);
+    const timer = window.setTimeout(() => startFight(fighter, 'akari', showcase ? 'pvp' : 'cvc'), 30);
     return () => window.clearTimeout(timer);
   }, [screen, startFight]);
 

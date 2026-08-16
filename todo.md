@@ -26,3 +26,6 @@
 - [x] Inspect Shuraku's existing grapple position updates, throw physics, and prone recovery.
 - [x] Replace the abrupt grapple with staged hold, resistance, pull-in, throw, and impact behavior.
 - [x] Test the staged hold showcase and validate the production build, then publish the corrected animation flow.
+- [x] Map every current unique move from wind-up through recovery, including Galva's ground slam.
+- [x] Repair the confirmed animation gap in Galva's ground slam by adding a throw arc, landing impact, and prone recovery.
+- [x] Test the roster showcase routes and validate the production build for the animation audit update.
