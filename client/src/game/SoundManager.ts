@@ -1,5 +1,6 @@
 // Sound URLs from uploaded assets
 import { ELEVENLABS_ANIME_SFX } from './ElevenLabsAnimeSfx';
+import { DFX_VOICE_LINES } from './DFXVoiceLines';
 
 const SOUNDS: Record<string, string> = {
   'ryu-punch':    ELEVENLABS_ANIME_SFX.approvedPunchWhiff,
@@ -54,7 +55,7 @@ const SOUNDS: Record<string, string> = {
   'footstep7':     ELEVENLABS_ANIME_SFX.actionPlant,
   'footstep8':     ELEVENLABS_ANIME_SFX.actionPlant,
   'footstep9':     ELEVENLABS_ANIME_SFX.actionPlant,
-  'miss-whoosh':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/YHkKsigcoyDXmABQ.wav',
+  'miss-whoosh':   ELEVENLABS_ANIME_SFX.approvedPunchWhiff,
   // ── Hit reaction variants ──────────────────────────────────────────────────
 
 
@@ -68,48 +69,19 @@ const SOUNDS: Record<string, string> = {
 
 
   // ── Hit reaction grunts (g-{char}-{1-7}) ────────────────────────────────────
-  'g-ryu-1':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-ryu-2':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-ryu-3':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-ryu-4':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-ryu-5':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-ryu-6':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-ryu-7':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-akari-1':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-akari-2':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-akari-3':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-akari-4':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-akari-5':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-akari-6':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-akari-7':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-galva-1':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-galva-2':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-galva-3':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-galva-4':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-galva-5':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-galva-6':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-galva-7':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-kai-1':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-kai-2':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-kai-3':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-kai-4':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-kai-5':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-kai-6':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-kai-7':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-shuraku-1': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-shuraku-2': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-shuraku-3': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-shuraku-4': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-shuraku-5': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-shuraku-6': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'g-shuraku-7': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
+  'g-ryu-1': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-ryu-2': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-ryu-3': ELEVENLABS_ANIME_SFX.approvedPunchHit,
+  'g-ryu-4': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-ryu-5': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-ryu-6': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-ryu-7': ELEVENLABS_ANIME_SFX.approvedPunchHit,
+  'g-akari-1': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-akari-2': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-akari-3': ELEVENLABS_ANIME_SFX.approvedPunchHit,
+  'g-akari-4': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-akari-5': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-akari-6': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-akari-7': ELEVENLABS_ANIME_SFX.approvedPunchHit,
+  'g-galva-1': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-galva-2': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-galva-3': ELEVENLABS_ANIME_SFX.approvedPunchHit,
+  'g-galva-4': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-galva-5': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-galva-6': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-galva-7': ELEVENLABS_ANIME_SFX.approvedPunchHit,
+  'g-kai-1': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-kai-2': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-kai-3': ELEVENLABS_ANIME_SFX.approvedPunchHit,
+  'g-kai-4': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-kai-5': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-kai-6': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-kai-7': ELEVENLABS_ANIME_SFX.approvedPunchHit,
+  'g-shuraku-1': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-shuraku-2': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-shuraku-3': ELEVENLABS_ANIME_SFX.approvedPunchHit,
+  'g-shuraku-4': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-shuraku-5': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-shuraku-6': ELEVENLABS_ANIME_SFX.approvedPunchHit, 'g-shuraku-7': ELEVENLABS_ANIME_SFX.approvedPunchHit,
   // ── Extra footsteps ─────────────────────────────────────────────────────────
-  'footstep10':         'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/KAIKDsQycHRMfmeR.wav',
-  'footstep11':         'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/yhKQTdwbcLmksTtP.wav',
-  'footstep12':         'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ByARZwKhTIlhFxDx.wav',
-  'footstep13':         'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/XjYpPVcrtYwudxys.wav',
-  'footstep14':         'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/JCiYDcmpZPmnxeqw.wav',
-  'footstep15':         'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/lLDoPIAUFPXftEYd.wav',
+  'footstep10': ELEVENLABS_ANIME_SFX.actionPlant, 'footstep11': ELEVENLABS_ANIME_SFX.actionPlant, 'footstep12': ELEVENLABS_ANIME_SFX.actionPlant,
+  'footstep13': ELEVENLABS_ANIME_SFX.actionPlant, 'footstep14': ELEVENLABS_ANIME_SFX.actionPlant, 'footstep15': ELEVENLABS_ANIME_SFX.actionPlant,
   'swoosh':        ELEVENLABS_ANIME_SFX.movementDash,
   'swoosh2':       ELEVENLABS_ANIME_SFX.movementDash,
   'swoosh3':       ELEVENLABS_ANIME_SFX.movementDash,
@@ -123,31 +95,26 @@ const SOUNDS: Record<string, string> = {
   'swoosh11':      ELEVENLABS_ANIME_SFX.movementDash,
   'swoosh12':      ELEVENLABS_ANIME_SFX.movementDash,
   'jump':         ELEVENLABS_ANIME_SFX.jumpLaunch,
-  'block':        'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gFWufwqYQLJYGTYz.wav',
+  'block':        ELEVENLABS_ANIME_SFX.approvedPunchBlock,
   'block-impact': ELEVENLABS_ANIME_SFX.approvedPunchBlock,
-  'energy-full':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/WeLchOIoeRrmyeua.wav',
+  'energy-full':  ELEVENLABS_ANIME_SFX.fightStart,
   'ko':           ELEVENLABS_ANIME_SFX.throwLanding,
   'countdown-beep':  ELEVENLABS_ANIME_SFX.countdownTick,
-  'fight-announce':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/WhUMPMQsfaxWyZrP.wav',
-  'ui-click':        'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ooCBEqPDjxLRvUkw.wav',
+  'fight-announce':  ELEVENLABS_ANIME_SFX.fightStart,
+  'ui-click':        ELEVENLABS_ANIME_SFX.uiCharacterSelect,
   'fight-start':     ELEVENLABS_ANIME_SFX.fightStart,
   'dragon-fight':    ELEVENLABS_ANIME_SFX.fightStart,
-  'ryu-win':         'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/vqyAsMemfOSCegMN.wav',
-  'akari-win':       'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/kMQwJezNUdcyBePc.wav',
-  'ryu-lose':        'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/dNeRxDjQcTmbUHaa.wav',
-  'akari-lose':      'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/GgdGSmrMQfKMFDhm.wav',
+  'ryu-win': DFX_VOICE_LINES.ryuWin, 'akari-win': DFX_VOICE_LINES.akariWin,
+  'ryu-lose': DFX_VOICE_LINES.ryuLose, 'akari-lose': DFX_VOICE_LINES.akariLose,
   'galva-punch':   ELEVENLABS_ANIME_SFX.approvedPunchWhiff,
   'galva-kick':    ELEVENLABS_ANIME_SFX.approvedKickWhiff,
-  'galva-win':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/jVrQZnugYQBVaxPn.wav',
-  'galva-lose':    'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/kZhMNrQUxMVqtvgP.wav',
+  'galva-win': DFX_VOICE_LINES.galvaWin, 'galva-lose': DFX_VOICE_LINES.galvaLose,
   'kai-punch':     ELEVENLABS_ANIME_SFX.approvedPunchWhiff,
   'kai-kick':      ELEVENLABS_ANIME_SFX.approvedKickWhiff,
-  'kai-win':       'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/lAVwbwIaASxMPSnC.wav',
-  'kai-lose':      'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/lsqcffzkPhBRDoLd.wav',
+  'kai-win': DFX_VOICE_LINES.kaiWin, 'kai-lose': DFX_VOICE_LINES.kaiLose,
   'shuraku-punch': ELEVENLABS_ANIME_SFX.approvedPunchWhiff,
   'shuraku-kick':  ELEVENLABS_ANIME_SFX.approvedKickWhiff,
-  'shuraku-win':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/wAeLfVCmpiogqfJU.wav',
-  'shuraku-lose':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/BftqaCbGNzvWQuuW.wav',
+  'shuraku-win': DFX_VOICE_LINES.shurakuWin, 'shuraku-lose': DFX_VOICE_LINES.shurakuLose,
   'lightning-blast':   ELEVENLABS_ANIME_SFX.galvaLightningBurst,
   'lightning-crackle': ELEVENLABS_ANIME_SFX.galvaLightningBurst,
   'galva-teleport-vanish':   ELEVENLABS_ANIME_SFX.galvaTeleport,
@@ -157,36 +124,27 @@ const SOUNDS: Record<string, string> = {
   'shuraku-grapple':   ELEVENLABS_ANIME_SFX.shurakuGrapple,
   'galva-ground-slam': ELEVENLABS_ANIME_SFX.galvaGroundSlam,
   'throw-landing':     ELEVENLABS_ANIME_SFX.throwLanding,
-  'ryu-powerup':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/cpDOlOBRtrQqnetP.wav',
-  'akari-powerup':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/sBiYIQWLUhSMlcxg.wav',
-  'galva-powerup':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/iCqJHLbDOBxnDIPm.wav',
-  'kai-powerup': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ZNjuYxSCNXrvymGU.wav'
-  ,
-  'kai-powerup2-old': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/FPCjgCVjHlSGfxEl.wav',
-  'shuraku-powerup': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/qeRbvltDZsymKNZI.wav',
+  'ryu-powerup': DFX_VOICE_LINES.ryuPowerup, 'akari-powerup': DFX_VOICE_LINES.akariPowerup,
+  'galva-powerup': DFX_VOICE_LINES.galvaPowerup, 'kai-powerup': DFX_VOICE_LINES.kaiPowerup,
+  'kai-powerup2-old': DFX_VOICE_LINES.kaiPowerup, 'shuraku-powerup': DFX_VOICE_LINES.shurakuPowerup,
 };
 
 export function isSuspended() {
   return false; // placeholder — checked externally via ctx.state
 }
 
-const WIND_URL = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/dTHcSsUxThHuchOc.mp3';
-
 export class SoundManager {
   private ctx: AudioContext | null = null;
   private buffers: Map<string, AudioBuffer> = new Map();
   private mediaPools: Map<string, HTMLAudioElement[]> = new Map();
-  private windNode: AudioBufferSourceNode | null = null;
   private fightMusicNode: AudioBufferSourceNode | null = null;
   private fightMusicBuf: AudioBuffer | null = null;
   private activeNodes: AudioBufferSourceNode[] = [];
-  private windGain: GainNode | null = null;
   private musicGain: GainNode | null = null;
   private duckTimer: ReturnType<typeof setTimeout> | null = null;
   private masterGain: GainNode | null = null;
   private muted = false;
   private resumePollId = 0;
-  private windBuf: AudioBuffer | null = null;
 
   async init() {
     try {
@@ -268,16 +226,6 @@ export class SoundManager {
     }
   };
 
-  private startWind(buf: AudioBuffer) {
-    if (!this.ctx || !this.windGain) return;
-    const src = this.ctx.createBufferSource();
-    src.buffer = buf;
-    src.loop = true;
-    src.connect(this.windGain);
-    src.start();
-    this.windNode = src;
-  }
-
   startFightMusic() {
     if (!this.ctx || !this.fightMusicBuf || !this.masterGain) return;
     this.stopFightMusic();
@@ -307,12 +255,12 @@ export class SoundManager {
     this.musicGain.gain.linearRampToValueAtTime(0.55, now + durationMs / 1000); // restore
   }
 
-  play(key: string, volume = 1.0) {
-    if (this.muted) return;
-    if (this.playMedia(key, volume)) return;
-    if (!this.ctx || !this.masterGain) return;
+  play(key: string, volume = 1.0): boolean {
+    if (this.muted) return false;
+    if (this.playMedia(key, volume)) return true;
+    if (!this.ctx || !this.masterGain) return false;
     const buf = this.buffers.get(key);
-    if (!buf) return;
+    if (!buf) return false;
     const src = this.ctx.createBufferSource();
     const gain = this.ctx.createGain();
     gain.gain.value = volume;
@@ -325,6 +273,7 @@ export class SoundManager {
     const isVoice = key.includes('-win') || key.includes('-lose') || key.includes('-powerup') || key === 'dragon-fight';
     if (isVoice) this.duck(buf.duration * 1000 + 400);
     src.start();
+    return true;
   }
 
   /**
@@ -416,22 +365,22 @@ export class SoundManager {
   }
 
   // Play a random variant from a set of keys
-  playRandom(keys: string[], volume = 1.0) {
+  playRandom(keys: string[], volume = 1.0): boolean {
     const key = keys[Math.floor(Math.random() * keys.length)];
-    this.play(key, volume);
+    return this.play(key, volume);
   }
 
   private lastEventVariant = new Map<string, string>();
 
   // Select a different loaded clip on consecutive uses of the same gameplay event.
-  playNoRepeat(event: string, keys: string[], volume = 1.0) {
+  playNoRepeat(event: string, keys: string[], volume = 1.0): boolean {
     const available = keys.filter((key) => this.mediaPools.has(key) || this.buffers.has(key));
-    if (!available.length) return;
+    if (!available.length) return false;
     const last = this.lastEventVariant.get(event);
     const choices = available.length > 1 ? available.filter((key) => key !== last) : available;
     const key = choices[Math.floor(Math.random() * choices.length)];
     this.lastEventVariant.set(event, key);
-    this.play(key, volume);
+    return this.play(key, volume);
   }
 
   resume() {
@@ -442,17 +391,20 @@ export class SoundManager {
       try { node.stop(); } catch (_) {}
     }
     this.activeNodes = [];
+    for (const voices of Array.from(this.mediaPools.values())) {
+      for (const voice of voices) {
+        voice.pause();
+        voice.currentTime = 0;
+      }
+    }
   }
   stopAllAudio() {
     this.stopAll();
     this.stopFightMusic();
-    try { this.windNode?.stop(); } catch (_) {}
-    this.windNode = null;
   }
 
   dispose() {
     this.stopFightMusic();
-    this.windNode?.stop();
     clearTimeout(this.resumePollId);
     document.removeEventListener('visibilitychange', this.handleVisibility);
     for (const voices of Array.from(this.mediaPools.values())) {

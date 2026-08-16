@@ -93,6 +93,10 @@
 - [x] Inspect the browser console and active sound-playback path during an actual strike event.
 - [x] Correct the combat-audio delivery path so strike events have a reliable audible fallback.
 - [ ] Verify landed punches and kicks audibly play in the live game before publishing the repair.
+- [x] Reproduce the report that the active game still uses generic effects instead of the approved combat library.
+- [x] Trace and repair missing power-up voice-line events for every fighter.
+- [x] Trace and repair missing victory and defeat voice-line events at match completion.
+- [x] Run a deterministic full-match audio audit covering impacts, movement, power-ups, knockout, victory, and defeat.
 - [ ] Define character- and action-specific anime sound directions and identify generic placeholders for removal.
 - [ ] Obtain a valid ElevenLabs sound-effects key and generate a priority custom effects library.
 - [ ] Integrate layered anime effects for movement, strikes, guards, specials, launches, and menus.

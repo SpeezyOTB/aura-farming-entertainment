@@ -217,14 +217,14 @@ export class GameEngine {
     // Footstep sounds
     this.p1FootTimer -= dt;
     if (this.p1.state === 'walk' && this.p1FootTimer <= 0) {
-      this.sound.playRandom(['footstep','footstep2','footstep3','footstep4','footstep5','footstep6','footstep7','footstep8','footstep9'], 0.4);
-      this.sound.playAnimeStep(0.38);
+      const played = this.sound.playRandom(['footstep','footstep2','footstep3','footstep4','footstep5','footstep6','footstep7','footstep8','footstep9'], 0.4);
+      if (!played) this.sound.playAnimeStep(0.38);
       this.p1FootTimer = 0.28;
     }
     this.p2FootTimer -= dt;
     if (this.p2.state === 'walk' && this.p2FootTimer <= 0) {
-      this.sound.playRandom(['footstep','footstep2','footstep3','footstep4','footstep5','footstep6','footstep7','footstep8','footstep9'], 0.35);
-      this.sound.playAnimeStep(0.33);
+      const played = this.sound.playRandom(['footstep','footstep2','footstep3','footstep4','footstep5','footstep6','footstep7','footstep8','footstep9'], 0.35);
+      if (!played) this.sound.playAnimeStep(0.33);
       this.p2FootTimer = 0.28;
     }
 
@@ -520,8 +520,7 @@ export class GameEngine {
           attacker.hitFlash = 0.16;
           defender.onAttackLanded();
           this.sound.play('tornado-whoosh', 0.78);
-          this.sound.play('block-impact', 0.85);
-          this.sound.playAnimeImpact('block', 0.72);
+          if (!this.sound.play('block-impact', 0.85)) this.sound.playAnimeImpact('block', 0.72);
           this.triggerImpact(true);
           return;
         }
@@ -562,7 +561,7 @@ export class GameEngine {
           if (attacker === this.p1) { this.p1ComboCount++; this.p1ComboTimer = 1.5; }
           else { this.p2ComboCount++; this.p2ComboTimer = 1.5; }
           if (!defender.isAlive) { this.sound.play('ko', 0.9); }
-          this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.9);
+          if (!this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.9)) this.sound.playAnimeImpact('kick', 0.76);
           // Sparks
           const bdy = defender.getBodyRect();
           const sweepColor = attacker.hasIcarusStyle ? '#ff7918' : attacker.hasAphroditeStyle ? '#ffc0e6' : attacker.hasTempestStyle ? '#9cf2ff' : '#fff';
@@ -574,11 +573,12 @@ export class GameEngine {
         if (isCharged) attacker.isChargingAttack = false;
         if (defender.isBlocking) {
           attacker.attackLanded = true;
-          this.sound.playNoRepeat(
+          const played = this.sound.playNoRepeat(
             isKick ? 'kick-block' : 'punch-block',
             isKick ? ['kick-block', 'kick-block-alt'] : ['punch-block', 'punch-block-alt'],
             isKick ? 0.88 : 0.80,
           );
+          if (!played) this.sound.playAnimeImpact('block', 0.62);
           this.triggerImpact(false);
           const blockX = body.x + body.w / 2;
           const blockY = body.y + body.h * 0.36;
@@ -593,16 +593,14 @@ export class GameEngine {
           else { this.p2ComboCount++; this.p2ComboTimer = 1.5; }
           if (isRoundhouse) defender.vx *= 1.35;
           // Random impact variant
-          if (isKick) {
-            this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.88);
-          } else {
-            this.sound.playNoRepeat(
-              `punch-hit-${attacker.name.toLowerCase()}`,
-              this.getPunchImpactVariants(attacker.name),
-              0.94,
-            );
-          }
-          this.sound.playAnimeImpact(isKick ? 'kick' : 'punch', isKick ? 0.68 : 0.63);
+          const played = isKick
+            ? this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.88)
+            : this.sound.playNoRepeat(
+                `punch-hit-${attacker.name.toLowerCase()}`,
+                this.getPunchImpactVariants(attacker.name),
+                0.94,
+              );
+          if (!played) this.sound.playAnimeImpact(isKick ? 'kick' : 'punch', isKick ? 0.68 : 0.63);
           // Character-specific ElevenLabs strikes already carry the vocal-free anime impact identity.
           // Avoid layering the old generic grunt library over every hit.
           const isP1 = defender === this.p1;
@@ -617,7 +615,6 @@ export class GameEngine {
           // Detect fresh boost activation this frame (fire once per boost cycle)
           if (attacker.boostActive && !attacker.cinematicFired && dmg > 0) {
             attacker.cinematicFired = true;
-            this.sound.play('energy-full', 0.9);
             this.triggerEnergyPulse(attacker);
             this.triggerCinematic(attacker);
           }
@@ -709,8 +706,7 @@ export class GameEngine {
       opp.vx = (opp.centerX > galva.centerX ? 1 : -1) * 350;
       opp.health = Math.max(0, opp.health - 1);
       opp.hitFlash = 0.15;
-      this.sound.play('lightning-blast', 0.8);
-      this.sound.playAnimeImpact('slam', 0.76);
+      if (!this.sound.play('lightning-blast', 0.8)) this.sound.playAnimeImpact('slam', 0.76);
     }
   }
 
@@ -740,8 +736,7 @@ export class GameEngine {
       target.x = lerp(holdX, pullX, progress);
     } else {
       fighter.executeThrow();
-      this.sound.play('shuraku-grapple', 0.92);
-      this.sound.playAnimeImpact('throw', 0.92);
+      if (!this.sound.play('shuraku-grapple', 0.92)) this.sound.playAnimeImpact('throw', 0.92);
       this.triggerImpact(true);
       return;
     }
@@ -764,8 +759,7 @@ export class GameEngine {
       target.energy = 0;
       fighter.grappleSqueezeApplied = true;
       fighter.onAttackLanded();
-      this.sound.play('block-impact', 0.82);
-      this.sound.playAnimeImpact('grapple', 0.74);
+      if (!this.sound.play('block-impact', 0.82)) this.sound.playAnimeImpact('grapple', 0.74);
       this.triggerImpact(true);
       for (let i = 0; i < 10; i++) {
         this.sparks.push({
@@ -801,8 +795,7 @@ export class GameEngine {
         size: 5 + Math.random() * 10,
       });
     }
-    this.sound.play('galva-ground-slam', 0.98);
-    this.sound.playAnimeImpact('slam', 1.0);
+    if (!this.sound.play('galva-ground-slam', 0.98)) this.sound.playAnimeImpact('slam', 1.0);
     this.triggerImpact(true);
 
     if (distance > range) return;
@@ -831,8 +824,7 @@ export class GameEngine {
   private resolveThrowImpact(fighter: Fighter) {
     if (!fighter.throwImpactPending) return;
     fighter.throwImpactPending = false;
-    this.sound.play('throw-landing', 0.94);
-    this.sound.playAnimeImpact('land', 0.92);
+    if (!this.sound.play('throw-landing', 0.94)) this.sound.playAnimeImpact('land', 0.92);
     this.triggerImpact(true);
     const impactX = fighter.centerX;
     const impactY = GROUND_Y - 10;
@@ -872,8 +864,10 @@ export class GameEngine {
     const w = this.gameState.winner;
     if (w === 1) {
       setTimeout(() => { this.sound.play(this.getWinSound(this.p1.name), 1.0); }, 600);
+      setTimeout(() => { this.sound.play(this.getLoseSound(this.p2.name), 0.78); }, 1550);
     } else if (w === 2) {
       setTimeout(() => { this.sound.play(this.getWinSound(this.p2.name), 1.0); }, 600);
+      setTimeout(() => { this.sound.play(this.getLoseSound(this.p1.name), 0.78); }, 1550);
     }
     this.onStateChange?.(this.gameState);
   }
@@ -943,6 +937,15 @@ export class GameEngine {
     if (n === 'kai')     return 'kai-win';
     if (n === 'shuraku') return 'shuraku-win';
     return 'ryu-win';
+  }
+  private getLoseSound(name: string): string {
+    const n = name.toLowerCase();
+    if (n === 'ryu') return 'ryu-lose';
+    if (n === 'akari') return 'akari-lose';
+    if (n === 'galva') return 'galva-lose';
+    if (n === 'kai') return 'kai-lose';
+    if (n === 'shuraku') return 'shuraku-lose';
+    return 'ryu-lose';
   }
 
   // ── Projectile collision resolution ──────────────────────
