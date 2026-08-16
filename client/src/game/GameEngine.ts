@@ -176,12 +176,11 @@ export class GameEngine {
         if (this.countdown > 0) {
           this.countdown--;
           this.countdownTimer = 1.0;
-          this.sound.play('countdown-beep', 0.64 + (3 - this.countdown) * 0.08);
+          this.sound.play('countdown-beep', 0.7);
         } else {
           this.countdownDone = true;
           this.gameState.running = true;
-          this.sound.play('fight-announce', 1.0);
-          this.sound.startAmbientWind(0.14);
+          this.sound.play('dragon-fight', 1.0);
         }
       }
       return;
@@ -285,7 +284,8 @@ export class GameEngine {
     const p1Forward = (p1.facingRight && p1Right) || (!p1.facingRight && p1Left);
     const playP1Punch = () => {
       if (p1.punch()) {
-        this.sound.playNoRepeat('punch-whiff', this.getPunchGrunts(p1.name), 0.9);
+        this.sound.playRandom(this.getPunchGrunts(p1.name), 0.9);
+        this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6','swoosh7','swoosh8','swoosh9','swoosh10','swoosh11','swoosh12'], p1.isChargingAttack ? 0.8 : 0.55);
       }
     };
     const playP1Kick = () => {
@@ -294,7 +294,8 @@ export class GameEngine {
         : p1Forward && !p1.isChargingAttack ? p1.roundhouse()
         : p1.kick();
       if (performed) {
-        this.sound.playNoRepeat('kick-whiff', this.getKickGrunts(p1.name), 0.9);
+        this.sound.playRandom(this.getKickGrunts(p1.name), 0.9);
+        this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6','swoosh7','swoosh8','swoosh9','swoosh10','swoosh11','swoosh12'], p1.isChargingAttack ? 0.85 : 0.60);
       }
     };
     if (input.wasPressed('KeyF')) {
@@ -381,7 +382,8 @@ export class GameEngine {
       const p2Forward = (p2.facingRight && p2Right) || (!p2.facingRight && p2Left);
       const playP2Punch = () => {
         if (p2.punch()) {
-          this.sound.playNoRepeat('punch-whiff', this.getPunchGrunts(p2.name), 0.9);
+          this.sound.playRandom(this.getPunchGrunts(p2.name), 0.9);
+          this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6','swoosh7','swoosh8','swoosh9','swoosh10','swoosh11','swoosh12'], p2.isChargingAttack ? 0.8 : 0.55);
         }
       };
       const playP2Kick = () => {
@@ -390,7 +392,8 @@ export class GameEngine {
           : p2Forward && !p2.isChargingAttack ? p2.roundhouse()
           : p2.kick();
         if (performed) {
-          this.sound.playNoRepeat('kick-whiff', this.getKickGrunts(p2.name), 0.9);
+          this.sound.playRandom(this.getKickGrunts(p2.name), 0.9);
+          this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6','swoosh7','swoosh8','swoosh9','swoosh10','swoosh11','swoosh12'], p2.isChargingAttack ? 0.85 : 0.60);
         }
       };
       if (input.wasPressed('KeyL')) { this.p2Combo.recordInput('punch', performance.now() / 1000); this.p2PunchHeld = true; p2.chargeHoldTimer = 0; }
@@ -498,7 +501,10 @@ export class GameEngine {
       const atk = attacker.getAttackRect();
       if (!atk) return;
       const body = defender.getBodyRect();
-      // Air layers play when an attack begins. Contact layers below play only when a hit or block occurs.
+      // Miss whoosh: attack is active but doesn't overlap defender
+      if (!rectsOverlap(atk, body) && attacker.attackPhase === 'active' && !attacker.attackLanded) {
+        if (Math.random() < 0.4) this.sound.play('miss-whoosh', 0.3);
+      }
       if (rectsOverlap(atk, body)) {
         // Kai's Tempest Guard is a narrow, timing-based parry. It trades no armor
         // for a guaranteed close-range counter if the player reads an incoming hit.
@@ -558,7 +564,7 @@ export class GameEngine {
           if (attacker === this.p1) { this.p1ComboCount++; this.p1ComboTimer = 1.5; }
           else { this.p2ComboCount++; this.p2ComboTimer = 1.5; }
           if (!defender.isAlive) { this.sound.play('ko', 0.9); }
-          this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.9);
+          this.sound.playRandom(['kick-impact','kick-impact2','kick-impact3'], 0.85);
           // Sparks
           const bdy = defender.getBodyRect();
           const sweepColor = attacker.hasIcarusStyle ? '#ff7918' : attacker.hasAphroditeStyle ? '#ffc0e6' : attacker.hasTempestStyle ? '#9cf2ff' : '#fff';
@@ -568,20 +574,6 @@ export class GameEngine {
         }
         const dmg = defender.receiveHit(base, attacker.boostActive, isKick, isCharged);
         if (isCharged) attacker.isChargingAttack = false;
-        if (defender.isBlocking) {
-          attacker.attackLanded = true;
-          this.sound.playNoRepeat(
-            isKick ? 'kick-block' : 'punch-block',
-            isKick ? ['kick-block', 'kick-block-alt'] : ['punch-block', 'punch-block-alt'],
-            isKick ? 0.88 : 0.80,
-          );
-          this.triggerImpact(false);
-          const blockX = body.x + body.w / 2;
-          const blockY = body.y + body.h * 0.36;
-          for (let i = 0; i < 7; i++) this.sparks.push({ x: blockX + (Math.random() - 0.5) * 28, y: blockY + (Math.random() - 0.5) * 18, ttl: 0.12 + Math.random() * 0.12, color: '#d8fbff', size: 3 + Math.random() * 5 });
-          attacker.comboDamageOverride = null;
-          return;
-        }
         if (dmg > 0) {
           attacker.onAttackLanded();
           this.triggerImpact(isRoundhouse || isCharged || attacker.boostActive);
@@ -590,23 +582,29 @@ export class GameEngine {
           if (isRoundhouse) defender.vx *= 1.35;
           // Random impact variant
           if (isKick) {
-            this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.88);
+            this.sound.playRandom(['kick-impact','kick-impact2','kick-impact3','kick-impact4','kick-impact5','kick-impact6','kick-impact7'], 0.85);
           } else {
-            this.sound.playNoRepeat(
-              // One global event key makes the selected clip persist across both
-              // fighters. A punch from Ryu cannot be immediately repeated by Akari,
-              // the CPU, or the next hit in a combo.
-              'landed-punch-global',
-              this.getApprovedSharedPunchPool(),
-              0.94,
-            );
+            this.sound.playRandom(['punch-impact','punch-impact2','punch-impact3','punch-impact4','punch-impact5','punch-impact6'], 0.82);
           }
-          // Character-specific ElevenLabs strikes already carry the vocal-free anime impact identity.
-          // Avoid layering the old generic grunt library over every hit.
-          const isP1 = defender === this.p1;
-          const gTimer = isP1 ? this.p1GruntTimer : this.p2GruntTimer;
-          if (gTimer <= 0) {
-            if (isP1) this.p1GruntTimer = 0.12; else this.p2GruntTimer = 0.12;
+          // Block sound if defender is blocking
+          if (defender.isBlocking) {
+            this.sound.play('block-impact', 0.75);
+          } else {
+            // Weighted grunt selection: 30% silent, 35% soft (1-2), 25% medium (3-4), 10% hard (5-7)
+            const isP1 = defender === this.p1;
+            const gTimer = isP1 ? this.p1GruntTimer : this.p2GruntTimer;
+            if (gTimer <= 0) {
+              const r = Math.random();
+              if (r >= 0.30) { // 70% chance to play a grunt
+                const grunts = this.getHitGrunts(defender.name);
+                let key: string;
+                if (r < 0.65) { key = grunts[Math.floor(Math.random() * 2)]; }       // soft (1-2)
+                else if (r < 0.90) { key = grunts[2 + Math.floor(Math.random() * 2)]; } // medium (3-4)
+                else { key = grunts[4 + Math.floor(Math.random() * 3)]; }              // hard (5-7)
+                this.sound.play(key, 0.85);
+              }
+              if (isP1) this.p1GruntTimer = 0.12; else this.p2GruntTimer = 0.12;
+            }
           }
           // Check if attacker just activated full power (boost just turned on)
           if (attacker.boostActive && !attacker.attackLanded) {
@@ -615,6 +613,7 @@ export class GameEngine {
           // Detect fresh boost activation this frame (fire once per boost cycle)
           if (attacker.boostActive && !attacker.cinematicFired && dmg > 0) {
             attacker.cinematicFired = true;
+            this.sound.play('energy-full', 0.9);
             this.triggerEnergyPulse(attacker);
             this.triggerCinematic(attacker);
           }
@@ -692,7 +691,8 @@ export class GameEngine {
       // Combo steps never inherit a previously held charged-attack flag.
       if (attacker.attackPhase === 'active') attacker.isChargingAttack = false;
       const grunts = isKick ? this.getKickGrunts(attacker.name) : this.getPunchGrunts(attacker.name);
-      this.sound.playNoRepeat(isKick ? 'kick-whiff' : 'punch-whiff', grunts, 0.85);
+      this.sound.playRandom(grunts, 0.85);
+      this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6'], 0.55);
     }
   }
 
@@ -736,7 +736,7 @@ export class GameEngine {
       target.x = lerp(holdX, pullX, progress);
     } else {
       fighter.executeThrow();
-      this.sound.play('shuraku-grapple', 0.92);
+      this.sound.play('ko', 0.56);
       this.triggerImpact(true);
       return;
     }
@@ -795,7 +795,7 @@ export class GameEngine {
         size: 5 + Math.random() * 10,
       });
     }
-    this.sound.play('galva-ground-slam', 0.98);
+    this.sound.play('lightning-blast', 0.95);
     this.triggerImpact(true);
 
     if (distance > range) return;
@@ -824,7 +824,7 @@ export class GameEngine {
   private resolveThrowImpact(fighter: Fighter) {
     if (!fighter.throwImpactPending) return;
     fighter.throwImpactPending = false;
-    this.sound.play('throw-landing', 0.94);
+    this.sound.play('block-impact', 0.9);
     this.triggerImpact(true);
     const impactX = fighter.centerX;
     const impactY = GROUND_Y - 10;
@@ -855,7 +855,6 @@ export class GameEngine {
     // Stop cinematic immediately so it doesn't bleed into win screen
     this.cinematic.stop();
     this.sound.stopFightMusic();
-    this.sound.stopAmbientWind();
     this.sound.stopAll();
     this.gameState.running = false;
     if (!this.p1.isAlive && !this.p2.isAlive) this.gameState.winner = 0;
@@ -865,10 +864,8 @@ export class GameEngine {
     const w = this.gameState.winner;
     if (w === 1) {
       setTimeout(() => { this.sound.play(this.getWinSound(this.p1.name), 1.0); }, 600);
-      setTimeout(() => { this.sound.play(this.getLoseSound(this.p2.name), 0.78); }, 1550);
     } else if (w === 2) {
       setTimeout(() => { this.sound.play(this.getWinSound(this.p2.name), 1.0); }, 600);
-      setTimeout(() => { this.sound.play(this.getLoseSound(this.p1.name), 0.78); }, 1550);
     }
     this.onStateChange?.(this.gameState);
   }
@@ -877,15 +874,13 @@ export class GameEngine {
 
   // ── Sound routing helpers ─────────────────────────────────
   private getPunchGrunts(name: string): string[] {
-    return ['punch-whiff', 'punch-whiff-alt'];
-  }
-  private getApprovedSharedPunchPool(): string[] {
-    return [
-      'approved-shared-punch-1',
-      'approved-shared-punch-2',
-      'approved-shared-punch-3',
-      'approved-shared-punch-4',
-    ];
+    const n = name.toLowerCase();
+    if (n === 'ryu')     return ['ryu-punch','ryu-punch2','ryu-punch3'];
+    if (n === 'akari')   return ['akari-punch','akari-punch2','akari-punch3'];
+    if (n === 'galva')   return ['galva-punch'];
+    if (n === 'kai')     return ['kai-punch'];
+    if (n === 'shuraku') return ['shuraku-punch'];
+    return ['punch-impact','punch-impact2','punch-impact3','punch-impact4','punch-impact5','punch-impact6'];
   }
   private getHitGrunts(name: string): string[] {
     const n = name.toLowerCase();
@@ -898,7 +893,13 @@ export class GameEngine {
   }
 
   private getKickGrunts(name: string): string[] {
-    return ['kick-whiff', 'kick-whiff-alt'];
+    const n = name.toLowerCase();
+    if (n === 'ryu')     return ['ryu-kick','ryu-kick2'];
+    if (n === 'akari')   return ['akari-kick','akari-kick2'];
+    if (n === 'galva')   return ['galva-kick'];
+    if (n === 'kai')     return ['kai-kick'];
+    if (n === 'shuraku') return ['shuraku-kick'];
+    return ['kick-impact','kick-impact2','kick-impact3','kick-impact4','kick-impact5','kick-impact6','kick-impact7'];
   }
   private getHitSound(name: string): string {
     const n = name.toLowerCase();
@@ -937,15 +938,6 @@ export class GameEngine {
     if (n === 'kai')     return 'kai-win';
     if (n === 'shuraku') return 'shuraku-win';
     return 'ryu-win';
-  }
-  private getLoseSound(name: string): string {
-    const n = name.toLowerCase();
-    if (n === 'ryu') return 'ryu-lose';
-    if (n === 'akari') return 'akari-lose';
-    if (n === 'galva') return 'galva-lose';
-    if (n === 'kai') return 'kai-lose';
-    if (n === 'shuraku') return 'shuraku-lose';
-    return 'ryu-lose';
   }
 
   // ── Projectile collision resolution ──────────────────────
@@ -1383,10 +1375,8 @@ export class GameEngine {
     const aphroditeStance = f.hasAphroditeStyle ? f.aphroditeStanceBlend : 0;
     const tempestStance = f.hasTempestStyle ? f.tempestStanceBlend : 0;
     const dominionStance = f.hasDominionStyle ? f.dominionStanceBlend : 0;
-    const hitRecoil = f.hitReactionTimer > 0 ? Math.min(1, f.hitReactionTimer / 0.22) * f.hitReactionStrength : 0;
-    const blockRecoil = f.blockReactionTimer > 0 ? Math.min(1, f.blockReactionTimer / 0.14) : 0;
-    const scaleX = 1 + squashT * 0.14 + icarusStance * 0.025 - aphroditeStance * 0.02 - tempestStance * 0.015 + dominionStance * 0.018 - hitRecoil * 0.13 + blockRecoil * 0.04;
-    const scaleY = 1 - squashT * 0.11 - icarusStance * 0.045 + aphroditeStance * 0.018 + tempestStance * 0.024 + dominionStance * 0.03 + hitRecoil * 0.075 - blockRecoil * 0.025;
+    const scaleX = 1 + squashT * 0.14 + icarusStance * 0.025 - aphroditeStance * 0.02 - tempestStance * 0.015 + dominionStance * 0.018;
+    const scaleY = 1 - squashT * 0.11 - icarusStance * 0.045 + aphroditeStance * 0.018 + tempestStance * 0.024 + dominionStance * 0.03;
     const stanceY = icarusStance * 6 - aphroditeStance * 2 + tempestStance * 2 - dominionStance * 3;
 
     // Contact shadow anchors transparent sprites to the stone stage.
@@ -1410,14 +1400,11 @@ export class GameEngine {
     } else if (f.state === 'prone') {
       actionRotation = f.facingRight ? Math.PI / 2 : -Math.PI / 2;
     }
-    if (hitRecoil > 0) actionRotation += (f.facingRight ? -1 : 1) * hitRecoil * 0.13;
-    if (blockRecoil > 0) actionRotation += (f.facingRight ? 1 : -1) * blockRecoil * 0.055;
     if (actionRotation !== 0) {
       ctx.translate(f.centerX, f.y + FIGHTER_HEIGHT * 0.52);
       ctx.rotate(actionRotation);
       ctx.translate(-f.centerX, -(f.y + FIGHTER_HEIGHT * 0.52));
     }
-    if (hitRecoil > 0) ctx.translate((f.facingRight ? -1 : 1) * hitRecoil * 12, hitRecoil * 3);
 
     if (img) {
       // ── Cel-shade rendering ──────────────────────────────────

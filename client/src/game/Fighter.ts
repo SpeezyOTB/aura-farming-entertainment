@@ -53,10 +53,6 @@ export class Fighter {
   boostTimer = 0;
   attackLanded = false;
   hitFlash = 0;
-  // Timers drive readable anime-style stagger and guard recoil poses at contact.
-  hitReactionTimer = 0;
-  hitReactionStrength = 0;
-  blockReactionTimer = 0;
   consecutiveHits = 0;  // counts toward full power
   boostCooldown = 0;    // 32s cooldown after boost expires
   cinematicFired = false; // prevent cinematic from re-triggering
@@ -410,7 +406,6 @@ export class Fighter {
     // Blocking = zero damage
     if (this.isBlocking) {
       this.hitFlash = 0.05;
-      this.blockReactionTimer = 0.14;
       return 0;
     }
     let dmg = baseDamage;
@@ -420,8 +415,6 @@ export class Fighter {
     dmg = Math.max(1, Math.round(dmg));
     this.health = Math.max(0, this.health - dmg);
     this.hitFlash = 0.1;
-    this.hitReactionTimer = isChargedAttack ? 0.28 : isKick ? 0.22 : 0.16;
-    this.hitReactionStrength = isChargedAttack ? 1 : isKick ? 0.78 : 0.58;
 
     const stun = isKick ? KICK_HIT_STUN : PUNCH_HIT_STUN;
     const kb   = isKick ? KICK_KNOCKBACK : PUNCH_KNOCKBACK;
@@ -495,9 +488,6 @@ export class Fighter {
     this.isBlocking = false;
     this.attackLanded = false;
     this.hitFlash = 0;
-    this.hitReactionTimer = 0;
-    this.hitReactionStrength = 0;
-    this.blockReactionTimer = 0;
     this.counterWindowTimer = 0;
     this.chargeHoldTimer = 0;
     this.lightningBarrierActive = false;
@@ -898,8 +888,6 @@ export class Fighter {
 
     // Hit flash
     if (this.hitFlash > 0) this.hitFlash -= dt;
-    if (this.hitReactionTimer > 0) this.hitReactionTimer = Math.max(0, this.hitReactionTimer - dt);
-    if (this.blockReactionTimer > 0) this.blockReactionTimer = Math.max(0, this.blockReactionTimer - dt);
     if (this.boostCooldown > 0) this.boostCooldown -= dt;
 
     // Particles

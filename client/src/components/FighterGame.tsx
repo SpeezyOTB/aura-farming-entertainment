@@ -7,7 +7,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { GameEngine } from '@/game/GameEngine';
 import { SoundManager } from '@/game/SoundManager';
-import { ELEVENLABS_ANIME_SFX } from '@/game/ElevenLabsAnimeSfx';
 import type { GameState, GameMode } from '@/game/types';
 import type { FighterConfig } from '@/game/types';
 import {
@@ -15,55 +14,25 @@ import {
 } from '@/game/constants';
 
 // ── Asset URLs ────────────────────────────────────────────────
-const BG_URL       = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gdivZsrikMAeBsCB.png';
-const RYU_SPRITE   = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/LpzOYgiWjwOBWAEp.png';
-const AKARI_SPRITE = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/QwLVYCpLNvDyCxFu.png';
-const RYU_ICON     = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/JEJHOlpzmXVXnLGw.png';
-const AKARI_ICON   = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/SLrmKNMPTvOTeXoH.png';
-const GALVA_SPRITE = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/jVYTgBNCjNmKoDkD.png';
-const KAI_SPRITE   = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/wAonMDqFVIPzlYKg.png';
-const SHURAKU_SPRITE = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/LxBYFoUoQZxCFhVL.png';
+const BG_URL       = 'https://fightergame-j95rkwu8.manus.space/manus-storage/dojo-bg_5f9dc991.png';
+const RYU_SPRITE   = 'https://fightergame-j95rkwu8.manus.space/manus-storage/ryu-stage-alpha-v2_e7f4a6ad.png';
+const AKARI_SPRITE = 'https://fightergame-j95rkwu8.manus.space/manus-storage/akari-stage-sprite-matted_5a68ed62.png';
+const RYU_ICON     = 'https://fightergame-j95rkwu8.manus.space/manus-storage/ryu-icon_28b074e0.png';
+const AKARI_ICON   = 'https://fightergame-j95rkwu8.manus.space/manus-storage/akari-icon_f2d516a1.png';
+const GALVA_SPRITE = 'https://fightergame-j95rkwu8.manus.space/manus-storage/galva_bc16a2a0.png';
+const KAI_SPRITE   = 'https://fightergame-j95rkwu8.manus.space/manus-storage/kai_94245d01.png';
+const SHURAKU_SPRITE = 'https://fightergame-j95rkwu8.manus.space/manus-storage/shuraku_59416bbc.png';
 
 // UI sounds via plain Audio elements (no AudioContext needed)
-const UI_CLICK_URL    = ELEVENLABS_ANIME_SFX.uiCharacterSelect;
-const UI_MODE_URL     = ELEVENLABS_ANIME_SFX.uiModeSelect;
-const FIGHT_START_URL = ELEVENLABS_ANIME_SFX.fightStart;
+const UI_CLICK_URL    = 'https://fightergame-j95rkwu8.manus.space/manus-storage/ui-click_5a63fcad.wav';
+const FIGHT_START_URL = 'https://fightergame-j95rkwu8.manus.space/manus-storage/fight-start_57a8e184.wav';
 const CHAR_SELECT_VOICES: Record<string, string> = {
-  ryu:     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/zNhPbYRaOOSkClUC.wav',
-  akari:   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/tbYfKZObBpUFAmKW.wav',
-  kai:     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/zQuPEAxZuMaVZgvo.wav',
-  galva:   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ZkWiAjHvFaXUjNEO.wav',
-  shuraku: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/xnLeHuHIskAtsvyy.wav',
+  ryu:     'https://fightergame-j95rkwu8.manus.space/manus-storage/ryu-select-dry_b6332a11.wav',
+  akari:   'https://fightergame-j95rkwu8.manus.space/manus-storage/akari-select-dry_17c37207.wav',
+  kai:     'https://fightergame-j95rkwu8.manus.space/manus-storage/kai-select-dry_d5a1b4cb.wav',
+  galva:   'https://fightergame-j95rkwu8.manus.space/manus-storage/galva-select-dry_d204de11.wav',
+  shuraku: 'https://fightergame-j95rkwu8.manus.space/manus-storage/shuraku-select-dry_ab900573.wav',
 };
-
-// Lightweight anime-arcade fallback tones make menu choices feel responsive
-// even when a streamed UI asset is delayed or unavailable.
-let uiAudioContext: AudioContext | null = null;
-function playAnimeUICue(kind: 'select' | 'mode' | 'confirm', volume = 1) {
-  if (typeof window === 'undefined') return;
-  try {
-    uiAudioContext ??= new AudioContext();
-    const ctx = uiAudioContext;
-    ctx.resume().catch(() => {});
-    const profile = kind === 'select'
-      ? { from: 540, to: 760, duration: 0.075, type: 'triangle' as OscillatorType }
-      : kind === 'mode'
-      ? { from: 280, to: 520, duration: 0.10, type: 'square' as OscillatorType }
-      : { from: 170, to: 840, duration: 0.18, type: 'sawtooth' as OscillatorType };
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = profile.type;
-    osc.frequency.setValueAtTime(profile.from, now);
-    osc.frequency.exponentialRampToValueAtTime(profile.to, now + profile.duration);
-    gain.gain.setValueAtTime((kind === 'confirm' ? 0.18 : 0.11) * volume, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + profile.duration);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + profile.duration);
-  } catch { /* keep menu interaction usable if Web Audio is unavailable */ }
-}
 function playUISound(url: string, vol = 1) {
   try { const a = new Audio(url); a.volume = vol; a.play().catch(() => {}); } catch { /* ignore */ }
 }
@@ -246,7 +215,6 @@ function CharSelect({ onSelect, onVoicePlay }: { onSelect: (p1: string, p2: stri
 
   const handleCharSelect = (setter: (k: string) => void, key: string) => {
     playUISound(UI_CLICK_URL, 0.5);
-    playAnimeUICue('select', 0.9);
     // Duck music and play character select voice clip
     const voiceUrl = CHAR_SELECT_VOICES[key];
     if (voiceUrl) {
@@ -258,13 +226,11 @@ function CharSelect({ onSelect, onVoicePlay }: { onSelect: (p1: string, p2: stri
     setter(key);
   };
   const handleModeSelect = (m: GameMode) => {
-    playUISound(UI_MODE_URL, 0.58);
-    playAnimeUICue('mode', 0.82);
+    playUISound(UI_CLICK_URL, 0.4);
     setMode(m);
   };
   const handleFight = () => {
     playUISound(FIGHT_START_URL, 0.8);
-    playAnimeUICue('confirm', 1);
     onSelect(p1Char, p2Char, mode);
   };
 
@@ -274,7 +240,7 @@ function CharSelect({ onSelect, onVoicePlay }: { onSelect: (p1: string, p2: stri
 
       {/* Title with logo */}
       <div className="text-center flex flex-col items-center gap-2">
-        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/SBuvbBbNhCsOPtHO.PNG" alt="Dragon Fist X"
+        <img src="https://fightergame-j95rkwu8.manus.space/manus-storage/dragonfistXlogo_96131b2b.PNG" alt="Dragon Fist X"
           className="w-32 h-32 object-contain drop-shadow-lg"
           style={{ filter: 'drop-shadow(0 0 18px #f59e0b88)' }} />
         <p className="text-amber-400 text-sm tracking-widest">SELECT YOUR FIGHTER</p>
@@ -600,7 +566,7 @@ export default function FighterGame() {
   useEffect(() => {
     if (screen === 'select') {
       // Create audio element immediately but play on first user interaction
-      const audio = new Audio('https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/JNxtHLnQvIAHWvXA.mp3');
+      const audio = new Audio('https://fightergame-j95rkwu8.manus.space/manus-storage/select-music_e27b765f.mp3');
       audio.loop = true;
       audio.volume = 0.15;
       selectMusicRef.current = audio;
@@ -644,9 +610,14 @@ export default function FighterGame() {
     // Stop select music
     selectMusicRef.current?.pause();
 
-    // Sound was initialized from the FIGHT button gesture before this screen mounted.
-    // Resume here only; combat begins after the priority punch pool is already decoded.
-    soundRef.current?.resume();
+    // Init sound (fire-and-forget)
+    if (!soundRef.current) {
+      const sm = new SoundManager();
+      soundRef.current = sm;
+      sm.init().catch(e => console.warn('[FighterGame] SoundManager init error:', e));
+    } else {
+      soundRef.current.resume();
+    }
 
     const p1Cfg: FighterConfig = {
       ...(CHARS[cfg.p1Key] as Omit<FighterConfig,'id'|'startX'|'facingRight'>),
@@ -659,11 +630,6 @@ export default function FighterGame() {
 
     const eng = new GameEngine(canvas, p1Cfg, p2Cfg, BG_URL, cfg.mode, soundRef.current!);
     eng.onStateChange = (s) => {
-      // Preserve the public Aura Farming game address at the end of every match.
-      // This is a history rewrite only: it never sends players to an external host.
-      if (window.location.pathname !== '/dragonfistx') {
-        window.history.replaceState({}, '', '/dragonfistx');
-      }
       setGameOver(s);
       cancelAnimationFrame(hudRaf.current);
     };
@@ -729,15 +695,6 @@ export default function FighterGame() {
     // Stop select music immediately on fight start
     selectMusicRef.current?.pause();
     selectMusicRef.current = null;
-
-    // Create and unlock the AudioContext from the user's FIGHT button gesture.
-    // Priority combat clips finish decoding before the match starts, preventing silent first punches.
-    if (!soundRef.current) {
-      const sm = new SoundManager();
-      soundRef.current = sm;
-      await sm.init().catch(e => console.warn('[FighterGame] SoundManager init error:', e));
-    }
-    soundRef.current?.resume();
 
     // Show loading bar, store config, then switch screen so canvas mounts
     setLoading(true);
