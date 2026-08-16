@@ -176,11 +176,13 @@ export class GameEngine {
         if (this.countdown > 0) {
           this.countdown--;
           this.countdownTimer = 1.0;
-          this.sound.play('countdown-beep', 0.7);
+          this.sound.play('countdown-beep', 0.64 + (3 - this.countdown) * 0.08);
+          this.sound.playAnimeCountdown(this.countdown);
         } else {
           this.countdownDone = true;
           this.gameState.running = true;
           this.sound.play('dragon-fight', 1.0);
+          this.sound.playAnimeCountdown(0);
         }
       }
       return;

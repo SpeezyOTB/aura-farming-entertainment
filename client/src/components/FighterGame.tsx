@@ -33,6 +33,35 @@ const CHAR_SELECT_VOICES: Record<string, string> = {
   galva:   'https://fightergame-j95rkwu8.manus.space/manus-storage/galva-select-dry_d204de11.wav',
   shuraku: 'https://fightergame-j95rkwu8.manus.space/manus-storage/shuraku-select-dry_ab900573.wav',
 };
+
+// Lightweight anime-arcade fallback tones make menu choices feel responsive
+// even when a streamed UI asset is delayed or unavailable.
+let uiAudioContext: AudioContext | null = null;
+function playAnimeUICue(kind: 'select' | 'mode' | 'confirm', volume = 1) {
+  if (typeof window === 'undefined') return;
+  try {
+    uiAudioContext ??= new AudioContext();
+    const ctx = uiAudioContext;
+    ctx.resume().catch(() => {});
+    const profile = kind === 'select'
+      ? { from: 540, to: 760, duration: 0.075, type: 'triangle' as OscillatorType }
+      : kind === 'mode'
+      ? { from: 280, to: 520, duration: 0.10, type: 'square' as OscillatorType }
+      : { from: 170, to: 840, duration: 0.18, type: 'sawtooth' as OscillatorType };
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = profile.type;
+    osc.frequency.setValueAtTime(profile.from, now);
+    osc.frequency.exponentialRampToValueAtTime(profile.to, now + profile.duration);
+    gain.gain.setValueAtTime((kind === 'confirm' ? 0.18 : 0.11) * volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + profile.duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + profile.duration);
+  } catch { /* keep menu interaction usable if Web Audio is unavailable */ }
+}
 function playUISound(url: string, vol = 1) {
   try { const a = new Audio(url); a.volume = vol; a.play().catch(() => {}); } catch { /* ignore */ }
 }
@@ -215,6 +244,7 @@ function CharSelect({ onSelect, onVoicePlay }: { onSelect: (p1: string, p2: stri
 
   const handleCharSelect = (setter: (k: string) => void, key: string) => {
     playUISound(UI_CLICK_URL, 0.5);
+    playAnimeUICue('select', 0.9);
     // Duck music and play character select voice clip
     const voiceUrl = CHAR_SELECT_VOICES[key];
     if (voiceUrl) {
@@ -227,10 +257,12 @@ function CharSelect({ onSelect, onVoicePlay }: { onSelect: (p1: string, p2: stri
   };
   const handleModeSelect = (m: GameMode) => {
     playUISound(UI_CLICK_URL, 0.4);
+    playAnimeUICue('mode', 0.82);
     setMode(m);
   };
   const handleFight = () => {
     playUISound(FIGHT_START_URL, 0.8);
+    playAnimeUICue('confirm', 1);
     onSelect(p1Char, p2Char, mode);
   };
 

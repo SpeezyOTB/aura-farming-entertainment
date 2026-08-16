@@ -38,3 +38,6 @@
 - [x] Define an anime-oriented sound palette for strikes, blocks, energy attacks, throws, landings, and knockouts.
 - [x] Improve hit reactions and add resilient stylized fallback layers for generic or missing impact sounds.
 - [x] Test the game showcases and validate the production build for the combat-feedback update.
+- [x] Audit character-select, mode-selection, fight-button, and countdown sound triggers.
+- [x] Add resilient anime-style feedback for selection changes and escalating three-countdown beeps.
+- [x] Test the character-select presentation and validate the production build, then publish the revised sound flow.

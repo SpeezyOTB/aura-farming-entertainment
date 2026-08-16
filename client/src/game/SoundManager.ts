@@ -334,6 +334,27 @@ export class SoundManager {
     noise.stop(now + profiles.duration);
   }
 
+  /** Escalating arcade-style countdown pings plus a brighter final fight cue. */
+  playAnimeCountdown(remaining: number) {
+    if (this.muted || !this.ctx || !this.masterGain) return;
+    const now = this.ctx.currentTime;
+    const isFight = remaining <= 0;
+    const start = isFight ? 310 : 420 + (3 - Math.max(0, Math.min(3, remaining))) * 105;
+    const end = isFight ? 1360 : start * 1.32;
+    const duration = isFight ? 0.26 : 0.11;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = isFight ? 'sawtooth' : 'square';
+    osc.frequency.setValueAtTime(start, now);
+    osc.frequency.exponentialRampToValueAtTime(end, now + duration);
+    gain.gain.setValueAtTime(isFight ? 0.25 : 0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + duration);
+  }
+
   // Play a random variant from a set of keys
   playRandom(keys: string[], volume = 1.0) {
     const key = keys[Math.floor(Math.random() * keys.length)];
