@@ -1,4 +1,6 @@
 // Sound URLs from uploaded assets
+import { ELEVENLABS_ANIME_SFX } from './ElevenLabsAnimeSfx';
+
 const SOUNDS: Record<string, string> = {
   'ryu-punch':    'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/YeoawhMraEHjFXmC.wav',
   'ryu-punch2':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/DXJqeztmwpkvXPWD.wav',
@@ -10,19 +12,19 @@ const SOUNDS: Record<string, string> = {
   'akari-punch3': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/zcMPblnUxdrXOgzm.wav',
   'akari-kick':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gPvPZxKNyjPbFrxe.wav',
   'akari-kick2':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/geEgkRQwIhqGaGtu.wav',
-  'punch-impact':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gxPmLwdqbCOXMtEr.wav',
-  'punch-impact2': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/rJXPHBoseFRgNbJZ.wav',
-  'punch-impact3': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/KhMrDvrSoqpqMqGn.wav',
-  'punch-impact4': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/DcenszpgxcqVpwVo.wav',
-  'punch-impact5': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/kLcojwluYORTlmFn.wav',
-  'punch-impact6': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/egIffjTugIgeVNNy.wav',
-  'kick-impact':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/jTSOJSZBszkVReYx.wav',
-  'kick-impact2':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/eawLGqnnSuYyTiGJ.wav',
-  'kick-impact3':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/vBSUYsKLOhGFXYTS.wav',
-  'kick-impact4':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/xtdrYNktLQAZcyyM.wav',
-  'kick-impact5':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/EsVfQOTtPghdIJrP.wav',
-  'kick-impact6':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/lbbdGRfOfgMwgcjq.wav',
-  'kick-impact7':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/xpZzrVLPmFwgEzVM.wav',
+  'punch-impact':  ELEVENLABS_ANIME_SFX.punchImpact,
+  'punch-impact2': ELEVENLABS_ANIME_SFX.punchImpact,
+  'punch-impact3': ELEVENLABS_ANIME_SFX.punchImpact,
+  'punch-impact4': ELEVENLABS_ANIME_SFX.punchImpact,
+  'punch-impact5': ELEVENLABS_ANIME_SFX.punchImpact,
+  'punch-impact6': ELEVENLABS_ANIME_SFX.punchImpact,
+  'kick-impact':   ELEVENLABS_ANIME_SFX.kickImpact,
+  'kick-impact2':  ELEVENLABS_ANIME_SFX.kickImpact,
+  'kick-impact3':  ELEVENLABS_ANIME_SFX.kickImpact,
+  'kick-impact4':  ELEVENLABS_ANIME_SFX.kickImpact,
+  'kick-impact5':  ELEVENLABS_ANIME_SFX.kickImpact,
+  'kick-impact6':  ELEVENLABS_ANIME_SFX.kickImpact,
+  'kick-impact7':  ELEVENLABS_ANIME_SFX.kickImpact,
   'footstep':      'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/QfrDJaCQOoBRVcYc.wav',
   'footstep2':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/FNbXoPxoEZMPApeK.wav',
   'footstep3':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/xmFkiQDtnZfpuxYD.wav',
@@ -102,14 +104,14 @@ const SOUNDS: Record<string, string> = {
   'swoosh12':      'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/eVlipSrKcMGfFBxS.wav',
   'jump':         'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/CkeoskSxzBGzIOjp.wav',
   'block':        'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gFWufwqYQLJYGTYz.wav',
-  'block-impact': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/snDFrrEKkfEGzNNR.wav',
+  'block-impact': ELEVENLABS_ANIME_SFX.guardClash,
   'energy-full':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/WeLchOIoeRrmyeua.wav',
-  'ko':           'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/uzWiadotDZEKOQjX.wav',
-  'countdown-beep':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/XBWpNwFVkyBdlNqZ.wav',
+  'ko':           ELEVENLABS_ANIME_SFX.throwLanding,
+  'countdown-beep':  ELEVENLABS_ANIME_SFX.countdownTick,
   'fight-announce':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/WhUMPMQsfaxWyZrP.wav',
   'ui-click':        'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ooCBEqPDjxLRvUkw.wav',
-  'fight-start':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/WaeBZpBeljMevzjE.wav',
-  'dragon-fight':    'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/KjMHqbcJDgJuYtwz.wav',
+  'fight-start':     ELEVENLABS_ANIME_SFX.fightStart,
+  'dragon-fight':    ELEVENLABS_ANIME_SFX.fightStart,
   'ryu-win':         'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/vqyAsMemfOSCegMN.wav',
   'akari-win':       'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/kMQwJezNUdcyBePc.wav',
   'ryu-lose':        'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/dNeRxDjQcTmbUHaa.wav',
@@ -126,12 +128,15 @@ const SOUNDS: Record<string, string> = {
   'shuraku-kick':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/WzMcrzkMtVpiXlms.wav',
   'shuraku-win':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/wAeLfVCmpiogqfJU.wav',
   'shuraku-lose':  'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/BftqaCbGNzvWQuuW.wav',
-  'lightning-blast':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/mnjVYaLEAxSQZHcN.wav',
-  'lightning-crackle': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ENgVURphaizRVEFF.wav',
-  'galva-teleport-vanish':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/DHbMldAFoRYXKbRh.wav',
-  'galva-teleport-reappear': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/nvXTEOPPTyCswtVb.wav',
-  'shadow-barrier':    'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/mrfmYctQiNssbujP.wav',
-  'tornado-whoosh':    'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/aQypaxbUQXRGmMAL.wav',
+  'lightning-blast':   ELEVENLABS_ANIME_SFX.galvaLightningBurst,
+  'lightning-crackle': ELEVENLABS_ANIME_SFX.galvaLightningBurst,
+  'galva-teleport-vanish':   ELEVENLABS_ANIME_SFX.galvaTeleport,
+  'galva-teleport-reappear': ELEVENLABS_ANIME_SFX.galvaTeleport,
+  'shadow-barrier':    ELEVENLABS_ANIME_SFX.guardClash,
+  'tornado-whoosh':    ELEVENLABS_ANIME_SFX.kaiTempestCounter,
+  'shuraku-grapple':   ELEVENLABS_ANIME_SFX.shurakuGrapple,
+  'galva-ground-slam': ELEVENLABS_ANIME_SFX.galvaGroundSlam,
+  'throw-landing':     ELEVENLABS_ANIME_SFX.throwLanding,
   'ryu-powerup':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/cpDOlOBRtrQqnetP.wav',
   'akari-powerup':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/sBiYIQWLUhSMlcxg.wav',
   'galva-powerup':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/iCqJHLbDOBxnDIPm.wav',
@@ -306,7 +311,7 @@ export class SoundManager {
     osc.type = profiles.type;
     osc.frequency.setValueAtTime(profiles.start, now);
     osc.frequency.exponentialRampToValueAtTime(Math.max(18, profiles.end), now + profiles.duration);
-    toneGain.gain.setValueAtTime(profiles.tone * volume, now);
+    toneGain.gain.setValueAtTime(profiles.tone * volume * 0.28, now);
     toneGain.gain.exponentialRampToValueAtTime(0.001, now + profiles.duration);
     osc.connect(toneGain);
     toneGain.connect(this.masterGain);
@@ -323,7 +328,7 @@ export class SoundManager {
     filter.type = kind === 'block' ? 'bandpass' : 'lowpass';
     filter.frequency.value = kind === 'block' ? 1800 : kind === 'whoosh' ? 1200 : 720;
     noise.buffer = noiseBuffer;
-    noiseGain.gain.setValueAtTime(profiles.noise * volume, now);
+    noiseGain.gain.setValueAtTime(profiles.noise * volume * 0.28, now);
     noiseGain.gain.exponentialRampToValueAtTime(0.001, now + profiles.duration);
     noise.connect(filter);
     filter.connect(noiseGain);

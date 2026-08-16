@@ -751,7 +751,7 @@ export class GameEngine {
       target.x = lerp(holdX, pullX, progress);
     } else {
       fighter.executeThrow();
-      this.sound.play('ko', 0.56);
+      this.sound.play('shuraku-grapple', 0.92);
       this.sound.playAnimeImpact('throw', 0.92);
       this.triggerImpact(true);
       return;
@@ -812,7 +812,7 @@ export class GameEngine {
         size: 5 + Math.random() * 10,
       });
     }
-    this.sound.play('lightning-blast', 0.95);
+    this.sound.play('galva-ground-slam', 0.98);
     this.sound.playAnimeImpact('slam', 1.0);
     this.triggerImpact(true);
 
@@ -842,7 +842,7 @@ export class GameEngine {
   private resolveThrowImpact(fighter: Fighter) {
     if (!fighter.throwImpactPending) return;
     fighter.throwImpactPending = false;
-    this.sound.play('block-impact', 0.9);
+    this.sound.play('throw-landing', 0.94);
     this.sound.playAnimeImpact('land', 0.92);
     this.triggerImpact(true);
     const impactX = fighter.centerX;

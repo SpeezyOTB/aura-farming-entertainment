@@ -45,3 +45,11 @@
 - [x] Inventory all remaining legacy-hosted game media and runtime references.
 - [x] Replace 140 legacy media references with independent CDN copies and generic impact fallbacks for inaccessible legacy grunts.
 - [x] Enforce the local `/dragonfistx` path on match completion and verify legacy game aliases resolve to the Aura Farming route.
+- [x] Define character- and action-specific anime sound directions and identify generic placeholders for removal.
+- [x] Obtain a valid ElevenLabs Sound Effects API key and generate a priority custom effects library.
+- [x] Integrate 13 ElevenLabs anime effects for menus, strikes, guards, specials, launches, and landings.
+- [x] Validate the production build and publish the redesigned combat and UI sound experience.
+- [ ] Define character- and action-specific anime sound directions and identify generic placeholders for removal.
+- [ ] Obtain a valid ElevenLabs sound-effects key and generate a priority custom effects library.
+- [ ] Integrate layered anime effects for movement, strikes, guards, specials, launches, and menus.
+- [ ] Test and publish the redesigned combat and UI sound experience.

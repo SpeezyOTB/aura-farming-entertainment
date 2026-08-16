@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { GameEngine } from '@/game/GameEngine';
 import { SoundManager } from '@/game/SoundManager';
+import { ELEVENLABS_ANIME_SFX } from '@/game/ElevenLabsAnimeSfx';
 import type { GameState, GameMode } from '@/game/types';
 import type { FighterConfig } from '@/game/types';
 import {
@@ -24,8 +25,9 @@ const KAI_SPRITE   = 'https://files.manuscdn.com/user_upload_by_module/session_f
 const SHURAKU_SPRITE = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/LxBYFoUoQZxCFhVL.png';
 
 // UI sounds via plain Audio elements (no AudioContext needed)
-const UI_CLICK_URL    = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ooCBEqPDjxLRvUkw.wav';
-const FIGHT_START_URL = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/WaeBZpBeljMevzjE.wav';
+const UI_CLICK_URL    = ELEVENLABS_ANIME_SFX.uiCharacterSelect;
+const UI_MODE_URL     = ELEVENLABS_ANIME_SFX.uiModeSelect;
+const FIGHT_START_URL = ELEVENLABS_ANIME_SFX.fightStart;
 const CHAR_SELECT_VOICES: Record<string, string> = {
   ryu:     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/zNhPbYRaOOSkClUC.wav',
   akari:   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/tbYfKZObBpUFAmKW.wav',
@@ -256,7 +258,7 @@ function CharSelect({ onSelect, onVoicePlay }: { onSelect: (p1: string, p2: stri
     setter(key);
   };
   const handleModeSelect = (m: GameMode) => {
-    playUISound(UI_CLICK_URL, 0.4);
+    playUISound(UI_MODE_URL, 0.58);
     playAnimeUICue('mode', 0.82);
     setMode(m);
   };
