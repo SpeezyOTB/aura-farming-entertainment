@@ -17,3 +17,9 @@
 - [x] Review Galva's special controls and the combat engine's finisher hooks.
 - [x] Implement Galva's lightning ground-slam finisher with shockwave and recovery rules.
 - [x] Test the game route and validate the finisher's production build, then publish the update.
+- [x] Trace all post-match, replay, and return-to-selection navigation paths for legacy-host URLs.
+- [x] Verify the merged game uses local React state for replay and character select; no legacy-host navigation exists in the merged source.
+- [x] Verify `/dfx/demo` resolves to the Aura Farming `/dragonfistx` route without a legacy-host redirect.
+- [x] Audit all website buttons, legacy game pages, and redirects for launches to the old Manus game host.
+- [x] Replace or retire every legacy game entry point that bypasses the local Aura Farming game route.
+- [x] Verify `/dfx/demo` redirects client-side and server-side to the local `/dragonfistx` route.
