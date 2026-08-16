@@ -41,3 +41,7 @@
 - [ ] Keep all remaining female and male grapple reaction clips pending approval and unintegrated.
 - [x] Approve the complete female reaction set only for Akari being held and thrown by Shuraku.
 - [x] Map the female choke strain, throw cry, and impact reaction exclusively to the corresponding Shuraku-versus-Akari grapple stages.
+- [ ] Capture and deliver a short authentic gameplay clip of Shuraku holding, throwing, and landing Akari for animation, physics, and reaction-sound verification.
+- [ ] Refine the restored Shuraku-versus-Akari hold and pull-in visuals, which remain visually static in the verification capture despite the throw arc and landing recovery occurring.
+- [ ] Add natural weighted reach, hand placement, Akari resistance, pull-in, release, throw arc, impact, and recovery timing to Shuraku’s staged grapple.
+- [ ] Capture a fresh Shuraku-versus-Akari gameplay clip to verify the refined animation before release.

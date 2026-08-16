@@ -1108,16 +1108,16 @@ export class Fighter {
     if (!this.hasGrab || !this.canAttack() || !this.isOnGround) return false;
     if (Math.abs(this.centerX - target.centerX) > 135) return false; // must be close
     this.state = 'grab';
-    this.stateTimer = 1.42;
+    this.stateTimer = 1.78;
     this.grabTarget = target;
     this.grappleSqueezeApplied = false;
     this.grapplePhase = 'reach';
     this.grappleStartX = target.x;
     this.grappleStartY = target.y;
     target.state = 'grabbed';
-    target.stateTimer = 1.42;
+    target.stateTimer = 1.78;
     target.grabbedBy = this;
-    target.grappleStruggleTimer = 0.95;
+    target.grappleStruggleTimer = 1.28;
     target.vx = 0;
     return true;
   }
@@ -1127,10 +1127,11 @@ export class Fighter {
     const target = this.grabTarget;
     const throwDir = this.facingRight ? 1 : -1;
     target.state = 'thrown';
-    target.vx = throwDir * 920;
-    target.vy = -560;
+    target.vx = throwDir * 740;
+    target.vy = -500;
     target.isOnGround = false;
-    target.stateTimer = 1.35;
+    target.stateTimer = 1.25;
+    target.throwTimer = 1.25;
     target.grabbedBy = null;
     target.grappleStruggleTimer = 0;
     this.grabTarget = null;

@@ -44,6 +44,7 @@ export class GameEngine {
   private bgImage: HTMLImageElement | null = null;
   private p1Image: HTMLImageElement | null = null;
   private p2Image: HTMLImageElement | null = null;
+  private shurakuAkariGrapplePose: HTMLImageElement | null = null;
   private celShader: CelShader = new CelShader(FIGHTER_WIDTH + 8, FIGHTER_HEIGHT + 8);
   private cinematic = new CinematicManager();
 
@@ -118,6 +119,7 @@ export class GameEngine {
     loadImg(bgUrl, img => { this.bgImage = img; });
     loadImg(p1Config.spriteUrl, img => { this.p1Image = img; });
     loadImg(p2Config.spriteUrl, img => { this.p2Image = img; });
+    loadImg('/manus-storage/shuraku_akari_grapple_pose_reference_4ee76499.png', img => { this.shurakuAkariGrapplePose = img; });
   }
 
   start() {
@@ -722,27 +724,31 @@ export class GameEngine {
     const direction = fighter.facingRight ? 1 : -1;
     const timer = fighter.stateTimer;
     const initialX = fighter.grappleStartX;
-    const holdX = fighter.centerX + direction * FIGHTER_WIDTH * 0.34 - FIGHTER_WIDTH / 2;
-    const pullX = fighter.centerX + direction * FIGHTER_WIDTH * 0.15 - FIGHTER_WIDTH / 2;
+    const holdX = fighter.centerX + direction * FIGHTER_WIDTH * 0.30 - FIGHTER_WIDTH / 2;
+    const pullX = fighter.centerX + direction * FIGHTER_WIDTH * 0.08 - FIGHTER_WIDTH / 2;
     const lerp = (from: number, to: number, amount: number) => from + (to - from) * Math.max(0, Math.min(1, amount));
 
-    // The animation advances as reach → throat hold/resistance → pull-in → throw.
-    // Targets move along this path over several frames rather than teleporting.
-    if (timer > 1.02) {
+    // Four clear, weighted beats: reach, secure hold, pull the opponent off balance,
+    // then release into the throw. The target transitions over time rather than snapping.
+    if (timer > 1.38) {
       fighter.grapplePhase = 'reach';
-      target.x = initialX;
-    } else if (timer > 0.56) {
+      const progress = (1.78 - timer) / 0.40;
+      target.x = lerp(initialX, initialX - direction * 10, progress);
+      target.y = fighter.grappleStartY;
+    } else if (timer > 0.90) {
       fighter.grapplePhase = 'hold';
       if (isAkariThrownByShuraku && !this.akariShurakuHoldReactionPlayed) {
         this.akariShurakuHoldReactionPlayed = true;
         this.sound.playPairReaction('akari-shuraku-choke', 0.88);
       }
-      const progress = (1.02 - timer) / 0.46;
-      target.x = lerp(initialX, holdX, progress);
-    } else if (timer > 0.18) {
+      const progress = (1.38 - timer) / 0.48;
+      target.x = lerp(initialX - direction * 10, holdX, progress);
+      target.y = lerp(fighter.grappleStartY, fighter.y + 4, progress);
+    } else if (timer > 0.42) {
       fighter.grapplePhase = 'pull';
-      const progress = (0.56 - timer) / 0.38;
+      const progress = (0.90 - timer) / 0.48;
       target.x = lerp(holdX, pullX, progress);
+      target.y = lerp(fighter.y + 4, fighter.y - 5, progress);
     } else {
       if (isAkariThrownByShuraku) {
         this.sound.playPairReaction('akari-shuraku-throw-cry', 0.94);
@@ -754,17 +760,17 @@ export class GameEngine {
       return;
     }
 
-    target.y = lerp(fighter.grappleStartY, fighter.y + 5, timer > 1.02 ? 0 : Math.min(1, (1.02 - timer) / 0.46));
     target.vx = 0;
     target.vy = 0;
     target.isOnGround = true;
+    target.facingRight = !fighter.facingRight;
     target.state = 'grabbed';
     target.stateTimer = Math.max(0.05, timer);
     target.grabbedBy = fighter;
     target.grappleStruggleTimer = Math.max(0.05, timer);
 
     // Apply one controlled damage tick during the pull-in, before the final throw.
-    if (!fighter.grappleSqueezeApplied && timer <= 0.52) {
+    if (!fighter.grappleSqueezeApplied && timer <= 0.82) {
       const damage = fighter.boostActive ? 5 : 3;
       target.health = Math.max(0, target.health - damage);
       target.hitFlash = 0.14;
@@ -1370,6 +1376,14 @@ export class GameEngine {
 
   private renderFighter(f: Fighter, img: HTMLImageElement | null) {
     const { ctx } = this;
+    const isShurakuHoldingAkari = f.name === 'Shuraku' && f.state === 'grab' && f.grabTarget?.name === 'Akari';
+    const isAkariHeldByShuraku = f.name === 'Akari' && f.state === 'grabbed' && f.grabbedBy?.name === 'Shuraku';
+    const useContactPose = this.shurakuAkariGrapplePose && (f.grapplePhase === 'hold' || f.grapplePhase === 'pull');
+    if (isShurakuHoldingAkari && useContactPose) {
+      this.renderShurakuAkariContactPose(f);
+      return;
+    }
+    if (isAkariHeldByShuraku && useContactPose) return;
     ctx.save();
 
     // During teleport vanish phase, fighter is invisible
@@ -1409,14 +1423,50 @@ export class GameEngine {
     }
 
     let actionRotation = 0;
-    if (f.state === 'grabbed') {
-      actionRotation = Math.sin(performance.now() / 70) * 0.035;
+    let poseOffsetX = 0;
+    let poseOffsetY = 0;
+    const grappleTime = performance.now() / 1000;
+    if (f.state === 'grab' && f.grabTarget) {
+      const dir = f.facingRight ? 1 : -1;
+      const timer = f.stateTimer;
+      if (f.grapplePhase === 'reach') {
+        const progress = Math.max(0, Math.min(1, (1.78 - timer) / 0.40));
+        poseOffsetX = dir * 10 * progress;
+        actionRotation = dir * 0.10 * progress;
+      } else if (f.grapplePhase === 'hold') {
+        const pressure = Math.max(0, Math.min(1, (1.38 - timer) / 0.48));
+        poseOffsetX = dir * (10 + pressure * 6);
+        poseOffsetY = Math.sin(grappleTime * 8) * 1.5;
+        actionRotation = dir * (0.06 + pressure * 0.045);
+      } else if (f.grapplePhase === 'pull') {
+        const progress = Math.max(0, Math.min(1, (0.90 - timer) / 0.48));
+        poseOffsetX = dir * (16 - progress * 6);
+        poseOffsetY = -progress * 3;
+        actionRotation = dir * (0.11 - progress * 0.16);
+      }
+    } else if (f.state === 'grabbed' && f.grabbedBy) {
+      const holderDir = f.grabbedBy.facingRight ? 1 : -1;
+      const timer = f.grabbedBy.stateTimer;
+      if (f.grabbedBy.grapplePhase === 'reach') {
+        const progress = Math.max(0, Math.min(1, (1.78 - timer) / 0.40));
+        actionRotation = -holderDir * 0.08 * progress;
+      } else if (f.grabbedBy.grapplePhase === 'hold') {
+        const strain = Math.max(0, Math.min(1, (1.38 - timer) / 0.48));
+        actionRotation = -holderDir * (0.10 + strain * 0.08) + Math.sin(grappleTime * 15) * 0.025;
+        poseOffsetY = Math.sin(grappleTime * 12) * 2;
+      } else {
+        const pull = Math.max(0, Math.min(1, (0.90 - timer) / 0.48));
+        actionRotation = -holderDir * (0.18 + pull * 0.13);
+        poseOffsetX = -holderDir * 5 * pull;
+        poseOffsetY = -pull * 6;
+      }
     } else if (f.state === 'thrown' || f.state === 'airborne') {
       const direction = f.vx >= 0 ? 1 : -1;
       actionRotation = direction * (0.32 + Math.sin(performance.now() / 90) * 0.14);
     } else if (f.state === 'prone') {
       actionRotation = f.facingRight ? Math.PI / 2 : -Math.PI / 2;
     }
+    if (poseOffsetX !== 0 || poseOffsetY !== 0) ctx.translate(poseOffsetX, poseOffsetY);
     if (actionRotation !== 0) {
       ctx.translate(f.centerX, f.y + FIGHTER_HEIGHT * 0.52);
       ctx.rotate(actionRotation);
@@ -1459,6 +1509,42 @@ export class GameEngine {
       ctx.textAlign = 'center';
       ctx.fillText(icon, f.x + FIGHTER_WIDTH/2, f.y - 10);
     }
+  }
+
+  private renderShurakuAkariContactPose(shuraku: Fighter) {
+    if (!this.shurakuAkariGrapplePose || !shuraku.grabTarget) return;
+    const { ctx } = this;
+    const target = shuraku.grabTarget;
+    const dir = shuraku.facingRight ? 1 : -1;
+    const timer = shuraku.stateTimer;
+    const isPull = shuraku.grapplePhase === 'pull';
+    const phaseProgress = isPull
+      ? Math.max(0, Math.min(1, (0.90 - timer) / 0.48))
+      : Math.max(0, Math.min(1, (1.38 - timer) / 0.48));
+    const midpointX = (shuraku.centerX + target.centerX) * 0.5 + dir * (isPull ? 8 - phaseProgress * 12 : 4);
+    const height = FIGHTER_HEIGHT * (isPull ? 1.28 : 1.25);
+    const width = FIGHTER_WIDTH * (isPull ? 2.55 : 2.44);
+    const sway = Math.sin(performance.now() / 95) * (isPull ? 0.012 : 0.006);
+    const lean = dir * (isPull ? 0.10 + phaseProgress * 0.11 : 0.045 + phaseProgress * 0.035);
+
+    ctx.save();
+    ctx.translate(midpointX, GROUND_Y - 4 - height * 0.5 + (isPull ? -phaseProgress * 7 : 0));
+    ctx.scale(dir, 1);
+    ctx.rotate(lean + sway);
+    ctx.shadowColor = '#140722';
+    ctx.shadowBlur = 16;
+    ctx.globalAlpha = 0.995;
+    ctx.drawImage(this.shurakuAkariGrapplePose, -width * 0.5, -height * 0.5, width, height);
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = 0.36;
+    ctx.fillStyle = '#13080c';
+    ctx.filter = 'blur(5px)';
+    ctx.beginPath();
+    ctx.ellipse(midpointX, GROUND_Y - 4, width * 0.39, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 
   private renderIcarusStance(f: Fighter) {
@@ -1645,7 +1731,8 @@ export class GameEngine {
     const armStartY = f.y + FIGHTER_HEIGHT * 0.32;
     const targetNeckX = target.centerX - dir * FIGHTER_WIDTH * 0.14;
     const targetNeckY = target.y + FIGHTER_HEIGHT * 0.24;
-    const reach = phase === 'reach' ? 0.55 : 1;
+    const timer = f.stateTimer;
+    const reach = phase === 'reach' ? 0.28 + Math.max(0, Math.min(1, (1.78 - timer) / 0.40)) * 0.72 : 1;
     const handX = armStartX + (targetNeckX - armStartX) * reach;
     const handY = armStartY + (targetNeckY - armStartY) * reach;
 
@@ -1654,7 +1741,7 @@ export class GameEngine {
     ctx.strokeStyle = '#e6d7ff';
     ctx.shadowColor = '#8f38e8';
     ctx.shadowBlur = 12;
-    ctx.lineWidth = 7;
+    ctx.lineWidth = phase === 'pull' ? 8 : 7;
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(armStartX, armStartY);
@@ -1667,6 +1754,14 @@ export class GameEngine {
     ctx.fill();
 
     if (phase === 'hold' || phase === 'pull') {
+      // A lower bracing arm makes the restraint read as body contact instead of a single floating line.
+      ctx.globalAlpha = 0.82;
+      ctx.strokeStyle = '#c7b3f3';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(armStartX - dir * 6, armStartY + 24);
+      ctx.quadraticCurveTo(armStartX + dir * 30, armStartY + 30, target.centerX - dir * 12, target.y + FIGHTER_HEIGHT * 0.46);
+      ctx.stroke();
       ctx.globalAlpha = 0.55;
       ctx.strokeStyle = '#d1a0ff';
       ctx.lineWidth = 2.5;
