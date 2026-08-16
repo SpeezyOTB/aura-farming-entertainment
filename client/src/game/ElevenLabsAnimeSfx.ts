@@ -25,4 +25,10 @@ export const ELEVENLABS_ANIME_SFX = {
   shurakuKick: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gaqdbVBmNMWpnIpA.mp3',
   movementDash: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/eYooXrBrjuMKWuEy.mp3',
   jumpLaunch: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/uiVhavycFFVOzzht.mp3',
+  approvedPunchHit: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/NnDkbbBSUMXqiPIG.mp3',
+  approvedPunchWhiff: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/nSmpvgCrtfMREHMt.mp3',
+  approvedKickWhiff: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/sphmjpgfiNbUtyzW.mp3',
+  approvedKickHit: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/qmgBgvlniWtHlTpB.mp3',
+  approvedPunchBlock: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/jYDSczmcZRwGBSet.mp3',
+  approvedKickBlock: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/OtAyjMdgMJhaleta.mp3',
 } as const;

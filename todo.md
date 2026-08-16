@@ -52,6 +52,19 @@
 - [x] Inspect the live audio preload path, active sound keys, and deploy cache state.
 - [x] Replace the still-active generic fighter strikes, movement cues, and hit-grunt layer with 12 additional ElevenLabs effects.
 - [x] Validate all 25 ElevenLabs sound URLs and the production build before publishing the correction.
+- [ ] Trace all endgame events—slam, grapple, launch, landing, knockout, and victory—to their exact active sound keys.
+- [ ] Assess the current endgame clips for distinctiveness and replace weak effects through ElevenLabs Sound Effects.
+- [ ] Verify endgame sound routing in gameplay and publish the corrected audio pass.
+- [ ] Trace punch and kick whiff, hit, and block timing in the combat engine.
+- [ ] Generate six distinct ElevenLabs preview effects: punch whiff/hit/block and kick whiff/hit/block.
+- [ ] Send the six preview effects to the user for approval before integration.
+- [ ] Integrate approved strike effects, test their gameplay timing, and publish the update.
+- [x] Preserve the user-approved ElevenLabs punch-hit preview for connected punches.
+- [ ] Generate refined preview candidates for kick hits, punch blocks, kick blocks, and air-only whiffs.
+- [ ] Present the refined candidates and wait for approval before integrating additional strike sounds.
+- [x] Obtain approval for the connected-punch clip and refined whiff, kick-hit, and guard clips.
+- [x] Upload the approved strike effects and map punch/kick whiffs, hits, and blocks to the correct sound keys.
+- [x] Remove overlapping generic strike effects and validate the approved six-event system in the production build.
 - [ ] Define character- and action-specific anime sound directions and identify generic placeholders for removal.
 - [ ] Obtain a valid ElevenLabs sound-effects key and generate a priority custom effects library.
 - [ ] Integrate layered anime effects for movement, strikes, guards, specials, launches, and menus.

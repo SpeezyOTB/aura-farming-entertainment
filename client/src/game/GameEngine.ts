@@ -503,13 +503,7 @@ export class GameEngine {
       const atk = attacker.getAttackRect();
       if (!atk) return;
       const body = defender.getBodyRect();
-      // Miss whoosh: attack is active but doesn't overlap defender
-      if (!rectsOverlap(atk, body) && attacker.attackPhase === 'active' && !attacker.attackLanded) {
-        if (Math.random() < 0.4) {
-          this.sound.play('miss-whoosh', 0.3);
-          this.sound.playAnimeImpact('whoosh', 0.22);
-        }
-      }
+      // Air layers play when an attack begins. Contact layers below play only when a hit or block occurs.
       if (rectsOverlap(atk, body)) {
         // Kai's Tempest Guard is a narrow, timing-based parry. It trades no armor
         // for a guaranteed close-range counter if the player reads an incoming hit.
@@ -583,8 +577,7 @@ export class GameEngine {
         if (isCharged) attacker.isChargingAttack = false;
         if (defender.isBlocking) {
           attacker.attackLanded = true;
-          this.sound.play('block-impact', isKick ? 0.82 : 0.74);
-          this.sound.playAnimeImpact('block', isKick ? 0.70 : 0.60);
+          this.sound.play(isKick ? 'kick-block' : 'punch-block', isKick ? 0.88 : 0.80);
           this.triggerImpact(false);
           const blockX = body.x + body.w / 2;
           const blockY = body.y + body.h * 0.36;
