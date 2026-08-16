@@ -72,6 +72,8 @@ export class GameEngine {
   // Grunt cooldown: prevents stacking multiple grunts on the same hit
   private p1GruntTimer = 0;
   private p2GruntTimer = 0;
+  private akariShurakuHoldReactionPlayed = false;
+  private akariShurakuLandingReactionPending = false;
   // Combo counter
   p1ComboCount = 0;
   p2ComboCount = 0;
@@ -136,6 +138,8 @@ export class GameEngine {
     this.pulseWaves = [];
     this.p1Combo.clear();
     this.p2Combo.clear();
+    this.akariShurakuHoldReactionPlayed = false;
+    this.akariShurakuLandingReactionPending = false;
     this.cpu?.reset();
     this.cpu2?.reset();
     this.sound.stopFightMusic();
@@ -714,6 +718,7 @@ export class GameEngine {
     if (fighter.state !== 'grab' || !fighter.grabTarget) return;
 
     const target = fighter.grabTarget;
+    const isAkariThrownByShuraku = fighter.name === 'Shuraku' && target.name === 'Akari';
     const direction = fighter.facingRight ? 1 : -1;
     const timer = fighter.stateTimer;
     const initialX = fighter.grappleStartX;
@@ -728,6 +733,10 @@ export class GameEngine {
       target.x = initialX;
     } else if (timer > 0.56) {
       fighter.grapplePhase = 'hold';
+      if (isAkariThrownByShuraku && !this.akariShurakuHoldReactionPlayed) {
+        this.akariShurakuHoldReactionPlayed = true;
+        this.sound.playPairReaction('akari-shuraku-choke', 0.88);
+      }
       const progress = (1.02 - timer) / 0.46;
       target.x = lerp(initialX, holdX, progress);
     } else if (timer > 0.18) {
@@ -735,6 +744,10 @@ export class GameEngine {
       const progress = (0.56 - timer) / 0.38;
       target.x = lerp(holdX, pullX, progress);
     } else {
+      if (isAkariThrownByShuraku) {
+        this.sound.playPairReaction('akari-shuraku-throw-cry', 0.94);
+        this.akariShurakuLandingReactionPending = true;
+      }
       fighter.executeThrow();
       this.sound.play('ko', 0.56);
       this.triggerImpact(true);
@@ -824,6 +837,10 @@ export class GameEngine {
   private resolveThrowImpact(fighter: Fighter) {
     if (!fighter.throwImpactPending) return;
     fighter.throwImpactPending = false;
+    if (fighter.name === 'Akari' && this.akariShurakuLandingReactionPending) {
+      this.akariShurakuLandingReactionPending = false;
+      this.sound.playPairReaction('akari-shuraku-throw-impact', 0.96);
+    }
     this.sound.play('block-impact', 0.9);
     this.triggerImpact(true);
     const impactX = fighter.centerX;

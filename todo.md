@@ -33,3 +33,11 @@
 - [x] Implement Ryu's low guard victory stance with contained dragon-energy effects.
 - [x] Define and implement Ryu's smooth low-guard-to-fist-raised victory transition.
 - [x] Verify the full Ryu victory animation and validate the production build, then publish the update.
+- [x] Generate three ElevenLabs preview clips: a restrained choke reaction, a short anime scream, and a throw-impact reaction.
+- [x] Present the three grappling reaction previews for approval before integrating any of them.
+- [x] Generate a female-specific quick choke strain, brief throw cry, and compact throw-impact reaction with no sustained breathing.
+- [x] Present the short female reaction preview set for approval before integration.
+- [x] Reserve `female_grapple_choke_quick` exclusively for Akari’s female grapple reaction.
+- [ ] Keep all remaining female and male grapple reaction clips pending approval and unintegrated.
+- [x] Approve the complete female reaction set only for Akari being held and thrown by Shuraku.
+- [x] Map the female choke strain, throw cry, and impact reaction exclusively to the corresponding Shuraku-versus-Akari grapple stages.

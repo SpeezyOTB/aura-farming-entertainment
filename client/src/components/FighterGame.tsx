@@ -610,7 +610,8 @@ export default function FighterGame() {
     // Stop select music
     selectMusicRef.current?.pause();
 
-    // Init sound (fire-and-forget)
+    // The sound manager was created directly by the FIGHT button gesture.
+    // This effect only resumes it after the canvas mounts.
     if (!soundRef.current) {
       const sm = new SoundManager();
       soundRef.current = sm;
@@ -695,6 +696,14 @@ export default function FighterGame() {
     // Stop select music immediately on fight start
     selectMusicRef.current?.pause();
     selectMusicRef.current = null;
+
+    // Create and prime the small approved reaction set inside the FIGHT gesture.
+    if (!soundRef.current) {
+      const sm = new SoundManager();
+      soundRef.current = sm;
+      void sm.init().catch(e => console.warn('[FighterGame] SoundManager init error:', e));
+    }
+    soundRef.current.resume();
 
     // Show loading bar, store config, then switch screen so canvas mounts
     setLoading(true);

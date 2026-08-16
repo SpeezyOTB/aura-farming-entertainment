@@ -147,6 +147,12 @@ export function isSuspended() {
 
 const WIND_URL = 'https://fightergame-j95rkwu8.manus.space/manus-storage/wind_loop_710f2911.mp3';
 
+const AKARI_SHURAKU_REACTIONS: Record<string, string> = {
+  'akari-shuraku-choke': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/GbrmlZCZWwBMSkNP.mp3',
+  'akari-shuraku-throw-cry': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/wGxYKEROKIdSNXOR.mp3',
+  'akari-shuraku-throw-impact': 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/EWXlVdxgrHVSFskH.mp3',
+};
+
 export class SoundManager {
   private ctx: AudioContext | null = null;
   private buffers: Map<string, AudioBuffer> = new Map();
@@ -161,6 +167,7 @@ export class SoundManager {
   private muted = false;
   private resumePollId = 0;
   private windBuf: AudioBuffer | null = null;
+  private pairReactionVoices: Map<string, HTMLAudioElement> = new Map();
 
   async init() {
     try {
@@ -179,6 +186,25 @@ export class SoundManager {
     this.masterGain = this.ctx.createGain();
     this.masterGain.gain.value = 0.8;
     this.masterGain.connect(this.ctx.destination);
+    void this.ctx.resume().catch(() => {});
+
+    // These three approved clips are intentionally separate from the restored
+    // baseline SFX library and are used only for Akari being thrown by Shuraku.
+    for (const [key, url] of Object.entries(AKARI_SHURAKU_REACTIONS)) {
+      const voice = new Audio(url);
+      voice.preload = 'auto';
+      voice.load();
+      this.pairReactionVoices.set(key, voice);
+      // Prime the exact elements from the FIGHT gesture at an inaudible level.
+      voice.volume = 0.001;
+      void voice.play().then(() => {
+        window.setTimeout(() => {
+          voice.pause();
+          voice.currentTime = 0;
+          voice.volume = 1;
+        }, 45);
+      }).catch(() => {});
+    }
 
     // Load all SFX
     await Promise.all(
@@ -284,6 +310,16 @@ export class SoundManager {
     src.start();
   }
 
+  playPairReaction(key: keyof typeof AKARI_SHURAKU_REACTIONS, volume = 1.0) {
+    const voice = this.pairReactionVoices.get(key);
+    if (!voice || this.muted) return;
+    voice.pause();
+    voice.currentTime = 0;
+    voice.muted = false;
+    voice.volume = Math.max(0, Math.min(1, volume));
+    void voice.play().catch((error) => console.warn('[SoundManager] Pair reaction blocked:', key, error));
+  }
+
   // Play a random variant from a set of keys
   playRandom(keys: string[], volume = 1.0) {
     const key = keys[Math.floor(Math.random() * keys.length)];
@@ -309,6 +345,8 @@ export class SoundManager {
   dispose() {
     this.stopFightMusic();
     this.windNode?.stop();
+    for (const voice of Array.from(this.pairReactionVoices.values())) voice.pause();
+    this.pairReactionVoices.clear();
     clearTimeout(this.resumePollId);
     document.removeEventListener('visibilitychange', this.handleVisibility);
     this.ctx?.close();
