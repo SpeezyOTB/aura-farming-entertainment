@@ -284,6 +284,56 @@ export class SoundManager {
     src.start();
   }
 
+  /**
+   * Short synthesized layers keep combat responsive even when a downloaded SFX
+   * fails to load. They are intentionally bright and stylized rather than realistic.
+   */
+  playAnimeImpact(kind: 'punch' | 'kick' | 'block' | 'slam' | 'throw' | 'land' | 'grapple' | 'whoosh', volume = 1.0) {
+    if (this.muted || !this.ctx || !this.masterGain) return;
+    const profiles = {
+      punch:   { start: 190, end: 72,  duration: 0.09, tone: 0.32, noise: 0.12, type: 'square' as OscillatorType },
+      kick:    { start: 136, end: 38,  duration: 0.13, tone: 0.40, noise: 0.16, type: 'sawtooth' as OscillatorType },
+      block:   { start: 560, end: 170, duration: 0.08, tone: 0.20, noise: 0.18, type: 'triangle' as OscillatorType },
+      slam:    { start: 94,  end: 24,  duration: 0.24, tone: 0.54, noise: 0.27, type: 'sawtooth' as OscillatorType },
+      throw:   { start: 150, end: 48,  duration: 0.18, tone: 0.42, noise: 0.22, type: 'square' as OscillatorType },
+      land:    { start: 104, end: 28,  duration: 0.17, tone: 0.38, noise: 0.24, type: 'triangle' as OscillatorType },
+      grapple: { start: 130, end: 58,  duration: 0.12, tone: 0.30, noise: 0.14, type: 'square' as OscillatorType },
+      whoosh:  { start: 310, end: 105, duration: 0.11, tone: 0.10, noise: 0.12, type: 'triangle' as OscillatorType },
+    }[kind];
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const toneGain = this.ctx.createGain();
+    osc.type = profiles.type;
+    osc.frequency.setValueAtTime(profiles.start, now);
+    osc.frequency.exponentialRampToValueAtTime(Math.max(18, profiles.end), now + profiles.duration);
+    toneGain.gain.setValueAtTime(profiles.tone * volume, now);
+    toneGain.gain.exponentialRampToValueAtTime(0.001, now + profiles.duration);
+    osc.connect(toneGain);
+    toneGain.connect(this.masterGain);
+
+    const noiseBuffer = this.ctx.createBuffer(1, Math.ceil(this.ctx.sampleRate * profiles.duration), this.ctx.sampleRate);
+    const samples = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < samples.length; i++) {
+      const decay = 1 - i / samples.length;
+      samples[i] = (Math.random() * 2 - 1) * decay * decay;
+    }
+    const noise = this.ctx.createBufferSource();
+    const filter = this.ctx.createBiquadFilter();
+    const noiseGain = this.ctx.createGain();
+    filter.type = kind === 'block' ? 'bandpass' : 'lowpass';
+    filter.frequency.value = kind === 'block' ? 1800 : kind === 'whoosh' ? 1200 : 720;
+    noise.buffer = noiseBuffer;
+    noiseGain.gain.setValueAtTime(profiles.noise * volume, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + profiles.duration);
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.masterGain);
+    osc.start(now);
+    noise.start(now);
+    osc.stop(now + profiles.duration);
+    noise.stop(now + profiles.duration);
+  }
+
   // Play a random variant from a set of keys
   playRandom(keys: string[], volume = 1.0) {
     const key = keys[Math.floor(Math.random() * keys.length)];

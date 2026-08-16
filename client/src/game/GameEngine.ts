@@ -503,7 +503,10 @@ export class GameEngine {
       const body = defender.getBodyRect();
       // Miss whoosh: attack is active but doesn't overlap defender
       if (!rectsOverlap(atk, body) && attacker.attackPhase === 'active' && !attacker.attackLanded) {
-        if (Math.random() < 0.4) this.sound.play('miss-whoosh', 0.3);
+        if (Math.random() < 0.4) {
+          this.sound.play('miss-whoosh', 0.3);
+          this.sound.playAnimeImpact('whoosh', 0.22);
+        }
       }
       if (rectsOverlap(atk, body)) {
         // Kai's Tempest Guard is a narrow, timing-based parry. It trades no armor
@@ -524,6 +527,7 @@ export class GameEngine {
           defender.onAttackLanded();
           this.sound.play('tornado-whoosh', 0.78);
           this.sound.play('block-impact', 0.85);
+          this.sound.playAnimeImpact('block', 0.72);
           this.triggerImpact(true);
           return;
         }
@@ -565,6 +569,7 @@ export class GameEngine {
           else { this.p2ComboCount++; this.p2ComboTimer = 1.5; }
           if (!defender.isAlive) { this.sound.play('ko', 0.9); }
           this.sound.playRandom(['kick-impact','kick-impact2','kick-impact3'], 0.85);
+          this.sound.playAnimeImpact('kick', 0.78);
           // Sparks
           const bdy = defender.getBodyRect();
           const sweepColor = attacker.hasIcarusStyle ? '#ff7918' : attacker.hasAphroditeStyle ? '#ffc0e6' : attacker.hasTempestStyle ? '#9cf2ff' : '#fff';
@@ -574,6 +579,17 @@ export class GameEngine {
         }
         const dmg = defender.receiveHit(base, attacker.boostActive, isKick, isCharged);
         if (isCharged) attacker.isChargingAttack = false;
+        if (defender.isBlocking) {
+          attacker.attackLanded = true;
+          this.sound.play('block-impact', isKick ? 0.82 : 0.74);
+          this.sound.playAnimeImpact('block', isKick ? 0.70 : 0.60);
+          this.triggerImpact(false);
+          const blockX = body.x + body.w / 2;
+          const blockY = body.y + body.h * 0.36;
+          for (let i = 0; i < 7; i++) this.sparks.push({ x: blockX + (Math.random() - 0.5) * 28, y: blockY + (Math.random() - 0.5) * 18, ttl: 0.12 + Math.random() * 0.12, color: '#d8fbff', size: 3 + Math.random() * 5 });
+          attacker.comboDamageOverride = null;
+          return;
+        }
         if (dmg > 0) {
           attacker.onAttackLanded();
           this.triggerImpact(isRoundhouse || isCharged || attacker.boostActive);
@@ -586,25 +602,21 @@ export class GameEngine {
           } else {
             this.sound.playRandom(['punch-impact','punch-impact2','punch-impact3','punch-impact4','punch-impact5','punch-impact6'], 0.82);
           }
-          // Block sound if defender is blocking
-          if (defender.isBlocking) {
-            this.sound.play('block-impact', 0.75);
-          } else {
-            // Weighted grunt selection: 30% silent, 35% soft (1-2), 25% medium (3-4), 10% hard (5-7)
-            const isP1 = defender === this.p1;
-            const gTimer = isP1 ? this.p1GruntTimer : this.p2GruntTimer;
-            if (gTimer <= 0) {
-              const r = Math.random();
-              if (r >= 0.30) { // 70% chance to play a grunt
-                const grunts = this.getHitGrunts(defender.name);
-                let key: string;
-                if (r < 0.65) { key = grunts[Math.floor(Math.random() * 2)]; }       // soft (1-2)
-                else if (r < 0.90) { key = grunts[2 + Math.floor(Math.random() * 2)]; } // medium (3-4)
-                else { key = grunts[4 + Math.floor(Math.random() * 3)]; }              // hard (5-7)
-                this.sound.play(key, 0.85);
-              }
-              if (isP1) this.p1GruntTimer = 0.12; else this.p2GruntTimer = 0.12;
+          this.sound.playAnimeImpact(isKick ? 'kick' : 'punch', isRoundhouse || isCharged ? 0.92 : 0.70);
+          // Weighted grunt selection: 30% silent, 35% soft (1-2), 25% medium (3-4), 10% hard (5-7)
+          const isP1 = defender === this.p1;
+          const gTimer = isP1 ? this.p1GruntTimer : this.p2GruntTimer;
+          if (gTimer <= 0) {
+            const r = Math.random();
+            if (r >= 0.30) { // 70% chance to play a grunt
+              const grunts = this.getHitGrunts(defender.name);
+              let key: string;
+              if (r < 0.65) { key = grunts[Math.floor(Math.random() * 2)]; }       // soft (1-2)
+              else if (r < 0.90) { key = grunts[2 + Math.floor(Math.random() * 2)]; } // medium (3-4)
+              else { key = grunts[4 + Math.floor(Math.random() * 3)]; }              // hard (5-7)
+              this.sound.play(key, 0.85);
             }
+            if (isP1) this.p1GruntTimer = 0.12; else this.p2GruntTimer = 0.12;
           }
           // Check if attacker just activated full power (boost just turned on)
           if (attacker.boostActive && !attacker.attackLanded) {
@@ -707,6 +719,7 @@ export class GameEngine {
       opp.health = Math.max(0, opp.health - 1);
       opp.hitFlash = 0.15;
       this.sound.play('lightning-blast', 0.8);
+      this.sound.playAnimeImpact('slam', 0.76);
     }
   }
 
@@ -737,6 +750,7 @@ export class GameEngine {
     } else {
       fighter.executeThrow();
       this.sound.play('ko', 0.56);
+      this.sound.playAnimeImpact('throw', 0.92);
       this.triggerImpact(true);
       return;
     }
@@ -760,6 +774,7 @@ export class GameEngine {
       fighter.grappleSqueezeApplied = true;
       fighter.onAttackLanded();
       this.sound.play('block-impact', 0.82);
+      this.sound.playAnimeImpact('grapple', 0.74);
       this.triggerImpact(true);
       for (let i = 0; i < 10; i++) {
         this.sparks.push({
@@ -796,6 +811,7 @@ export class GameEngine {
       });
     }
     this.sound.play('lightning-blast', 0.95);
+    this.sound.playAnimeImpact('slam', 1.0);
     this.triggerImpact(true);
 
     if (distance > range) return;
@@ -825,6 +841,7 @@ export class GameEngine {
     if (!fighter.throwImpactPending) return;
     fighter.throwImpactPending = false;
     this.sound.play('block-impact', 0.9);
+    this.sound.playAnimeImpact('land', 0.92);
     this.triggerImpact(true);
     const impactX = fighter.centerX;
     const impactY = GROUND_Y - 10;
@@ -1375,8 +1392,10 @@ export class GameEngine {
     const aphroditeStance = f.hasAphroditeStyle ? f.aphroditeStanceBlend : 0;
     const tempestStance = f.hasTempestStyle ? f.tempestStanceBlend : 0;
     const dominionStance = f.hasDominionStyle ? f.dominionStanceBlend : 0;
-    const scaleX = 1 + squashT * 0.14 + icarusStance * 0.025 - aphroditeStance * 0.02 - tempestStance * 0.015 + dominionStance * 0.018;
-    const scaleY = 1 - squashT * 0.11 - icarusStance * 0.045 + aphroditeStance * 0.018 + tempestStance * 0.024 + dominionStance * 0.03;
+    const hitRecoil = f.hitReactionTimer > 0 ? Math.min(1, f.hitReactionTimer / 0.22) * f.hitReactionStrength : 0;
+    const blockRecoil = f.blockReactionTimer > 0 ? Math.min(1, f.blockReactionTimer / 0.14) : 0;
+    const scaleX = 1 + squashT * 0.14 + icarusStance * 0.025 - aphroditeStance * 0.02 - tempestStance * 0.015 + dominionStance * 0.018 - hitRecoil * 0.13 + blockRecoil * 0.04;
+    const scaleY = 1 - squashT * 0.11 - icarusStance * 0.045 + aphroditeStance * 0.018 + tempestStance * 0.024 + dominionStance * 0.03 + hitRecoil * 0.075 - blockRecoil * 0.025;
     const stanceY = icarusStance * 6 - aphroditeStance * 2 + tempestStance * 2 - dominionStance * 3;
 
     // Contact shadow anchors transparent sprites to the stone stage.
@@ -1400,11 +1419,14 @@ export class GameEngine {
     } else if (f.state === 'prone') {
       actionRotation = f.facingRight ? Math.PI / 2 : -Math.PI / 2;
     }
+    if (hitRecoil > 0) actionRotation += (f.facingRight ? -1 : 1) * hitRecoil * 0.13;
+    if (blockRecoil > 0) actionRotation += (f.facingRight ? 1 : -1) * blockRecoil * 0.055;
     if (actionRotation !== 0) {
       ctx.translate(f.centerX, f.y + FIGHTER_HEIGHT * 0.52);
       ctx.rotate(actionRotation);
       ctx.translate(-f.centerX, -(f.y + FIGHTER_HEIGHT * 0.52));
     }
+    if (hitRecoil > 0) ctx.translate((f.facingRight ? -1 : 1) * hitRecoil * 12, hitRecoil * 3);
 
     if (img) {
       // ── Cel-shade rendering ──────────────────────────────────

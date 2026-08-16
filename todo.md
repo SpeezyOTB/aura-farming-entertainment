@@ -33,3 +33,8 @@
 - [x] Implement Ryu's low guard victory stance with contained dragon-energy effects.
 - [x] Define and implement Ryu's smooth low-guard-to-fist-raised victory transition.
 - [x] Verify the full Ryu victory animation and validate the production build, then publish the update.
+- [x] Audit every attack's contact reaction, blocking response, launch, landing, and current sound coverage.
+- [x] Enable a dedicated ElevenLabs sound-effects connector; the submitted key requires replacement after its authorization check failed.
+- [x] Define an anime-oriented sound palette for strikes, blocks, energy attacks, throws, landings, and knockouts.
+- [x] Improve hit reactions and add resilient stylized fallback layers for generic or missing impact sounds.
+- [x] Test the game showcases and validate the production build for the combat-feedback update.
