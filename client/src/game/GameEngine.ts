@@ -596,8 +596,11 @@ export class GameEngine {
           const played = isKick
             ? this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.88)
             : this.sound.playNoRepeat(
-                `punch-hit-${attacker.name.toLowerCase()}`,
-                this.getPunchImpactVariants(attacker.name),
+                // One global event key makes the selected clip persist across both
+                // fighters. A punch from Ryu cannot be immediately repeated by Akari,
+                // the CPU, or the next hit in a combo.
+                'landed-punch-global',
+                this.getApprovedSharedPunchPool(),
                 0.94,
               );
           if (!played) this.sound.playAnimeImpact(isKick ? 'kick' : 'punch', isKick ? 0.68 : 0.63);
@@ -878,14 +881,13 @@ export class GameEngine {
   private getPunchGrunts(name: string): string[] {
     return ['punch-whiff', 'punch-whiff-alt'];
   }
-  private getPunchImpactVariants(name: string): string[] {
-    const n = name.toLowerCase();
-    if (n === 'ryu') return ['ryu-punch-a', 'ryu-punch-b'];
-    if (n === 'akari') return ['akari-punch-a', 'akari-punch-b'];
-    if (n === 'galva') return ['galva-punch-a', 'galva-punch-b'];
-    if (n === 'kai') return ['kai-punch-a', 'kai-punch-b'];
-    if (n === 'shuraku') return ['shuraku-punch-a', 'shuraku-punch-b'];
-    return ['punch-impact', 'punch-impact-alt'];
+  private getApprovedSharedPunchPool(): string[] {
+    return [
+      'approved-shared-punch-1',
+      'approved-shared-punch-2',
+      'approved-shared-punch-3',
+      'approved-shared-punch-4',
+    ];
   }
   private getHitGrunts(name: string): string[] {
     const n = name.toLowerCase();

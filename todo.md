@@ -93,6 +93,15 @@
 - [x] Inspect the browser console and active sound-playback path during an actual strike event.
 - [x] Correct the combat-audio delivery path so strike events have a reliable audible fallback.
 - [ ] Verify landed punches and kicks audibly play in the live game before publishing the repair.
+- [ ] Complete Ryu’s character-specific sound pass and obtain approval before creating or changing audio for another fighter.
+- [ ] Map Ryu’s movement, strikes, blocks, Icarus power-up, special actions, victory, and defeat events to a concise approval set.
+- [ ] Present Ryu’s candidate sound set for audit before integration.
+- [ ] Generate and present replacement Ryu punch and kick candidates with a cinematic movie-fight impact character.
+- [ ] Keep Ryu’s cinematic strike candidates separate from the current shared anime strike pools until approval.
+- [x] Upload the user-approved four-clip anime punch-connection pack to same-origin game storage.
+- [x] Replace every fighter-specific landed-punch pool with the approved shared four-clip non-repeating variation pool.
+- [x] Enforce one global landed-punch rotation so a clip cannot repeat across either fighter’s next successful punch.
+- [ ] Verify Ryu, Akari, Galva, Kai, and Shuraku all dispatch approved punch variations on successful contact.
 - [x] Reproduce the report that the active game still uses generic effects instead of the approved combat library.
 - [x] Trace and repair missing power-up voice-line events for every fighter.
 - [x] Trace and repair missing victory and defeat voice-line events at match completion.
