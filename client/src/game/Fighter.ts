@@ -129,6 +129,11 @@ export class Fighter {
   grabbedBy: Fighter | null = null;
   grappleSqueezeApplied = false;
   grappleStruggleTimer = 0;
+  grapplePhase: 'none' | 'reach' | 'hold' | 'pull' = 'none';
+  grappleStartX = 0;
+  grappleStartY = 0;
+  throwImpactPending = false;
+  proneLockTimer = 0;
   throwTimer = 0;
   tornadoActive = false;
   tornadoTimer = 0;
@@ -446,7 +451,7 @@ export class Fighter {
 
   // Called by input system when player presses get-up (X key)
   tryGetUp(): boolean {
-    if (this.state !== 'prone') return false;
+    if (this.state !== 'prone' || this.proneLockTimer > 0) return false;
     this.state = 'idle';
     this.stateTimer = 0;
     this.vx = 0;
@@ -496,6 +501,11 @@ export class Fighter {
     this.grabbedBy = null;
     this.grappleSqueezeApplied = false;
     this.grappleStruggleTimer = 0;
+    this.grapplePhase = 'none';
+    this.grappleStartX = 0;
+    this.grappleStartY = 0;
+    this.throwImpactPending = false;
+    this.proneLockTimer = 0;
     this.teleportCooldown = 0;
     this.teleportPhase = 'none';
     this.teleportTimer = 0;
@@ -678,6 +688,7 @@ export class Fighter {
     if (this.tempestGuardTimer > 0) this.tempestGuardTimer -= dt;
     if (this.tempestGuardCooldown > 0) this.tempestGuardCooldown -= dt;
     if (this.grappleStruggleTimer > 0) this.grappleStruggleTimer -= dt;
+    if (this.proneLockTimer > 0) this.proneLockTimer -= dt;
 
     // ── Projectile movement ────────────────────────────────
     this.projectiles = this.projectiles.filter(p => {
@@ -800,9 +811,15 @@ export class Fighter {
         this.stateTimer = 0;
         this.attackPhase = 'none';
         const s = this.state as string;
-        if (s !== 'ko' && s !== 'dead' && s !== 'block' && s !== 'charge') {
+        // Grab and grabbed are resolved by GameEngine after both fighters update.
+        // Preserve the state at timer zero so the staged sequence cannot snap away.
+        if (s === 'grab' || s === 'grabbed') {
+          // No-op: GameEngine advances this animation state explicitly.
+        } else if (s !== 'ko' && s !== 'dead' && s !== 'block' && s !== 'charge') {
           if (s === 'launch' || s === 'airborne') {
             this.state = 'airborne'; // stay airborne until ground
+          } else if (s === 'thrown') {
+            this.state = 'thrown'; // only the landing handler may advance a thrown fighter
           } else {
             this.state = this.isOnGround ? 'idle' : 'jump';
           }
@@ -816,6 +833,8 @@ export class Fighter {
     if (this.state === 'thrown' && this.isOnGround) {
       this.health = Math.max(0, this.health - 1);
       this.hitFlash = 0.15;
+      this.throwImpactPending = true;
+      this.proneLockTimer = 0.65;
       this.state = 'prone';
       this.stateTimer = 2.0;
       if (this.health <= 0) { this.state = 'ko'; this.stateTimer = 999; }
@@ -1089,11 +1108,14 @@ export class Fighter {
     if (!this.hasGrab || !this.canAttack() || !this.isOnGround) return false;
     if (Math.abs(this.centerX - target.centerX) > 135) return false; // must be close
     this.state = 'grab';
-    this.stateTimer = 0.95;
+    this.stateTimer = 1.42;
     this.grabTarget = target;
     this.grappleSqueezeApplied = false;
+    this.grapplePhase = 'reach';
+    this.grappleStartX = target.x;
+    this.grappleStartY = target.y;
     target.state = 'grabbed';
-    target.stateTimer = 0.95;
+    target.stateTimer = 1.42;
     target.grabbedBy = this;
     target.grappleStruggleTimer = 0.95;
     target.vx = 0;
@@ -1105,14 +1127,15 @@ export class Fighter {
     const target = this.grabTarget;
     const throwDir = this.facingRight ? 1 : -1;
     target.state = 'thrown';
-    target.vx = throwDir * 600;
-    target.vy = -400;
+    target.vx = throwDir * 920;
+    target.vy = -560;
     target.isOnGround = false;
-    target.stateTimer = 1.0;
+    target.stateTimer = 1.35;
     target.grabbedBy = null;
     target.grappleStruggleTimer = 0;
     this.grabTarget = null;
     this.grappleSqueezeApplied = false;
+    this.grapplePhase = 'none';
     this.state = 'idle';
   }
 

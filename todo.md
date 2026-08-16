@@ -23,3 +23,6 @@
 - [x] Audit all website buttons, legacy game pages, and redirects for launches to the old Manus game host.
 - [x] Replace or retire every legacy game entry point that bypasses the local Aura Farming game route.
 - [x] Verify `/dfx/demo` redirects client-side and server-side to the local `/dragonfistx` route.
+- [x] Inspect Shuraku's existing grapple position updates, throw physics, and prone recovery.
+- [x] Replace the abrupt grapple with staged hold, resistance, pull-in, throw, and impact behavior.
+- [x] Test the staged hold showcase and validate the production build, then publish the corrected animation flow.

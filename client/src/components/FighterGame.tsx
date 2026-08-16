@@ -592,6 +592,17 @@ export default function FighterGame() {
     };
     engineRef.current = eng;
     eng.start();
+    // Development-only showcase: captures the staged Shuraku grapple for visual verification.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('showcase') === 'grapple' && cfg.p1Key === 'shuraku') {
+      window.setTimeout(() => {
+        eng.p1.x = 500;
+        eng.p2.x = 625;
+        eng.p1.facingRight = true;
+        eng.p2.facingRight = false;
+        eng.p1.grab(eng.p2);
+      }, 80);
+    }
     setGameOver(null);
     setCurrentMode(cfg.mode);
     setModeLabel(cfg.mode === 'cpu' ? 'VS CPU' : cfg.mode === 'cvc' ? 'SPECTATOR' : 'VS PLAYER');
@@ -653,7 +664,8 @@ export default function FighterGame() {
     if (!isDemo || screen !== 'select' || demoStarted.current) return;
     demoStarted.current = true;
     const fighter = demoParam === 'kai' || demoParam === 'shuraku' || demoParam === 'galva' ? demoParam : 'ryu';
-    const timer = window.setTimeout(() => startFight(fighter, 'akari', 'cvc'), 30);
+    const showcase = new URLSearchParams(window.location.search).get('showcase');
+    const timer = window.setTimeout(() => startFight(fighter, 'akari', showcase === 'grapple' ? 'pvp' : 'cvc'), 30);
     return () => window.clearTimeout(timer);
   }, [screen, startFight]);
 

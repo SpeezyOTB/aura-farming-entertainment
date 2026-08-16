@@ -240,6 +240,8 @@ export class GameEngine {
     // Resolve grab throw
     this.resolveGrabThrow(this.p1);
     this.resolveGrabThrow(this.p2);
+    this.resolveThrowImpact(this.p1);
+    this.resolveThrowImpact(this.p2);
     // Resolve teleport phase transitions
     this.resolveTeleport(this.p1, this.p2, dt);
     this.resolveTeleport(this.p2, this.p1, dt);
@@ -713,19 +715,43 @@ export class GameEngine {
 
     const target = fighter.grabTarget;
     const direction = fighter.facingRight ? 1 : -1;
-    // Keep the restrained opponent close to Shuraku and visibly engaged in the hold.
-    target.x = fighter.centerX + direction * FIGHTER_WIDTH * 0.42 - FIGHTER_WIDTH / 2;
-    target.y = fighter.y + 6;
+    const timer = fighter.stateTimer;
+    const initialX = fighter.grappleStartX;
+    const holdX = fighter.centerX + direction * FIGHTER_WIDTH * 0.34 - FIGHTER_WIDTH / 2;
+    const pullX = fighter.centerX + direction * FIGHTER_WIDTH * 0.15 - FIGHTER_WIDTH / 2;
+    const lerp = (from: number, to: number, amount: number) => from + (to - from) * Math.max(0, Math.min(1, amount));
+
+    // The animation advances as reach → throat hold/resistance → pull-in → throw.
+    // Targets move along this path over several frames rather than teleporting.
+    if (timer > 1.02) {
+      fighter.grapplePhase = 'reach';
+      target.x = initialX;
+    } else if (timer > 0.56) {
+      fighter.grapplePhase = 'hold';
+      const progress = (1.02 - timer) / 0.46;
+      target.x = lerp(initialX, holdX, progress);
+    } else if (timer > 0.18) {
+      fighter.grapplePhase = 'pull';
+      const progress = (0.56 - timer) / 0.38;
+      target.x = lerp(holdX, pullX, progress);
+    } else {
+      fighter.executeThrow();
+      this.sound.play('ko', 0.56);
+      this.triggerImpact(true);
+      return;
+    }
+
+    target.y = lerp(fighter.grappleStartY, fighter.y + 5, timer > 1.02 ? 0 : Math.min(1, (1.02 - timer) / 0.46));
     target.vx = 0;
     target.vy = 0;
     target.isOnGround = true;
     target.state = 'grabbed';
-    target.stateTimer = Math.max(0.05, fighter.stateTimer);
+    target.stateTimer = Math.max(0.05, timer);
     target.grabbedBy = fighter;
-    target.grappleStruggleTimer = Math.max(0.05, fighter.stateTimer);
+    target.grappleStruggleTimer = Math.max(0.05, timer);
 
-    // Apply one controlled damage tick during the restraint, then complete the throw.
-    if (!fighter.grappleSqueezeApplied && fighter.stateTimer <= 0.58) {
+    // Apply one controlled damage tick during the pull-in, before the final throw.
+    if (!fighter.grappleSqueezeApplied && timer <= 0.52) {
       const damage = fighter.boostActive ? 5 : 3;
       target.health = Math.max(0, target.health - damage);
       target.hitFlash = 0.14;
@@ -746,11 +772,6 @@ export class GameEngine {
       }
     }
 
-    if (fighter.stateTimer <= 0) {
-      fighter.executeThrow();
-      this.sound.play('ko', 0.5);
-      this.triggerImpact(true);
-    }
   }
 
   private resolveGroundSlam(fighter: Fighter, opponent: Fighter) {
@@ -796,6 +817,34 @@ export class GameEngine {
       opponent.state = 'ko';
       opponent.stateTimer = 999;
       this.sound.play('ko', 0.9);
+    }
+  }
+
+  private resolveThrowImpact(fighter: Fighter) {
+    if (!fighter.throwImpactPending) return;
+    fighter.throwImpactPending = false;
+    this.sound.play('block-impact', 0.9);
+    this.triggerImpact(true);
+    const impactX = fighter.centerX;
+    const impactY = GROUND_Y - 10;
+    for (let i = 0; i < 18; i++) {
+      const angle = Math.PI + (Math.random() - 0.5) * Math.PI;
+      this.sparks.push({
+        x: impactX + (Math.random() - 0.5) * FIGHTER_WIDTH * 0.35,
+        y: impactY - 8,
+        ttl: 0.18 + Math.random() * 0.20,
+        color: i % 3 === 0 ? '#ffffff' : '#d1a0ff',
+        size: 4 + Math.random() * 8,
+      });
+      fighter.dustParticles.push({
+        x: impactX,
+        y: impactY,
+        vx: Math.cos(angle) * (70 + Math.random() * 120),
+        vy: -25 - Math.random() * 70,
+        life: 0.26 + Math.random() * 0.20,
+        maxLife: 0.46,
+        size: 10 + Math.random() * 16,
+      });
     }
   }
 
@@ -1341,10 +1390,18 @@ export class GameEngine {
       ctx.restore();
     }
 
+    let actionRotation = 0;
     if (f.state === 'grabbed') {
-      const struggle = Math.sin(performance.now() / 70) * 0.035;
+      actionRotation = Math.sin(performance.now() / 70) * 0.035;
+    } else if (f.state === 'thrown' || f.state === 'airborne') {
+      const direction = f.vx >= 0 ? 1 : -1;
+      actionRotation = direction * (0.32 + Math.sin(performance.now() / 90) * 0.14);
+    } else if (f.state === 'prone') {
+      actionRotation = f.facingRight ? Math.PI / 2 : -Math.PI / 2;
+    }
+    if (actionRotation !== 0) {
       ctx.translate(f.centerX, f.y + FIGHTER_HEIGHT * 0.52);
-      ctx.rotate(struggle);
+      ctx.rotate(actionRotation);
       ctx.translate(-f.centerX, -(f.y + FIGHTER_HEIGHT * 0.52));
     }
 
@@ -1365,6 +1422,7 @@ export class GameEngine {
     }
 
     ctx.restore();
+    if (f.state === 'grab' && f.grabTarget) this.renderGrappleHold(f);
     if (f.state === 'grabbed') this.renderGrabStruggle(f);
     // State icon above head
     const icon = f.state === 'grabbed' ? '😱'
@@ -1555,6 +1613,52 @@ export class GameEngine {
       ctx.moveTo(x, cy + 38);
       ctx.quadraticCurveTo(x + Math.sin(t * 2 + i) * 10, cy, x + (i - 1) * 8, cy - 52);
       ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  private renderGrappleHold(f: Fighter) {
+    if (!f.grabTarget) return;
+    const { ctx } = this;
+    const target = f.grabTarget;
+    const dir = f.facingRight ? 1 : -1;
+    const phase = f.grapplePhase;
+    const armStartX = f.centerX + dir * FIGHTER_WIDTH * 0.18;
+    const armStartY = f.y + FIGHTER_HEIGHT * 0.32;
+    const targetNeckX = target.centerX - dir * FIGHTER_WIDTH * 0.14;
+    const targetNeckY = target.y + FIGHTER_HEIGHT * 0.24;
+    const reach = phase === 'reach' ? 0.55 : 1;
+    const handX = armStartX + (targetNeckX - armStartX) * reach;
+    const handY = armStartY + (targetNeckY - armStartY) * reach;
+
+    ctx.save();
+    ctx.globalAlpha = phase === 'reach' ? 0.72 : 0.96;
+    ctx.strokeStyle = '#e6d7ff';
+    ctx.shadowColor = '#8f38e8';
+    ctx.shadowBlur = 12;
+    ctx.lineWidth = 7;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(armStartX, armStartY);
+    ctx.quadraticCurveTo(armStartX + dir * 26, armStartY + 12, handX, handY);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(handX, handY, phase === 'pull' ? 8 : 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (phase === 'hold' || phase === 'pull') {
+      ctx.globalAlpha = 0.55;
+      ctx.strokeStyle = '#d1a0ff';
+      ctx.lineWidth = 2.5;
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2 + performance.now() / 260;
+        ctx.beginPath();
+        ctx.moveTo(targetNeckX, targetNeckY);
+        ctx.lineTo(targetNeckX + Math.cos(a) * 18, targetNeckY + Math.sin(a) * 15);
+        ctx.stroke();
+      }
     }
     ctx.restore();
   }
