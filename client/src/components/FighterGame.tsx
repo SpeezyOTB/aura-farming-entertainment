@@ -644,14 +644,14 @@ export default function FighterGame() {
   }, [pollHUD]);
 
   // Deterministic visual test route used only by ?demo screenshots. Adding
-  // ?demo=kai or ?demo=shuraku opens that fighter versus Akari for stance verification.
+  // ?demo=kai, ?demo=shuraku, or ?demo=galva opens that fighter versus Akari for effect verification.
   const demoStarted = useRef(false);
   useEffect(() => {
     const demoParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('demo') : null;
     const isDemo = demoParam !== null;
     if (!isDemo || screen !== 'select' || demoStarted.current) return;
     demoStarted.current = true;
-    const fighter = demoParam === 'kai' || demoParam === 'shuraku' ? demoParam : 'ryu';
+    const fighter = demoParam === 'kai' || demoParam === 'shuraku' || demoParam === 'galva' ? demoParam : 'ryu';
     const timer = window.setTimeout(() => startFight(fighter, 'akari', 'cvc'), 30);
     return () => window.clearTimeout(timer);
   }, [screen, startFight]);

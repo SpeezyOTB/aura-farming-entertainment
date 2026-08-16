@@ -979,6 +979,8 @@ export class GameEngine {
     this.renderTempestStance(this.p2);
     this.renderDominionStance(this.p1);
     this.renderDominionStance(this.p2);
+    this.renderGalvaLightning(this.p1);
+    this.renderGalvaLightning(this.p2);
 
     // Fighters
     this.renderFighter(this.p1, this.p1Image);
@@ -992,6 +994,8 @@ export class GameEngine {
     this.renderProjectiles(this.p2);
     this.renderBarrier(this.p1);
     this.renderBarrier(this.p2);
+    this.renderLightningBarrier(ctx, this.p1);
+    this.renderLightningBarrier(ctx, this.p2);
     this.renderTornado(this.p1);
     this.renderTornado(this.p2);
     // Lightning teleport flashes
@@ -1520,6 +1524,79 @@ export class GameEngine {
       ctx.beginPath();
       ctx.arc(handX, handY, 5, 0, Math.PI * 2);
       ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  private renderGalvaLightning(f: Fighter) {
+    if (!f.hasLightningBlast) return;
+    const isPunch = f.state === 'punch' || f.state === 'airpunch';
+    const isKick = f.state === 'kick' || f.state === 'airkick' || f.state === 'roundhouse' || f.state === 'sweep';
+    if (!isPunch && !isKick && !f.boostActive) return;
+
+    const { ctx } = this;
+    const t = performance.now() / 1000;
+    const dir = f.facingRight ? 1 : -1;
+    const bodyX = f.centerX;
+    const bodyY = f.y + FIGHTER_HEIGHT * 0.50;
+
+    const bolt = (sx: number, sy: number, ex: number, ey: number, width: number, alpha: number) => {
+      const mx = (sx + ex) * 0.5 + (Math.random() - 0.5) * 14;
+      const my = (sy + ey) * 0.5 + (Math.random() - 0.5) * 16;
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = width;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(mx, my);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+    };
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.strokeStyle = '#9af3ff';
+    ctx.shadowColor = '#00cfff';
+    ctx.shadowBlur = f.boostActive ? 26 : 16;
+    ctx.lineCap = 'round';
+
+    // Full power makes Galva's body continuously arc with electricity.
+    if (f.boostActive) {
+      ctx.globalAlpha = 0.30 + Math.sin(t * 16) * 0.10;
+      const aura = ctx.createRadialGradient(bodyX, bodyY, 10, bodyX, bodyY, 98);
+      aura.addColorStop(0, 'rgba(230,255,255,0.55)');
+      aura.addColorStop(0.48, 'rgba(0,207,255,0.22)');
+      aura.addColorStop(1, 'rgba(0,120,255,0)');
+      ctx.fillStyle = aura;
+      ctx.beginPath();
+      ctx.ellipse(bodyX, bodyY, 82, 116, 0, 0, Math.PI * 2);
+      ctx.fill();
+      for (let i = 0; i < 9; i++) {
+        const angle = t * 8 + (i / 9) * Math.PI * 2;
+        const sx = bodyX + Math.cos(angle) * 28;
+        const sy = bodyY + Math.sin(angle) * 54;
+        const ex = bodyX + Math.cos(angle) * (48 + (i % 3) * 12);
+        const ey = bodyY + Math.sin(angle) * (76 + (i % 2) * 12);
+        bolt(sx, sy, ex, ey, 2.2, 0.55);
+      }
+    }
+
+    // Punches leave a focused electrical fan trailing backward from the fist.
+    if (isPunch) {
+      const handX = bodyX + dir * FIGHTER_WIDTH * 0.43;
+      const handY = f.y + FIGHTER_HEIGHT * 0.34;
+      for (let i = 0; i < 5; i++) {
+        const spread = (i - 2) * 13;
+        bolt(handX, handY, handX - dir * (38 + i * 8), handY + spread, 2.5 - i * 0.16, 0.72);
+      }
+    }
+
+    // Kicks pull longer electrical arcs behind the moving leg.
+    if (isKick) {
+      const footX = bodyX + dir * FIGHTER_WIDTH * 0.46;
+      const footY = f.y + FIGHTER_HEIGHT * 0.70;
+      for (let i = 0; i < 4; i++) {
+        bolt(footX, footY + (i - 1.5) * 8, footX - dir * (52 + i * 13), footY + (i - 1.5) * 16, 2.8 - i * 0.25, 0.68);
+      }
     }
     ctx.restore();
   }

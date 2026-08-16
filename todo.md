@@ -11,3 +11,6 @@
 - [x] Add Shuraku's arrogant powerhouse stance and stylized grapple sequence.
 - [x] Add the grabbed opponent's visible struggle reaction and limit CPU Shuraku to three grapples per match.
 - [x] Test Shuraku's spectator combat profile and validate the production build, then publish the change.
+- [x] Review Galva's current attack effects, full-power state, and teleport behavior.
+- [x] Add directional lightning effects to Galva's punches, kicks, and full-power aura.
+- [x] Test Galva's spectator profile and validate the production build, then publish the change.
