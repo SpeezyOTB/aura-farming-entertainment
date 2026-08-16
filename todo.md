@@ -105,6 +105,10 @@
 - [x] Reproduce and repair the missing background wind, fight announcement, and endgame combat audio regression.
 - [x] Reproduce and repair the missing approved shared-punch playback during live combat.
 - [ ] Verify the complete countdown-to-victory audio sequence without changing the approved global punch rotation.
+- [x] Play the live game as a player and capture the browser’s actual media-playback outcomes before another audio publication.
+- [x] Remove generic fallback reliance once approved streamed assets are verified in the running match.
+- [x] Replace Netlify-incompatible `/manus-storage/` audio paths after native public-browser tests showed every active clip rejecting as unsupported.
+- [ ] Re-test native `HTMLMediaElement.play()` promise resolution on the public domain before another release.
 - [x] Reproduce the report that the active game still uses generic effects instead of the approved combat library.
 - [x] Trace and repair missing power-up voice-line events for every fighter.
 - [x] Trace and repair missing victory and defeat voice-line events at match completion.

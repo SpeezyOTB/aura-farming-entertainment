@@ -104,7 +104,7 @@ const SOUNDS: Record<string, string> = {
   'energy-full':  ELEVENLABS_ANIME_SFX.fightStart,
   'ko':           ELEVENLABS_ANIME_SFX.throwLanding,
   'countdown-beep':  ELEVENLABS_ANIME_SFX.countdownTick,
-  'fight-announce':  '/manus-storage/fight_announcement_79de4296.wav',
+  'fight-announce':  ELEVENLABS_ANIME_SFX.fightAnnounce,
   'ui-click':        ELEVENLABS_ANIME_SFX.uiCharacterSelect,
   'fight-start':     ELEVENLABS_ANIME_SFX.fightStart,
   'dragon-fight':    ELEVENLABS_ANIME_SFX.fightStart,
