@@ -65,6 +65,13 @@
 - [x] Obtain approval for the connected-punch clip and refined whiff, kick-hit, and guard clips.
 - [x] Upload the approved strike effects and map punch/kick whiffs, hits, and blocks to the correct sound keys.
 - [x] Remove overlapping generic strike effects and validate the approved six-event system in the production build.
+- [ ] Define two alternate anime-style directions for each approved strike event.
+- [ ] Generate and send alternate ElevenLabs strike previews for user approval.
+- [ ] Integrate approved variations with no-repeat random rotation per strike event.
+- [ ] Test and publish the varied strike sound system.
+- [x] Obtain approval for the alternate whiff, hit, and block strike set.
+- [x] Upload alternate clips and add them to their event-specific strike sound pools.
+- [x] Implement no-repeat rotation and validate the varied strike sound system in the production build.
 - [ ] Define character- and action-specific anime sound directions and identify generic placeholders for removal.
 - [ ] Obtain a valid ElevenLabs sound-effects key and generate a priority custom effects library.
 - [ ] Integrate layered anime effects for movement, strikes, guards, specials, launches, and menus.

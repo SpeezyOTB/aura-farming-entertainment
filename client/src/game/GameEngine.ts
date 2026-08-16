@@ -286,8 +286,7 @@ export class GameEngine {
     const p1Forward = (p1.facingRight && p1Right) || (!p1.facingRight && p1Left);
     const playP1Punch = () => {
       if (p1.punch()) {
-        this.sound.playRandom(this.getPunchGrunts(p1.name), 0.9);
-        this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6','swoosh7','swoosh8','swoosh9','swoosh10','swoosh11','swoosh12'], p1.isChargingAttack ? 0.8 : 0.55);
+        this.sound.playNoRepeat('punch-whiff', this.getPunchGrunts(p1.name), 0.9);
       }
     };
     const playP1Kick = () => {
@@ -296,8 +295,7 @@ export class GameEngine {
         : p1Forward && !p1.isChargingAttack ? p1.roundhouse()
         : p1.kick();
       if (performed) {
-        this.sound.playRandom(this.getKickGrunts(p1.name), 0.9);
-        this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6','swoosh7','swoosh8','swoosh9','swoosh10','swoosh11','swoosh12'], p1.isChargingAttack ? 0.85 : 0.60);
+        this.sound.playNoRepeat('kick-whiff', this.getKickGrunts(p1.name), 0.9);
       }
     };
     if (input.wasPressed('KeyF')) {
@@ -384,8 +382,7 @@ export class GameEngine {
       const p2Forward = (p2.facingRight && p2Right) || (!p2.facingRight && p2Left);
       const playP2Punch = () => {
         if (p2.punch()) {
-          this.sound.playRandom(this.getPunchGrunts(p2.name), 0.9);
-          this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6','swoosh7','swoosh8','swoosh9','swoosh10','swoosh11','swoosh12'], p2.isChargingAttack ? 0.8 : 0.55);
+          this.sound.playNoRepeat('punch-whiff', this.getPunchGrunts(p2.name), 0.9);
         }
       };
       const playP2Kick = () => {
@@ -394,8 +391,7 @@ export class GameEngine {
           : p2Forward && !p2.isChargingAttack ? p2.roundhouse()
           : p2.kick();
         if (performed) {
-          this.sound.playRandom(this.getKickGrunts(p2.name), 0.9);
-          this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6','swoosh7','swoosh8','swoosh9','swoosh10','swoosh11','swoosh12'], p2.isChargingAttack ? 0.85 : 0.60);
+          this.sound.playNoRepeat('kick-whiff', this.getKickGrunts(p2.name), 0.9);
         }
       };
       if (input.wasPressed('KeyL')) { this.p2Combo.recordInput('punch', performance.now() / 1000); this.p2PunchHeld = true; p2.chargeHoldTimer = 0; }
@@ -564,8 +560,7 @@ export class GameEngine {
           if (attacker === this.p1) { this.p1ComboCount++; this.p1ComboTimer = 1.5; }
           else { this.p2ComboCount++; this.p2ComboTimer = 1.5; }
           if (!defender.isAlive) { this.sound.play('ko', 0.9); }
-          this.sound.playRandom(['kick-impact','kick-impact2','kick-impact3'], 0.85);
-          this.sound.playAnimeImpact('kick', 0.78);
+          this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.9);
           // Sparks
           const bdy = defender.getBodyRect();
           const sweepColor = attacker.hasIcarusStyle ? '#ff7918' : attacker.hasAphroditeStyle ? '#ffc0e6' : attacker.hasTempestStyle ? '#9cf2ff' : '#fff';
@@ -577,7 +572,11 @@ export class GameEngine {
         if (isCharged) attacker.isChargingAttack = false;
         if (defender.isBlocking) {
           attacker.attackLanded = true;
-          this.sound.play(isKick ? 'kick-block' : 'punch-block', isKick ? 0.88 : 0.80);
+          this.sound.playNoRepeat(
+            isKick ? 'kick-block' : 'punch-block',
+            isKick ? ['kick-block', 'kick-block-alt'] : ['punch-block', 'punch-block-alt'],
+            isKick ? 0.88 : 0.80,
+          );
           this.triggerImpact(false);
           const blockX = body.x + body.w / 2;
           const blockY = body.y + body.h * 0.36;
@@ -593,11 +592,10 @@ export class GameEngine {
           if (isRoundhouse) defender.vx *= 1.35;
           // Random impact variant
           if (isKick) {
-            this.sound.playRandom(['kick-impact','kick-impact2','kick-impact3','kick-impact4','kick-impact5','kick-impact6','kick-impact7'], 0.85);
+            this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.88);
           } else {
-            this.sound.playRandom(['punch-impact','punch-impact2','punch-impact3','punch-impact4','punch-impact5','punch-impact6'], 0.82);
+            this.sound.playNoRepeat('punch-hit', ['punch-impact', 'punch-impact-alt'], 0.86);
           }
-          this.sound.playAnimeImpact(isKick ? 'kick' : 'punch', isRoundhouse || isCharged ? 0.92 : 0.70);
           // Character-specific ElevenLabs strikes already carry the vocal-free anime impact identity.
           // Avoid layering the old generic grunt library over every hit.
           const isP1 = defender === this.p1;
@@ -690,8 +688,7 @@ export class GameEngine {
       // Combo steps never inherit a previously held charged-attack flag.
       if (attacker.attackPhase === 'active') attacker.isChargingAttack = false;
       const grunts = isKick ? this.getKickGrunts(attacker.name) : this.getPunchGrunts(attacker.name);
-      this.sound.playRandom(grunts, 0.85);
-      this.sound.playRandom(['swoosh','swoosh2','swoosh3','swoosh4','swoosh5','swoosh6'], 0.55);
+      this.sound.playNoRepeat(isKick ? 'kick-whiff' : 'punch-whiff', grunts, 0.85);
     }
   }
 
@@ -878,13 +875,7 @@ export class GameEngine {
 
   // ── Sound routing helpers ─────────────────────────────────
   private getPunchGrunts(name: string): string[] {
-    const n = name.toLowerCase();
-    if (n === 'ryu')     return ['ryu-punch','ryu-punch2','ryu-punch3'];
-    if (n === 'akari')   return ['akari-punch','akari-punch2','akari-punch3'];
-    if (n === 'galva')   return ['galva-punch'];
-    if (n === 'kai')     return ['kai-punch'];
-    if (n === 'shuraku') return ['shuraku-punch'];
-    return ['punch-impact','punch-impact2','punch-impact3','punch-impact4','punch-impact5','punch-impact6'];
+    return ['punch-whiff', 'punch-whiff-alt'];
   }
   private getHitGrunts(name: string): string[] {
     const n = name.toLowerCase();
@@ -897,13 +888,7 @@ export class GameEngine {
   }
 
   private getKickGrunts(name: string): string[] {
-    const n = name.toLowerCase();
-    if (n === 'ryu')     return ['ryu-kick','ryu-kick2'];
-    if (n === 'akari')   return ['akari-kick','akari-kick2'];
-    if (n === 'galva')   return ['galva-kick'];
-    if (n === 'kai')     return ['kai-kick'];
-    if (n === 'shuraku') return ['shuraku-kick'];
-    return ['kick-impact','kick-impact2','kick-impact3','kick-impact4','kick-impact5','kick-impact6','kick-impact7'];
+    return ['kick-whiff', 'kick-whiff-alt'];
   }
   private getHitSound(name: string): string {
     const n = name.toLowerCase();

@@ -29,6 +29,12 @@ const SOUNDS: Record<string, string> = {
   'kick-whiff':    ELEVENLABS_ANIME_SFX.approvedKickWhiff,
   'punch-block':   ELEVENLABS_ANIME_SFX.approvedPunchBlock,
   'kick-block':    ELEVENLABS_ANIME_SFX.approvedKickBlock,
+  'punch-whiff-alt': ELEVENLABS_ANIME_SFX.alternatePunchWhiff,
+  'kick-whiff-alt':  ELEVENLABS_ANIME_SFX.alternateKickWhiff,
+  'punch-impact-alt': ELEVENLABS_ANIME_SFX.alternatePunchHit,
+  'kick-impact-alt':  ELEVENLABS_ANIME_SFX.alternateKickHit,
+  'punch-block-alt':  ELEVENLABS_ANIME_SFX.alternatePunchBlock,
+  'kick-block-alt':   ELEVENLABS_ANIME_SFX.alternateKickBlock,
   'footstep':      'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/QfrDJaCQOoBRVcYc.wav',
   'footstep2':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/FNbXoPxoEZMPApeK.wav',
   'footstep3':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/xmFkiQDtnZfpuxYD.wav',
@@ -367,6 +373,19 @@ export class SoundManager {
   // Play a random variant from a set of keys
   playRandom(keys: string[], volume = 1.0) {
     const key = keys[Math.floor(Math.random() * keys.length)];
+    this.play(key, volume);
+  }
+
+  private lastEventVariant = new Map<string, string>();
+
+  // Select a different loaded clip on consecutive uses of the same gameplay event.
+  playNoRepeat(event: string, keys: string[], volume = 1.0) {
+    const available = keys.filter((key) => this.buffers.has(key));
+    if (!available.length) return;
+    const last = this.lastEventVariant.get(event);
+    const choices = available.length > 1 ? available.filter((key) => key !== last) : available;
+    const key = choices[Math.floor(Math.random() * choices.length)];
+    this.lastEventVariant.set(event, key);
     this.play(key, volume);
   }
 
