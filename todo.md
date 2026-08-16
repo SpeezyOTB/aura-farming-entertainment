@@ -29,3 +29,7 @@
 - [x] Map every current unique move from wind-up through recovery, including Galva's ground slam.
 - [x] Repair the confirmed animation gap in Galva's ground slam by adding a throw arc, landing impact, and prone recovery.
 - [x] Test the roster showcase routes and validate the production build for the animation audit update.
+- [x] Review the existing victory screen and Ryu rendering hooks.
+- [x] Implement Ryu's low guard victory stance with contained dragon-energy effects.
+- [x] Define and implement Ryu's smooth low-guard-to-fist-raised victory transition.
+- [x] Verify the full Ryu victory animation and validate the production build, then publish the update.

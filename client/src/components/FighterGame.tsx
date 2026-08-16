@@ -38,7 +38,7 @@ function playUISound(url: string, vol = 1) {
 }
 // ── Character metadata (voice lines, win pose) ────────────────
 const CHAR_META: Record<string, { winLine: string; loseLine: string; winPose: string; color: string }> = {
-  ryu:     { winLine: "Yeah! I did it!",              loseLine: "No way... I'll get you next time!", winPose: "\u270a",  color: '#f59e0b' },
+  ryu:     { winLine: "This power is mine to control.", loseLine: "No way... I'll get you next time!", winPose: "\u270a",  color: '#f59e0b' },
   akari:   { winLine: "At least you tried.",           loseLine: "Hmph. Don't get used to it.",       winPose: "\U0001f60f", color: '#ec4899' },
   galva:   { winLine: "What's the matter? You look shocked!", loseLine: "Tch... don't get used to that.", winPose: "\u26a1", color: '#00cfff' },
   kai:     { winLine: "Hm. I'm not impressed.",        loseLine: "...Interesting. You've earned a rematch.", winPose: "\U0001f32a", color: '#60c8ff' },
@@ -347,6 +347,15 @@ function VictoryScreen({
   const wMeta = CHAR_META[winnerKey] ?? { winLine: "I win!", winPose: "✊" };
   const lMeta = CHAR_META[loserKey] ?? { loseLine: "Next time...", winPose: "" };
   const winnerColor = (CHAR_META[winnerKey] ?? CHAR_META["ryu"]).color;
+  const isRyuVictory = winnerKey === 'ryu';
+  const winnerVisual = CHARS[winnerKey]?.spriteUrl ?? winnerImg;
+  const [ryuVictoryPose, setRyuVictoryPose] = useState<'guard' | 'rise'>('guard');
+  useEffect(() => {
+    if (!isRyuVictory) return;
+    setRyuVictoryPose('guard');
+    const timer = window.setTimeout(() => setRyuVictoryPose('rise'), 900);
+    return () => window.clearTimeout(timer);
+  }, [isRyuVictory, winnerKey]);
   return (
     <div className="flex flex-col items-center gap-4 w-full px-4">
       <div className="font-black text-5xl text-white tracking-widest text-center"
@@ -355,10 +364,44 @@ function VictoryScreen({
       </div>
       <div className="flex items-end justify-center gap-8 w-full max-w-lg">
         <div className="flex flex-col items-center gap-2 flex-1">
-          <div className="text-2xl">{wMeta.winPose}</div>
-          <img src={winnerImg} alt={winnerName}
-            className="w-28 h-28 object-cover rounded-full border-4"
-            style={{ borderColor: winnerColor, boxShadow: `0 0 24px ${winnerColor}` }} />
+          {isRyuVictory ? (
+            <div className="relative h-40 w-40 overflow-hidden rounded-xl border-2 bg-black/40"
+              style={{ borderColor: '#ff8a00', boxShadow: '0 0 28px #ff5a00, inset 0 -26px 30px rgba(0,0,0,0.72)' }}>
+              <div className="absolute inset-x-2 h-5 rounded-[50%] border border-orange-300/50"
+                style={{ bottom: ryuVictoryPose === 'guard' ? '12px' : '7px', boxShadow: '0 0 18px #ff4d00, 0 0 38px #f59e0b', transition: 'bottom 820ms cubic-bezier(0.23, 1, 0.32, 1)' }} />
+              <img src={winnerVisual} alt="Ryu holding a low guard stance"
+                className="absolute h-44 w-44 max-w-none -translate-x-1/2 object-contain"
+                style={{
+                  bottom: ryuVictoryPose === 'guard' ? '-7px' : '1px',
+                  left: '83%',
+                  filter: `drop-shadow(0 0 ${ryuVictoryPose === 'guard' ? '10px' : '18px'} #ff5a00)`,
+                  transform: ryuVictoryPose === 'guard'
+                    ? 'translateX(-50%) translateY(9px) scale(1.16,0.78) skewX(-7deg)'
+                    : 'translateX(-50%) translateY(-1px) scale(1.02,1.03) skewX(0deg)',
+                  transition: 'bottom 880ms cubic-bezier(0.23, 1, 0.32, 1), transform 880ms cubic-bezier(0.23, 1, 0.32, 1), filter 650ms ease-out',
+                }} />
+              <div aria-hidden="true" className="absolute left-[58%] text-xl"
+                style={{
+                  bottom: ryuVictoryPose === 'guard' ? '23px' : '89px',
+                  opacity: ryuVictoryPose === 'guard' ? 0 : 1,
+                  transform: `translateX(-50%) scale(${ryuVictoryPose === 'guard' ? 0.72 : 1.16})`,
+                  filter: 'drop-shadow(0 0 10px #ff5a00)',
+                  transition: 'bottom 780ms cubic-bezier(0.23, 1, 0.32, 1), opacity 260ms ease-out 460ms, transform 520ms cubic-bezier(0.23, 1, 0.32, 1) 330ms',
+                }}>✊</div>
+              <div className="absolute bottom-9 left-8 h-1.5 w-14 -rotate-6 rounded-full bg-orange-100/80 shadow-[0_0_12px_#ff5a00]" />
+              <div className="absolute bottom-9 right-7 h-1.5 w-14 rotate-[-16deg] rounded-full bg-orange-100/75 shadow-[0_0_12px_#ff5a00]" />
+              <span className="absolute bottom-1 left-0 right-0 text-center text-[9px] font-black tracking-[0.25em] text-orange-200">
+                {ryuVictoryPose === 'guard' ? 'LOW GUARD' : 'DRAGON RISE'}
+              </span>
+            </div>
+          ) : (
+            <>
+              <div className="text-2xl">{wMeta.winPose}</div>
+              <img src={winnerImg} alt={winnerName}
+                className="w-28 h-28 object-cover rounded-full border-4"
+                style={{ borderColor: winnerColor, boxShadow: `0 0 24px ${winnerColor}` }} />
+            </>
+          )}
           <div className="font-black text-sm tracking-widest" style={{ color: winnerColor }}>{winnerName}</div>
           <div className="text-white/80 text-xs italic text-center max-w-[140px]">{wMeta.winLine}</div>
         </div>
@@ -613,6 +656,12 @@ export default function FighterGame() {
         eng.p1.boostTimer = 2;
         eng.p1.activateGroundSlam();
       }, 80);
+    }
+    if (params.get('showcase') === 'ryu-win' && cfg.p1Key === 'ryu') {
+      window.setTimeout(() => {
+        eng.p2.health = 0;
+        (eng as any).endRound?.();
+      }, 180);
     }
     setGameOver(null);
     setCurrentMode(cfg.mode);
