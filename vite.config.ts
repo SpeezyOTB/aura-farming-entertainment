@@ -217,6 +217,13 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Bump the entry asset name after replacing every audio source so browsers
+        // cannot retain the older immutable bundle with broken storage URLs.
+        entryFileNames: "assets/[name]-audio-cdn-r1-[hash].js",
+      },
+    },
   },
   server: {
     port: 3000,
