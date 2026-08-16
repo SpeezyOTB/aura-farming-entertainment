@@ -14,3 +14,6 @@
 - [x] Review Galva's current attack effects, full-power state, and teleport behavior.
 - [x] Add directional lightning effects to Galva's punches, kicks, and full-power aura.
 - [x] Test Galva's spectator profile and validate the production build, then publish the change.
+- [x] Review Galva's special controls and the combat engine's finisher hooks.
+- [x] Implement Galva's lightning ground-slam finisher with shockwave and recovery rules.
+- [x] Test the game route and validate the finisher's production build, then publish the update.

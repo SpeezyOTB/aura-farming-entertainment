@@ -91,6 +91,7 @@ export class Fighter {
   readonly boostDurationOverride: number | null;
   readonly boostInfinite: boolean;
   readonly hasLightningBlast: boolean;
+  readonly hasGroundSlam: boolean;
   readonly hasShadowBarrier: boolean;
   readonly hasAerialKick: boolean;
   readonly hasTornado: boolean;
@@ -117,6 +118,10 @@ export class Fighter {
   barrierActive = false;
   barrierTimer = 0;
   barrierCooldown = 0;
+  groundSlamActive = false;
+  groundSlamTimer = 0;
+  groundSlamCooldown = 0;
+  groundSlamLanded = false;
   lightningBarrierTimer = 0;  // auto-fires every 15s for Galva
   lightningBarrierActive = false;
   lightningBarrierCooldown = 0;
@@ -167,6 +172,7 @@ export class Fighter {
     this.boostDurationOverride = cfg.boostDuration ?? null;
     this.boostInfinite     = cfg.boostInfinite ?? false;
     this.hasLightningBlast = cfg.hasLightningBlast ?? false;
+    this.hasGroundSlam = cfg.hasGroundSlam ?? false;
     this.hasShadowBarrier  = cfg.hasShadowBarrier ?? false;
     this.hasAerialKick     = cfg.hasAerialKick ?? false;
     this.hasTornado        = cfg.hasTornado ?? false;
@@ -482,6 +488,10 @@ export class Fighter {
     this.lightningBarrierActive = false;
     this.lightningBarrierTimer = 0;
     this.lightningBarrierCooldown = 0;
+    this.groundSlamActive = false;
+    this.groundSlamTimer = 0;
+    this.groundSlamCooldown = 0;
+    this.groundSlamLanded = false;
     this.grabTarget = null;
     this.grabbedBy = null;
     this.grappleSqueezeApplied = false;
@@ -648,6 +658,14 @@ export class Fighter {
       if (this.barrierTimer <= 0) { this.barrierActive = false; this.barrierTimer = 0; }
     }
     if (this.barrierCooldown > 0) this.barrierCooldown -= dt;
+    if (this.groundSlamCooldown > 0) this.groundSlamCooldown -= dt;
+    if (this.groundSlamActive) {
+      this.groundSlamTimer -= dt;
+      if (this.groundSlamTimer <= 0) {
+        this.groundSlamActive = false;
+        this.groundSlamTimer = 0;
+      }
+    }
 
     // ── Teleport cooldown tick ─────────────────────────────
     if (this.teleportCooldown > 0) this.teleportCooldown -= dt;
@@ -984,6 +1002,19 @@ export class Fighter {
     return true;
   }
 
+  // Galva can only call down this finisher while his infinite full-power mode is active.
+  activateGroundSlam(): boolean {
+    if (!this.hasGroundSlam || !this.boostActive || this.groundSlamActive || this.groundSlamCooldown > 0 || !this.canAttack() || !this.isOnGround) return false;
+    this.groundSlamActive = true;
+    this.groundSlamTimer = 0.72;
+    this.groundSlamCooldown = 8.5;
+    this.groundSlamLanded = false;
+    this.state = 'special';
+    this.stateTimer = 0.72;
+    this.vx = 0;
+    return true;
+  }
+
   // ── Ability: Lightning Teleport (Galva) ──────────────────
   activateTeleport(opponent: Fighter): boolean {
     if (!this.hasTeleport || this.teleportCooldown > 0 || this.state === 'ko' || this.state === 'dead') return false;
@@ -1085,8 +1116,8 @@ export class Fighter {
     this.state = 'idle';
   }
 
-  canMove()   { return this.isAlive && !this.isStunned && !this.isAttacking && this.state !== 'charge' && this.state !== 'prone'; }
-  canAttack() { return this.isAlive && !this.isAttacking && !this.isBlocking && this.state !== 'charge' && this.state !== 'prone' && (this.state !== 'hit' || this.counterWindowTimer > 0); }
+  canMove()   { return this.isAlive && !this.isStunned && !this.isAttacking && this.state !== 'charge' && this.state !== 'prone' && this.state !== 'special' && this.state !== 'grab' && this.state !== 'barrier' && this.state !== 'teleport'; }
+  canAttack() { return this.isAlive && !this.isAttacking && !this.isBlocking && this.state !== 'charge' && this.state !== 'prone' && this.state !== 'special' && this.state !== 'grab' && this.state !== 'barrier' && this.state !== 'teleport' && (this.state !== 'hit' || this.counterWindowTimer > 0); }
 
   getAttackRect() {
     if (this.attackPhase !== 'active' || this.attackLanded) return null;

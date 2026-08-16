@@ -149,6 +149,9 @@ export class CpuAI {
   private updateGalva(cpu: Fighter, opp: Fighter,
     dist: number, attackRange: number, closeRange: number, goLeft: boolean) {
     const r = Math.random();
+    if (cpu.boostActive && dist <= closeRange + 35 && r < 0.18) {
+      if (cpu.activateGroundSlam()) { this.pauseTimer = 0.8; return; }
+    }
     // Teleport: 12% chance at any range when off cooldown (not always, but can happen)
     if (r < 0.12 && (cpu as any).teleportCooldown <= 0) {
       if ((cpu as any).activateTeleport?.(opp)) { this.pauseTimer = 0.5; return; }

@@ -209,6 +209,8 @@ export class GameEngine {
 
     this.resolveBodyCollision();
     this.resolveAttacks();
+    this.resolveGroundSlam(this.p1, this.p2);
+    this.resolveGroundSlam(this.p2, this.p1);
 
     // Footstep sounds
     this.p1FootTimer -= dt;
@@ -337,6 +339,13 @@ export class GameEngine {
           this.sound.play('shuraku-punch', 0.78);
           this.sound.play('block-impact', 0.65);
         }
+      } else if (p1.hasLightningBlast) {
+        const closeEnough = Math.abs(p1.centerX - p2.centerX) <= FIGHTER_WIDTH * 2.25;
+        if (p1.boostActive && closeEnough && p1.activateGroundSlam()) {
+          this.sound.play('lightning-crackle', 0.9);
+        } else if (p1.activateTeleport(p2)) {
+          this.sound.play('galva-teleport-vanish', 0.9);
+        }
       } else if ((p1 as any).activateTeleport) {
         const opp = this.p1 === p1 ? this.p2 : this.p1;
         if ((p1 as any).activateTeleport(opp)) {
@@ -408,6 +417,13 @@ export class GameEngine {
           if (p2.grab(p1)) {
             this.sound.play('shuraku-punch', 0.78);
             this.sound.play('block-impact', 0.65);
+          }
+        } else if (p2.hasLightningBlast) {
+          const closeEnough = Math.abs(p2.centerX - p1.centerX) <= FIGHTER_WIDTH * 2.25;
+          if (p2.boostActive && closeEnough && p2.activateGroundSlam()) {
+            this.sound.play('lightning-crackle', 0.9);
+          } else if (p2.activateTeleport(p1)) {
+            this.sound.play('galva-teleport-vanish', 0.9);
           }
         } else if ((p2 as any).activateTeleport) {
           const opp = this.p2 === p2 ? this.p1 : this.p2;
@@ -737,6 +753,52 @@ export class GameEngine {
     }
   }
 
+  private resolveGroundSlam(fighter: Fighter, opponent: Fighter) {
+    if (!fighter.groundSlamActive || fighter.groundSlamLanded || fighter.groundSlamTimer > 0.38) return;
+    fighter.groundSlamLanded = true;
+    const slamX = fighter.centerX;
+    const slamY = GROUND_Y - 8;
+    const distance = Math.abs(opponent.centerX - slamX);
+    const range = FIGHTER_WIDTH * 2.45;
+
+    this.pulseWaves.push({ x: slamX, radius: 0, maxRadius: 250, color: '#62e9ff', alpha: 0.86 });
+    this.pulseWaves.push({ x: slamX, radius: 0, maxRadius: 160, color: '#ffffff', alpha: 0.72 });
+    for (let i = 0; i < 26; i++) {
+      const angle = (i / 26) * Math.PI * 2;
+      const radius = 12 + Math.random() * 24;
+      this.sparks.push({
+        x: slamX + Math.cos(angle) * radius,
+        y: slamY - Math.random() * 36,
+        ttl: 0.20 + Math.random() * 0.25,
+        color: i % 3 === 0 ? '#ffffff' : '#5eeaff',
+        size: 5 + Math.random() * 10,
+      });
+    }
+    this.sound.play('lightning-blast', 0.95);
+    this.triggerImpact(true);
+
+    if (distance > range) return;
+    const direction = opponent.centerX > slamX ? 1 : -1;
+    const damage = opponent.isBlocking ? 3 : 9;
+    opponent.health = Math.max(0, opponent.health - damage);
+    opponent.hitFlash = 0.18;
+    opponent.consecutiveHits = 0;
+    opponent.energy = 0;
+    opponent.vx = direction * (opponent.isBlocking ? 260 : 420);
+    if (!opponent.isBlocking && opponent.isAlive) {
+      opponent.state = 'launch';
+      opponent.vy = -360;
+      opponent.isOnGround = false;
+      opponent.stateTimer = 0.75;
+    }
+    fighter.onAttackLanded();
+    if (!opponent.isAlive) {
+      opponent.state = 'ko';
+      opponent.stateTimer = 999;
+      this.sound.play('ko', 0.9);
+    }
+  }
+
   private endRound() {
     if (this.roundEnded) return;
     this.roundEnded = true;
@@ -996,6 +1058,8 @@ export class GameEngine {
     this.renderBarrier(this.p2);
     this.renderLightningBarrier(ctx, this.p1);
     this.renderLightningBarrier(ctx, this.p2);
+    this.renderGroundSlam(this.p1);
+    this.renderGroundSlam(this.p2);
     this.renderTornado(this.p1);
     this.renderTornado(this.p2);
     // Lightning teleport flashes
@@ -1597,6 +1661,56 @@ export class GameEngine {
       for (let i = 0; i < 4; i++) {
         bolt(footX, footY + (i - 1.5) * 8, footX - dir * (52 + i * 13), footY + (i - 1.5) * 16, 2.8 - i * 0.25, 0.68);
       }
+    }
+    ctx.restore();
+  }
+
+  private renderGroundSlam(f: Fighter) {
+    if (!f.groundSlamActive) return;
+    const { ctx } = this;
+    const t = performance.now() / 1000;
+    const progress = 1 - Math.max(0, Math.min(1, f.groundSlamTimer / 0.72));
+    const cx = f.centerX;
+    const groundY = GROUND_Y - 8;
+    const impactScale = f.groundSlamLanded ? 1 : Math.min(1, progress * 2.7);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.shadowColor = '#00cfff';
+    ctx.shadowBlur = 28;
+
+    // A narrow bolt descends into the point of impact before the shockwave fires.
+    ctx.globalAlpha = 0.42 + Math.sin(t * 34) * 0.16;
+    ctx.strokeStyle = '#c9fbff';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.sin(t * 20) * 10, groundY - 190);
+    ctx.lineTo(cx - 16, groundY - 118);
+    ctx.lineTo(cx + 14, groundY - 54);
+    ctx.lineTo(cx, groundY);
+    ctx.stroke();
+
+    const radial = ctx.createRadialGradient(cx, groundY, 0, cx, groundY, 150 * impactScale);
+    radial.addColorStop(0, 'rgba(255,255,255,0.92)');
+    radial.addColorStop(0.2, 'rgba(88,234,255,0.62)');
+    radial.addColorStop(1, 'rgba(0,170,255,0)');
+    ctx.fillStyle = radial;
+    ctx.globalAlpha = 0.86;
+    ctx.beginPath();
+    ctx.ellipse(cx, groundY, 150 * impactScale, 38 * impactScale, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 + t * 5;
+      const r = 46 + impactScale * 62;
+      ctx.globalAlpha = 0.60;
+      ctx.strokeStyle = i % 2 ? '#5eeaff' : '#ffffff';
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * 12, groundY + Math.sin(a) * 6);
+      ctx.lineTo(cx + Math.cos(a + 0.15) * r * 0.58, groundY + Math.sin(a + 0.15) * 10);
+      ctx.lineTo(cx + Math.cos(a) * r, groundY + Math.sin(a) * 16);
+      ctx.stroke();
     }
     ctx.restore();
   }

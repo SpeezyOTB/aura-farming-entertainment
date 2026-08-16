@@ -33,6 +33,7 @@ export interface FighterConfig {
   boostInfinite?: boolean;    // Galva: boost never expires
   // ── Abilities ──────────────────────────────────────────────
   hasLightningBlast?: boolean;   // Galva
+  hasGroundSlam?: boolean;       // Galva: full-power lightning ground-slam finisher
   hasShadowBarrier?: boolean;    // Shuraku
   hasAerialKick?: boolean;       // Kai
   hasTornado?: boolean;          // Kai

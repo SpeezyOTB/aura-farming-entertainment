@@ -79,6 +79,7 @@ const CHARS: Record<string, Omit<FighterConfig, 'id' | 'startX' | 'facingRight'>
     moveSpeedMult: 0.85,
     boostInfinite: true,
     hasLightningBlast: true,
+    hasGroundSlam: true,
     hasLightningBarrier: true,
     hasTeleport: true,
   },
