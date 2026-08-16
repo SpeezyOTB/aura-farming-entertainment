@@ -605,19 +605,11 @@ export class GameEngine {
             this.sound.playRandom(['punch-impact','punch-impact2','punch-impact3','punch-impact4','punch-impact5','punch-impact6'], 0.82);
           }
           this.sound.playAnimeImpact(isKick ? 'kick' : 'punch', isRoundhouse || isCharged ? 0.92 : 0.70);
-          // Weighted grunt selection: 30% silent, 35% soft (1-2), 25% medium (3-4), 10% hard (5-7)
+          // Character-specific ElevenLabs strikes already carry the vocal-free anime impact identity.
+          // Avoid layering the old generic grunt library over every hit.
           const isP1 = defender === this.p1;
           const gTimer = isP1 ? this.p1GruntTimer : this.p2GruntTimer;
           if (gTimer <= 0) {
-            const r = Math.random();
-            if (r >= 0.30) { // 70% chance to play a grunt
-              const grunts = this.getHitGrunts(defender.name);
-              let key: string;
-              if (r < 0.65) { key = grunts[Math.floor(Math.random() * 2)]; }       // soft (1-2)
-              else if (r < 0.90) { key = grunts[2 + Math.floor(Math.random() * 2)]; } // medium (3-4)
-              else { key = grunts[4 + Math.floor(Math.random() * 3)]; }              // hard (5-7)
-              this.sound.play(key, 0.85);
-            }
             if (isP1) this.p1GruntTimer = 0.12; else this.p2GruntTimer = 0.12;
           }
           // Check if attacker just activated full power (boost just turned on)

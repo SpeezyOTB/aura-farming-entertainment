@@ -49,6 +49,9 @@
 - [x] Obtain a valid ElevenLabs Sound Effects API key and generate a priority custom effects library.
 - [x] Integrate 13 ElevenLabs anime effects for menus, strikes, guards, specials, launches, and landings.
 - [x] Validate the production build and publish the redesigned combat and UI sound experience.
+- [x] Inspect the live audio preload path, active sound keys, and deploy cache state.
+- [x] Replace the still-active generic fighter strikes, movement cues, and hit-grunt layer with 12 additional ElevenLabs effects.
+- [x] Validate all 25 ElevenLabs sound URLs and the production build before publishing the correction.
 - [ ] Define character- and action-specific anime sound directions and identify generic placeholders for removal.
 - [ ] Obtain a valid ElevenLabs sound-effects key and generate a priority custom effects library.
 - [ ] Integrate layered anime effects for movement, strikes, guards, specials, launches, and menus.
