@@ -45,3 +45,5 @@
 - [ ] Refine the restored Shuraku-versus-Akari hold and pull-in visuals, which remain visually static in the verification capture despite the throw arc and landing recovery occurring.
 - [ ] Add natural weighted reach, hand placement, Akari resistance, pull-in, release, throw arc, impact, and recovery timing to Shuraku’s staged grapple.
 - [ ] Capture a fresh Shuraku-versus-Akari gameplay clip to verify the refined animation before release.
+- [ ] Create and integrate natural Shuraku hold-and-pull contact presentation for Ryu, Galva, and Kai.
+- [ ] Verify Ryu, Galva, and Kai each have a distinct readable resistance, release, throw arc, landing, and recovery when thrown by Shuraku.

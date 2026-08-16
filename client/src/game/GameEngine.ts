@@ -45,6 +45,9 @@ export class GameEngine {
   private p1Image: HTMLImageElement | null = null;
   private p2Image: HTMLImageElement | null = null;
   private shurakuAkariGrapplePose: HTMLImageElement | null = null;
+  private shurakuRyuGrapplePose: HTMLImageElement | null = null;
+  private shurakuGalvaGrapplePose: HTMLImageElement | null = null;
+  private shurakuKaiGrapplePose: HTMLImageElement | null = null;
   private celShader: CelShader = new CelShader(FIGHTER_WIDTH + 8, FIGHTER_HEIGHT + 8);
   private cinematic = new CinematicManager();
 
@@ -120,6 +123,9 @@ export class GameEngine {
     loadImg(p1Config.spriteUrl, img => { this.p1Image = img; });
     loadImg(p2Config.spriteUrl, img => { this.p2Image = img; });
     loadImg('/manus-storage/shuraku_akari_grapple_pose_reference_4ee76499.png', img => { this.shurakuAkariGrapplePose = img; });
+    loadImg('/manus-storage/shuraku_ryu_grapple_contact_51761a44.png', img => { this.shurakuRyuGrapplePose = img; });
+    loadImg('/manus-storage/shuraku_galva_grapple_contact_4296248d.png', img => { this.shurakuGalvaGrapplePose = img; });
+    loadImg('/manus-storage/shuraku_kai_grapple_contact_28162e67.png', img => { this.shurakuKaiGrapplePose = img; });
   }
 
   start() {
@@ -1376,14 +1382,18 @@ export class GameEngine {
 
   private renderFighter(f: Fighter, img: HTMLImageElement | null) {
     const { ctx } = this;
-    const isShurakuHoldingAkari = f.name === 'Shuraku' && f.state === 'grab' && f.grabTarget?.name === 'Akari';
-    const isAkariHeldByShuraku = f.name === 'Akari' && f.state === 'grabbed' && f.grabbedBy?.name === 'Shuraku';
-    const useContactPose = this.shurakuAkariGrapplePose && (f.grapplePhase === 'hold' || f.grapplePhase === 'pull');
-    if (isShurakuHoldingAkari && useContactPose) {
-      this.renderShurakuAkariContactPose(f);
+    const contactPose = f.name === 'Shuraku' && f.grabTarget
+      ? this.getShurakuContactPose(f.grabTarget.name)
+      : null;
+    const isShurakuHoldingPoseTarget = f.name === 'Shuraku' && f.state === 'grab' && !!contactPose;
+    const isPoseTargetHeldByShuraku = f.state === 'grabbed' && f.grabbedBy?.name === 'Shuraku'
+      && !!this.getShurakuContactPose(f.name);
+    const useContactPose = !!contactPose && (f.grapplePhase === 'hold' || f.grapplePhase === 'pull');
+    if (isShurakuHoldingPoseTarget && useContactPose) {
+      this.renderShurakuContactPose(f, contactPose);
       return;
     }
-    if (isAkariHeldByShuraku && useContactPose) return;
+    if (isPoseTargetHeldByShuraku && useContactPose) return;
     ctx.save();
 
     // During teleport vanish phase, fighter is invisible
@@ -1511,8 +1521,18 @@ export class GameEngine {
     }
   }
 
-  private renderShurakuAkariContactPose(shuraku: Fighter) {
-    if (!this.shurakuAkariGrapplePose || !shuraku.grabTarget) return;
+  private getShurakuContactPose(targetName: string) {
+    switch (targetName) {
+      case 'Akari': return this.shurakuAkariGrapplePose;
+      case 'Ryu': return this.shurakuRyuGrapplePose;
+      case 'Galva': return this.shurakuGalvaGrapplePose;
+      case 'Kai': return this.shurakuKaiGrapplePose;
+      default: return null;
+    }
+  }
+
+  private renderShurakuContactPose(shuraku: Fighter, pose: HTMLImageElement) {
+    if (!shuraku.grabTarget) return;
     const { ctx } = this;
     const target = shuraku.grabTarget;
     const dir = shuraku.facingRight ? 1 : -1;
@@ -1534,7 +1554,7 @@ export class GameEngine {
     ctx.shadowColor = '#140722';
     ctx.shadowBlur = 16;
     ctx.globalAlpha = 0.995;
-    ctx.drawImage(this.shurakuAkariGrapplePose, -width * 0.5, -height * 0.5, width, height);
+    ctx.drawImage(pose, -width * 0.5, -height * 0.5, width, height);
     ctx.restore();
 
     ctx.save();
