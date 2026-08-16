@@ -182,7 +182,9 @@ export class SoundManager {
 
   private prepareMediaPool(key: string, url: string) {
     if (this.mediaPools.has(key)) return;
-    const voices = Array.from({ length: 3 }, () => {
+    // One reusable element per effect keeps its audible playback permission tied
+    // to the FIGHT gesture across CPU-versus-CPU and player-controlled matches.
+    const voices = Array.from({ length: 1 }, () => {
       const audio = new Audio(url);
       audio.preload = 'auto';
       audio.load();
@@ -194,7 +196,7 @@ export class SoundManager {
   private playMedia(key: string, volume: number) {
     const voices = this.mediaPools.get(key);
     if (!voices?.length) return false;
-    const voice = voices.find((audio) => audio.paused || audio.ended) ?? voices[0];
+    const voice = voices[0];
     voice.pause();
     voice.currentTime = 0;
     voice.volume = Math.max(0, Math.min(1, volume * 0.8));
@@ -203,24 +205,23 @@ export class SoundManager {
   }
 
   private primeMediaPlayback() {
-    // Mobile browsers can grant post-gesture playback per media element. Prime every
-    // cue that must fire after the FIGHT button while its user activation is active.
-    const priorityKeys = [
-      'ambient-wind', 'fight-announce', 'countdown-beep', 'footstep',
-      'approved-shared-punch-1', 'approved-shared-punch-2',
-      'approved-shared-punch-3', 'approved-shared-punch-4',
-    ];
-    for (const key of priorityKeys) {
-      const voice = this.mediaPools.get(key)?.[0];
-      if (!voice) continue;
-      voice.muted = true;
-      voice.volume = 0;
-      void voice.play().then(() => {
-        voice.pause();
-        voice.currentTime = 0;
+    // Some mobile browsers grant post-gesture playback permission per *element*,
+    // not per URL. Gameplay may use any of the three pool voices, so unlock each
+    // one from the FIGHT gesture with an inaudible-but-not-muted start. A muted
+    // start does not establish an audible output route on affected browsers.
+    for (const [key, voices] of Array.from(this.mediaPools.entries())) {
+      for (const voice of voices) {
+        voice.loop = false;
         voice.muted = false;
-        voice.volume = 1;
-      }).catch((error) => console.warn('[SoundManager] Media prime failed:', key, error));
+        voice.volume = 0.001;
+        void voice.play().then(() => {
+          window.setTimeout(() => {
+            voice.pause();
+            voice.currentTime = 0;
+            voice.volume = 1;
+          }, 45);
+        }).catch((error: unknown) => console.warn('[SoundManager] Media prime failed:', key, error));
+      }
     }
   }
 

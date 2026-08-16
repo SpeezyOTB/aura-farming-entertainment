@@ -108,8 +108,11 @@
 - [x] Play the live game as a player and capture the browser’s actual media-playback outcomes before another audio publication.
 - [x] Remove generic fallback reliance once approved streamed assets are verified in the running match.
 - [x] Replace Netlify-incompatible `/manus-storage/` audio paths after native public-browser tests showed every active clip rejecting as unsupported.
-- [ ] Re-test native `HTMLMediaElement.play()` promise resolution on the public domain before another release.
-- [ ] Confirm Netlify serves the GitHub revision containing the public-CDN audio registry rather than the prior stale bundle.
+- [x] Re-test native `HTMLMediaElement.play()` promise resolution on the public domain before another release.
+- [x] Confirm Netlify serves the GitHub revision containing the public-CDN audio registry rather than the prior stale bundle.
+- [x] Reproduce the report that CPU-versus-CPU mode has no audible sound despite media playback events resolving.
+- [x] Inspect actual media mute, volume, output-route, and audio-context state during a CPU-versus-CPU match.
+- [x] Correct the CPU-versus-CPU audio startup by reusing one audibly unlocked media element for each active sound key.
 - [x] Reproduce the report that the active game still uses generic effects instead of the approved combat library.
 - [x] Trace and repair missing power-up voice-line events for every fighter.
 - [x] Trace and repair missing victory and defeat voice-line events at match completion.
