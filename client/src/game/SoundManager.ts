@@ -35,15 +35,25 @@ const SOUNDS: Record<string, string> = {
   'kick-impact-alt':  ELEVENLABS_ANIME_SFX.alternateKickHit,
   'punch-block-alt':  ELEVENLABS_ANIME_SFX.alternatePunchBlock,
   'kick-block-alt':   ELEVENLABS_ANIME_SFX.alternateKickBlock,
-  'footstep':      'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/QfrDJaCQOoBRVcYc.wav',
-  'footstep2':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/FNbXoPxoEZMPApeK.wav',
-  'footstep3':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/xmFkiQDtnZfpuxYD.wav',
-  'footstep4':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ZOkDgNSsqlAOlVJX.wav',
-  'footstep5':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/xoHpeJbZZpvOTgZc.wav',
-  'footstep6':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/HIaWnKZwkZRpLPTn.wav',
-  'footstep7':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/tvvTdNImiWYuhcsR.wav',
-  'footstep8':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/kTrpVOrwDiEIxwHO.wav',
-  'footstep9':     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/KaiMvGtDirbuxpbQ.wav',
+  'ryu-punch-a':   ELEVENLABS_ANIME_SFX.ryuPunchA,
+  'ryu-punch-b':   ELEVENLABS_ANIME_SFX.ryuPunchB,
+  'akari-punch-a': ELEVENLABS_ANIME_SFX.akariPunchA,
+  'akari-punch-b': ELEVENLABS_ANIME_SFX.akariPunchB,
+  'galva-punch-a': ELEVENLABS_ANIME_SFX.galvaPunchA,
+  'galva-punch-b': ELEVENLABS_ANIME_SFX.galvaPunchB,
+  'kai-punch-a':   ELEVENLABS_ANIME_SFX.kaiPunchA,
+  'kai-punch-b':   ELEVENLABS_ANIME_SFX.kaiPunchB,
+  'shuraku-punch-a': ELEVENLABS_ANIME_SFX.shurakuPunchA,
+  'shuraku-punch-b': ELEVENLABS_ANIME_SFX.shurakuPunchB,
+  'footstep':      ELEVENLABS_ANIME_SFX.actionPlant,
+  'footstep2':     ELEVENLABS_ANIME_SFX.actionPlant,
+  'footstep3':     ELEVENLABS_ANIME_SFX.actionPlant,
+  'footstep4':     ELEVENLABS_ANIME_SFX.actionPlant,
+  'footstep5':     ELEVENLABS_ANIME_SFX.actionPlant,
+  'footstep6':     ELEVENLABS_ANIME_SFX.actionPlant,
+  'footstep7':     ELEVENLABS_ANIME_SFX.actionPlant,
+  'footstep8':     ELEVENLABS_ANIME_SFX.actionPlant,
+  'footstep9':     ELEVENLABS_ANIME_SFX.actionPlant,
   'miss-whoosh':   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/YHkKsigcoyDXmABQ.wav',
   // ── Hit reaction variants ──────────────────────────────────────────────────
 
@@ -185,6 +195,9 @@ export class SoundManager {
       return;
     }
 
+    // Resume synchronously from the FIGHT button's user gesture before any fetches.
+    await this.ctx.resume().catch(() => {});
+
     // iOS: when a USB audio device (e.g. PS5 controller) is plugged in,
     // iOS switches the audio route and suspends the AudioContext.
     // We recover by listening for visibilitychange and polling every 2s.
@@ -195,17 +208,24 @@ export class SoundManager {
     this.masterGain.gain.value = 0.8;
     this.masterGain.connect(this.ctx.destination);
 
-    // Load all SFX
-    await Promise.all(
-      Object.entries(SOUNDS).map(async ([key, url]) => {
-        try {
-          const res = await fetch(url);
-          const arr = await res.arrayBuffer();
-          const buf = await this.ctx!.decodeAudioData(arr);
-          this.buffers.set(key, buf);
-        } catch (e) { console.warn('[SoundManager] SFX load failed:', key, e); }
-      })
-    );
+    const loadSound = async ([key, url]: [string, string]) => {
+      try {
+        const res = await fetch(url);
+        const arr = await res.arrayBuffer();
+        const buf = await this.ctx!.decodeAudioData(arr);
+        this.buffers.set(key, buf);
+      } catch (e) { console.warn('[SoundManager] SFX load failed:', key, e); }
+    };
+    const allSounds = Object.entries(SOUNDS) as [string, string][];
+    const priorityKeys = new Set([
+      'ryu-punch-a', 'ryu-punch-b', 'akari-punch-a', 'akari-punch-b',
+      'galva-punch-a', 'galva-punch-b', 'kai-punch-a', 'kai-punch-b',
+      'shuraku-punch-a', 'shuraku-punch-b', 'footstep',
+    ]);
+    // These clips must finish decoding before the fight can start so first punches are audible.
+    await Promise.all(allSounds.filter(([key]) => priorityKeys.has(key)).map(loadSound));
+    // Non-critical ambience and legacy UI clips load in the background.
+    void Promise.all(allSounds.filter(([key]) => !priorityKeys.has(key)).map(loadSound));
 
     // Load fight music (rock — plays during battle)
     try {

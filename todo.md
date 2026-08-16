@@ -72,6 +72,22 @@
 - [x] Obtain approval for the alternate whiff, hit, and block strike set.
 - [x] Upload alternate clips and add them to their event-specific strike sound pools.
 - [x] Implement no-repeat rotation and validate the varied strike sound system in the production build.
+- [ ] Audit current walk, dash, and landing sound timing and identify the footstep replacement hooks.
+- [ ] Generate and send varied ElevenLabs footstep previews for user approval.
+- [ ] Integrate approved footstep clips with no-repeat rotation and movement-specific timing.
+- [ ] Test and publish the footstep sound system.
+- [ ] Inspect the active Dragon Fist X stage surface and movement presentation.
+- [ ] Generate martial-arts shuffle, stance pivot, planted slide, and pressure-step previews matched to the arena.
+- [ ] Obtain approval before replacing the rejected ordinary footstep previews.
+- [ ] Define anime action-game shuffle, pivot, and planted movement effects without realistic walking Foley.
+- [ ] Generate and send action-oriented movement previews for approval before any integration.
+- [x] Preserve the user-approved planted ready-stance movement clip from the action-game preview set.
+- [ ] Generate compatible alternates that retain the approved planted ready-stance character.
+- [x] Integrate only the approved movement clips after preview approval.
+- [x] Trace why approved punch effects are not audible during gameplay.
+- [x] Generate and integrate character-specific punch variations for Ryu, Akari, Galva, Kai, and Shuraku.
+- [x] Use only the approved planted action-movement clip for walking and remove rejected movement candidates.
+- [x] Verify production build, asset delivery, and game-screen stability before publishing the correction.
 - [ ] Define character- and action-specific anime sound directions and identify generic placeholders for removal.
 - [ ] Obtain a valid ElevenLabs sound-effects key and generate a priority custom effects library.
 - [ ] Integrate layered anime effects for movement, strikes, guards, specials, launches, and menus.

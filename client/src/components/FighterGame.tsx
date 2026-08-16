@@ -644,14 +644,9 @@ export default function FighterGame() {
     // Stop select music
     selectMusicRef.current?.pause();
 
-    // Init sound (fire-and-forget)
-    if (!soundRef.current) {
-      const sm = new SoundManager();
-      soundRef.current = sm;
-      sm.init().catch(e => console.warn('[FighterGame] SoundManager init error:', e));
-    } else {
-      soundRef.current.resume();
-    }
+    // Sound was initialized from the FIGHT button gesture before this screen mounted.
+    // Resume here only; combat begins after the priority punch pool is already decoded.
+    soundRef.current?.resume();
 
     const p1Cfg: FighterConfig = {
       ...(CHARS[cfg.p1Key] as Omit<FighterConfig,'id'|'startX'|'facingRight'>),
@@ -734,6 +729,15 @@ export default function FighterGame() {
     // Stop select music immediately on fight start
     selectMusicRef.current?.pause();
     selectMusicRef.current = null;
+
+    // Create and unlock the AudioContext from the user's FIGHT button gesture.
+    // Priority combat clips finish decoding before the match starts, preventing silent first punches.
+    if (!soundRef.current) {
+      const sm = new SoundManager();
+      soundRef.current = sm;
+      await sm.init().catch(e => console.warn('[FighterGame] SoundManager init error:', e));
+    }
+    soundRef.current?.resume();
 
     // Show loading bar, store config, then switch screen so canvas mounts
     setLoading(true);

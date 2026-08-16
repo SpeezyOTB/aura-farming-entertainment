@@ -594,7 +594,11 @@ export class GameEngine {
           if (isKick) {
             this.sound.playNoRepeat('kick-hit', ['kick-impact', 'kick-impact-alt'], 0.88);
           } else {
-            this.sound.playNoRepeat('punch-hit', ['punch-impact', 'punch-impact-alt'], 0.86);
+            this.sound.playNoRepeat(
+              `punch-hit-${attacker.name.toLowerCase()}`,
+              this.getPunchImpactVariants(attacker.name),
+              0.94,
+            );
           }
           // Character-specific ElevenLabs strikes already carry the vocal-free anime impact identity.
           // Avoid layering the old generic grunt library over every hit.
@@ -876,6 +880,15 @@ export class GameEngine {
   // ── Sound routing helpers ─────────────────────────────────
   private getPunchGrunts(name: string): string[] {
     return ['punch-whiff', 'punch-whiff-alt'];
+  }
+  private getPunchImpactVariants(name: string): string[] {
+    const n = name.toLowerCase();
+    if (n === 'ryu') return ['ryu-punch-a', 'ryu-punch-b'];
+    if (n === 'akari') return ['akari-punch-a', 'akari-punch-b'];
+    if (n === 'galva') return ['galva-punch-a', 'galva-punch-b'];
+    if (n === 'kai') return ['kai-punch-a', 'kai-punch-b'];
+    if (n === 'shuraku') return ['shuraku-punch-a', 'shuraku-punch-b'];
+    return ['punch-impact', 'punch-impact-alt'];
   }
   private getHitGrunts(name: string): string[] {
     const n = name.toLowerCase();
