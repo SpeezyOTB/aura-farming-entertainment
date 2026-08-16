@@ -102,6 +102,9 @@
 - [x] Replace every fighter-specific landed-punch pool with the approved shared four-clip non-repeating variation pool.
 - [x] Enforce one global landed-punch rotation so a clip cannot repeat across either fighter’s next successful punch.
 - [ ] Verify Ryu, Akari, Galva, Kai, and Shuraku all dispatch approved punch variations on successful contact.
+- [x] Reproduce and repair the missing background wind, fight announcement, and endgame combat audio regression.
+- [x] Reproduce and repair the missing approved shared-punch playback during live combat.
+- [ ] Verify the complete countdown-to-victory audio sequence without changing the approved global punch rotation.
 - [x] Reproduce the report that the active game still uses generic effects instead of the approved combat library.
 - [x] Trace and repair missing power-up voice-line events for every fighter.
 - [x] Trace and repair missing victory and defeat voice-line events at match completion.

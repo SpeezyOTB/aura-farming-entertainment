@@ -181,7 +181,8 @@ export class GameEngine {
         } else {
           this.countdownDone = true;
           this.gameState.running = true;
-          this.sound.play('dragon-fight', 1.0);
+          this.sound.play('fight-announce', 1.0);
+          this.sound.startAmbientWind(0.14);
           this.sound.playAnimeCountdown(0);
         }
       }
@@ -858,6 +859,7 @@ export class GameEngine {
     // Stop cinematic immediately so it doesn't bleed into win screen
     this.cinematic.stop();
     this.sound.stopFightMusic();
+    this.sound.stopAmbientWind();
     this.sound.stopAll();
     this.gameState.running = false;
     if (!this.p1.isAlive && !this.p2.isAlive) this.gameState.winner = 0;

@@ -4,6 +4,7 @@ export const ELEVENLABS_ANIME_SFX = {
   uiModeSelect: '/manus-storage/ui_mode_select_c83c944c.mp3',
   countdownTick: '/manus-storage/countdown_tick_a0da250b.mp3',
   fightStart: '/manus-storage/fight_start_d384c30d.mp3',
+  arenaWindLoop: '/manus-storage/arena_wind_loop_230f05ce.mp3',
   punchImpact: '/manus-storage/punch_impact_8f5b93e8.mp3',
   kickImpact: '/manus-storage/kick_impact_793253f6.mp3',
   guardClash: '/manus-storage/guard_clash_f04b6672.mp3',

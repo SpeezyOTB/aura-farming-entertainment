@@ -104,10 +104,11 @@ const SOUNDS: Record<string, string> = {
   'energy-full':  ELEVENLABS_ANIME_SFX.fightStart,
   'ko':           ELEVENLABS_ANIME_SFX.throwLanding,
   'countdown-beep':  ELEVENLABS_ANIME_SFX.countdownTick,
-  'fight-announce':  ELEVENLABS_ANIME_SFX.fightStart,
+  'fight-announce':  '/manus-storage/fight_announcement_79de4296.wav',
   'ui-click':        ELEVENLABS_ANIME_SFX.uiCharacterSelect,
   'fight-start':     ELEVENLABS_ANIME_SFX.fightStart,
   'dragon-fight':    ELEVENLABS_ANIME_SFX.fightStart,
+  'ambient-wind':    ELEVENLABS_ANIME_SFX.arenaWindLoop,
   'ryu-win': DFX_VOICE_LINES.ryuWin, 'akari-win': DFX_VOICE_LINES.akariWin,
   'ryu-lose': DFX_VOICE_LINES.ryuLose, 'akari-lose': DFX_VOICE_LINES.akariLose,
   'galva-punch':   ELEVENLABS_ANIME_SFX.approvedPunchWhiff,
@@ -145,6 +146,7 @@ export class SoundManager {
   private fightMusicBuf: AudioBuffer | null = null;
   private activeNodes: AudioBufferSourceNode[] = [];
   private musicGain: GainNode | null = null;
+  private ambientWind: HTMLAudioElement | null = null;
   private duckTimer: ReturnType<typeof setTimeout> | null = null;
   private masterGain: GainNode | null = null;
   private muted = false;
@@ -175,7 +177,7 @@ export class SoundManager {
     // `fetch` plus `decodeAudioData` is rejected by the external asset host in browsers.
     // HTMLMediaElement is allowed to stream the same files, including the signed storage redirects.
     for (const [key, url] of allSounds) this.prepareMediaPool(key, url);
-    this.unlockMediaPlayback();
+    this.primeMediaPlayback();
   }
 
   private prepareMediaPool(key: string, url: string) {
@@ -200,18 +202,45 @@ export class SoundManager {
     return true;
   }
 
-  private unlockMediaPlayback() {
-    const voice = this.mediaPools.get('footstep')?.[0];
-    if (!voice) return;
-    voice.muted = true;
-    voice.volume = 0;
-    // This call occurs synchronously within the FIGHT click, preserving browser user activation.
-    void voice.play().then(() => {
-      voice.pause();
-      voice.currentTime = 0;
-      voice.muted = false;
-      voice.volume = 1;
-    }).catch((error) => console.warn('[SoundManager] Media unlock failed:', error));
+  private primeMediaPlayback() {
+    // Mobile browsers can grant post-gesture playback per media element. Prime every
+    // cue that must fire after the FIGHT button while its user activation is active.
+    const priorityKeys = [
+      'ambient-wind', 'fight-announce', 'countdown-beep', 'footstep',
+      'approved-shared-punch-1', 'approved-shared-punch-2',
+      'approved-shared-punch-3', 'approved-shared-punch-4',
+    ];
+    for (const key of priorityKeys) {
+      const voice = this.mediaPools.get(key)?.[0];
+      if (!voice) continue;
+      voice.muted = true;
+      voice.volume = 0;
+      void voice.play().then(() => {
+        voice.pause();
+        voice.currentTime = 0;
+        voice.muted = false;
+        voice.volume = 1;
+      }).catch((error) => console.warn('[SoundManager] Media prime failed:', key, error));
+    }
+  }
+
+  startAmbientWind(volume = 0.14): boolean {
+    const wind = this.mediaPools.get('ambient-wind')?.[0];
+    if (!wind) return false;
+    if (this.ambientWind && this.ambientWind !== wind) this.stopAmbientWind();
+    wind.loop = true;
+    wind.volume = Math.max(0, Math.min(1, volume));
+    this.ambientWind = wind;
+    void wind.play().catch((error) => console.warn('[SoundManager] Ambient wind blocked:', error));
+    return true;
+  }
+
+  stopAmbientWind() {
+    if (!this.ambientWind) return;
+    this.ambientWind.pause();
+    this.ambientWind.currentTime = 0;
+    this.ambientWind.loop = false;
+    this.ambientWind = null;
   }
 
   private startResumePoll() {
@@ -395,6 +424,7 @@ export class SoundManager {
       try { node.stop(); } catch (_) {}
     }
     this.activeNodes = [];
+    if (this.ambientWind) this.ambientWind.loop = false;
     for (const voices of Array.from(this.mediaPools.values())) {
       for (const voice of voices) {
         voice.pause();
@@ -409,6 +439,7 @@ export class SoundManager {
 
   dispose() {
     this.stopFightMusic();
+    this.stopAmbientWind();
     clearTimeout(this.resumePollId);
     document.removeEventListener('visibilitychange', this.handleVisibility);
     for (const voices of Array.from(this.mediaPools.values())) {
