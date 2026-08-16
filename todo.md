@@ -88,6 +88,11 @@
 - [x] Generate and integrate character-specific punch variations for Ryu, Akari, Galva, Kai, and Shuraku.
 - [x] Use only the approved planted action-movement clip for walking and remove rejected movement candidates.
 - [x] Verify production build, asset delivery, and game-screen stability before publishing the correction.
+- [x] Reproduce the report that live punch and kick impact sounds are still inaudible after starting a match.
+- [x] Reproduce the report that live walking footstep sounds are also inaudible during a match.
+- [x] Inspect the browser console and active sound-playback path during an actual strike event.
+- [x] Correct the combat-audio delivery path so strike events have a reliable audible fallback.
+- [ ] Verify landed punches and kicks audibly play in the live game before publishing the repair.
 - [ ] Define character- and action-specific anime sound directions and identify generic placeholders for removal.
 - [ ] Obtain a valid ElevenLabs sound-effects key and generate a priority custom effects library.
 - [ ] Integrate layered anime effects for movement, strikes, guards, specials, launches, and menus.

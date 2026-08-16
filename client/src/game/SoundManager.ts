@@ -175,6 +175,7 @@ const WIND_URL = 'https://files.manuscdn.com/user_upload_by_module/session_file/
 export class SoundManager {
   private ctx: AudioContext | null = null;
   private buffers: Map<string, AudioBuffer> = new Map();
+  private mediaPools: Map<string, HTMLAudioElement[]> = new Map();
   private windNode: AudioBufferSourceNode | null = null;
   private fightMusicNode: AudioBufferSourceNode | null = null;
   private fightMusicBuf: AudioBuffer | null = null;
@@ -195,8 +196,8 @@ export class SoundManager {
       return;
     }
 
-    // Resume synchronously from the FIGHT button's user gesture before any fetches.
-    await this.ctx.resume().catch(() => {});
+    // Resume synchronously from the FIGHT button's user gesture before any playback.
+    void this.ctx.resume().catch(() => {});
 
     // iOS: when a USB audio device (e.g. PS5 controller) is plugged in,
     // iOS switches the audio route and suspends the AudioContext.
@@ -208,42 +209,47 @@ export class SoundManager {
     this.masterGain.gain.value = 0.8;
     this.masterGain.connect(this.ctx.destination);
 
-    const loadSound = async ([key, url]: [string, string]) => {
-      try {
-        const res = await fetch(url);
-        const arr = await res.arrayBuffer();
-        const buf = await this.ctx!.decodeAudioData(arr);
-        this.buffers.set(key, buf);
-      } catch (e) { console.warn('[SoundManager] SFX load failed:', key, e); }
-    };
     const allSounds = Object.entries(SOUNDS) as [string, string][];
-    const priorityKeys = new Set([
-      'ryu-punch-a', 'ryu-punch-b', 'akari-punch-a', 'akari-punch-b',
-      'galva-punch-a', 'galva-punch-b', 'kai-punch-a', 'kai-punch-b',
-      'shuraku-punch-a', 'shuraku-punch-b', 'footstep',
-    ]);
-    // These clips must finish decoding before the fight can start so first punches are audible.
-    await Promise.all(allSounds.filter(([key]) => priorityKeys.has(key)).map(loadSound));
-    // Non-critical ambience and legacy UI clips load in the background.
-    void Promise.all(allSounds.filter(([key]) => !priorityKeys.has(key)).map(loadSound));
+    // `fetch` plus `decodeAudioData` is rejected by the external asset host in browsers.
+    // HTMLMediaElement is allowed to stream the same files, including the signed storage redirects.
+    for (const [key, url] of allSounds) this.prepareMediaPool(key, url);
+    this.unlockMediaPlayback();
+  }
 
-    // Load fight music (rock — plays during battle)
-    try {
-      const fmRes = await fetch('https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/JNxtHLnQvIAHWvXA.mp3');
-      const fmArr = await fmRes.arrayBuffer();
-      this.fightMusicBuf = await this.ctx.decodeAudioData(fmArr);
-    } catch (e) { console.warn('[SoundManager] Fight music load failed:', e); }
-    // Load and loop wind ambient
-    try {
-      const res = await fetch(WIND_URL);
-      const arr = await res.arrayBuffer();
-      const buf = await this.ctx.decodeAudioData(arr);
-      this.windBuf = buf;
-      this.windGain = this.ctx.createGain();
-      this.windGain.gain.value = 0.45; // audible during gameplay
-      this.windGain.connect(this.masterGain);
-      this.startWind(buf);
-    } catch (e) { console.warn('[SoundManager] Wind load failed:', e); }
+  private prepareMediaPool(key: string, url: string) {
+    if (this.mediaPools.has(key)) return;
+    const voices = Array.from({ length: 3 }, () => {
+      const audio = new Audio(url);
+      audio.preload = 'auto';
+      audio.load();
+      return audio;
+    });
+    this.mediaPools.set(key, voices);
+  }
+
+  private playMedia(key: string, volume: number) {
+    const voices = this.mediaPools.get(key);
+    if (!voices?.length) return false;
+    const voice = voices.find((audio) => audio.paused || audio.ended) ?? voices[0];
+    voice.pause();
+    voice.currentTime = 0;
+    voice.volume = Math.max(0, Math.min(1, volume * 0.8));
+    void voice.play().catch((error) => console.warn('[SoundManager] Media playback blocked:', key, error));
+    return true;
+  }
+
+  private unlockMediaPlayback() {
+    const voice = this.mediaPools.get('footstep')?.[0];
+    if (!voice) return;
+    voice.muted = true;
+    voice.volume = 0;
+    // This call occurs synchronously within the FIGHT click, preserving browser user activation.
+    void voice.play().then(() => {
+      voice.pause();
+      voice.currentTime = 0;
+      voice.muted = false;
+      voice.volume = 1;
+    }).catch((error) => console.warn('[SoundManager] Media unlock failed:', error));
   }
 
   private startResumePoll() {
@@ -302,7 +308,9 @@ export class SoundManager {
   }
 
   play(key: string, volume = 1.0) {
-    if (this.muted || !this.ctx || !this.masterGain) return;
+    if (this.muted) return;
+    if (this.playMedia(key, volume)) return;
+    if (!this.ctx || !this.masterGain) return;
     const buf = this.buffers.get(key);
     if (!buf) return;
     const src = this.ctx.createBufferSource();
@@ -369,6 +377,23 @@ export class SoundManager {
     noise.stop(now + profiles.duration);
   }
 
+  /** A compact arena-step layer backs up the approved streamed movement clip. */
+  playAnimeStep(volume = 1.0) {
+    if (this.muted || !this.ctx || !this.masterGain) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(128, now);
+    osc.frequency.exponentialRampToValueAtTime(54, now + 0.07);
+    gain.gain.setValueAtTime(0.085 * volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.08);
+  }
+
   /** Escalating arcade-style countdown pings plus a brighter final fight cue. */
   playAnimeCountdown(remaining: number) {
     if (this.muted || !this.ctx || !this.masterGain) return;
@@ -400,7 +425,7 @@ export class SoundManager {
 
   // Select a different loaded clip on consecutive uses of the same gameplay event.
   playNoRepeat(event: string, keys: string[], volume = 1.0) {
-    const available = keys.filter((key) => this.buffers.has(key));
+    const available = keys.filter((key) => this.mediaPools.has(key) || this.buffers.has(key));
     if (!available.length) return;
     const last = this.lastEventVariant.get(event);
     const choices = available.length > 1 ? available.filter((key) => key !== last) : available;
@@ -430,6 +455,10 @@ export class SoundManager {
     this.windNode?.stop();
     clearTimeout(this.resumePollId);
     document.removeEventListener('visibilitychange', this.handleVisibility);
+    for (const voices of Array.from(this.mediaPools.values())) {
+      for (const voice of voices) voice.pause();
+    }
+    this.mediaPools.clear();
     this.ctx?.close();
   }
 }

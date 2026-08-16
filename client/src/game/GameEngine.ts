@@ -218,11 +218,13 @@ export class GameEngine {
     this.p1FootTimer -= dt;
     if (this.p1.state === 'walk' && this.p1FootTimer <= 0) {
       this.sound.playRandom(['footstep','footstep2','footstep3','footstep4','footstep5','footstep6','footstep7','footstep8','footstep9'], 0.4);
+      this.sound.playAnimeStep(0.38);
       this.p1FootTimer = 0.28;
     }
     this.p2FootTimer -= dt;
     if (this.p2.state === 'walk' && this.p2FootTimer <= 0) {
       this.sound.playRandom(['footstep','footstep2','footstep3','footstep4','footstep5','footstep6','footstep7','footstep8','footstep9'], 0.35);
+      this.sound.playAnimeStep(0.33);
       this.p2FootTimer = 0.28;
     }
 
@@ -600,6 +602,7 @@ export class GameEngine {
               0.94,
             );
           }
+          this.sound.playAnimeImpact(isKick ? 'kick' : 'punch', isKick ? 0.68 : 0.63);
           // Character-specific ElevenLabs strikes already carry the vocal-free anime impact identity.
           // Avoid layering the old generic grunt library over every hit.
           const isP1 = defender === this.p1;
