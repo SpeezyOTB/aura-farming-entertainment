@@ -14,24 +14,24 @@ import {
 } from '@/game/constants';
 
 // ── Asset URLs ────────────────────────────────────────────────
-const BG_URL       = 'https://fightergame-j95rkwu8.manus.space/manus-storage/dojo-bg_5f9dc991.png';
-const RYU_SPRITE   = 'https://fightergame-j95rkwu8.manus.space/manus-storage/ryu-stage-alpha-v2_e7f4a6ad.png';
-const AKARI_SPRITE = 'https://fightergame-j95rkwu8.manus.space/manus-storage/akari-stage-sprite-matted_5a68ed62.png';
-const RYU_ICON     = 'https://fightergame-j95rkwu8.manus.space/manus-storage/ryu-icon_28b074e0.png';
-const AKARI_ICON   = 'https://fightergame-j95rkwu8.manus.space/manus-storage/akari-icon_f2d516a1.png';
-const GALVA_SPRITE = 'https://fightergame-j95rkwu8.manus.space/manus-storage/galva_bc16a2a0.png';
-const KAI_SPRITE   = 'https://fightergame-j95rkwu8.manus.space/manus-storage/kai_94245d01.png';
-const SHURAKU_SPRITE = 'https://fightergame-j95rkwu8.manus.space/manus-storage/shuraku_59416bbc.png';
+const BG_URL       = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/gdivZsrikMAeBsCB.png';
+const RYU_SPRITE   = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/LpzOYgiWjwOBWAEp.png';
+const AKARI_SPRITE = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/QwLVYCpLNvDyCxFu.png';
+const RYU_ICON     = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/JEJHOlpzmXVXnLGw.png';
+const AKARI_ICON   = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/SLrmKNMPTvOTeXoH.png';
+const GALVA_SPRITE = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/jVYTgBNCjNmKoDkD.png';
+const KAI_SPRITE   = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/wAonMDqFVIPzlYKg.png';
+const SHURAKU_SPRITE = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/LxBYFoUoQZxCFhVL.png';
 
 // UI sounds via plain Audio elements (no AudioContext needed)
-const UI_CLICK_URL    = 'https://fightergame-j95rkwu8.manus.space/manus-storage/ui-click_5a63fcad.wav';
-const FIGHT_START_URL = 'https://fightergame-j95rkwu8.manus.space/manus-storage/fight-start_57a8e184.wav';
+const UI_CLICK_URL    = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ooCBEqPDjxLRvUkw.wav';
+const FIGHT_START_URL = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/WaeBZpBeljMevzjE.wav';
 const CHAR_SELECT_VOICES: Record<string, string> = {
-  ryu:     'https://fightergame-j95rkwu8.manus.space/manus-storage/ryu-select-dry_b6332a11.wav',
-  akari:   'https://fightergame-j95rkwu8.manus.space/manus-storage/akari-select-dry_17c37207.wav',
-  kai:     'https://fightergame-j95rkwu8.manus.space/manus-storage/kai-select-dry_d5a1b4cb.wav',
-  galva:   'https://fightergame-j95rkwu8.manus.space/manus-storage/galva-select-dry_d204de11.wav',
-  shuraku: 'https://fightergame-j95rkwu8.manus.space/manus-storage/shuraku-select-dry_ab900573.wav',
+  ryu:     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/zNhPbYRaOOSkClUC.wav',
+  akari:   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/tbYfKZObBpUFAmKW.wav',
+  kai:     'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/zQuPEAxZuMaVZgvo.wav',
+  galva:   'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/ZkWiAjHvFaXUjNEO.wav',
+  shuraku: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/xnLeHuHIskAtsvyy.wav',
 };
 
 // Lightweight anime-arcade fallback tones make menu choices feel responsive
@@ -272,7 +272,7 @@ function CharSelect({ onSelect, onVoicePlay }: { onSelect: (p1: string, p2: stri
 
       {/* Title with logo */}
       <div className="text-center flex flex-col items-center gap-2">
-        <img src="https://fightergame-j95rkwu8.manus.space/manus-storage/dragonfistXlogo_96131b2b.PNG" alt="Dragon Fist X"
+        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/SBuvbBbNhCsOPtHO.PNG" alt="Dragon Fist X"
           className="w-32 h-32 object-contain drop-shadow-lg"
           style={{ filter: 'drop-shadow(0 0 18px #f59e0b88)' }} />
         <p className="text-amber-400 text-sm tracking-widest">SELECT YOUR FIGHTER</p>
@@ -598,7 +598,7 @@ export default function FighterGame() {
   useEffect(() => {
     if (screen === 'select') {
       // Create audio element immediately but play on first user interaction
-      const audio = new Audio('https://fightergame-j95rkwu8.manus.space/manus-storage/select-music_e27b765f.mp3');
+      const audio = new Audio('https://files.manuscdn.com/user_upload_by_module/session_file/310519663841309695/JNxtHLnQvIAHWvXA.mp3');
       audio.loop = true;
       audio.volume = 0.15;
       selectMusicRef.current = audio;
@@ -662,6 +662,11 @@ export default function FighterGame() {
 
     const eng = new GameEngine(canvas, p1Cfg, p2Cfg, BG_URL, cfg.mode, soundRef.current!);
     eng.onStateChange = (s) => {
+      // Preserve the public Aura Farming game address at the end of every match.
+      // This is a history rewrite only: it never sends players to an external host.
+      if (window.location.pathname !== '/dragonfistx') {
+        window.history.replaceState({}, '', '/dragonfistx');
+      }
       setGameOver(s);
       cancelAnimationFrame(hudRaf.current);
     };

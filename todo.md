@@ -41,3 +41,7 @@
 - [x] Audit character-select, mode-selection, fight-button, and countdown sound triggers.
 - [x] Add resilient anime-style feedback for selection changes and escalating three-countdown beeps.
 - [x] Test the character-select presentation and validate the production build, then publish the revised sound flow.
+- [x] Trace every navigation trigger in the merged game; no legacy-host navigation remains in the application source.
+- [x] Inventory all remaining legacy-hosted game media and runtime references.
+- [x] Replace 140 legacy media references with independent CDN copies and generic impact fallbacks for inaccessible legacy grunts.
+- [x] Enforce the local `/dragonfistx` path on match completion and verify legacy game aliases resolve to the Aura Farming route.
