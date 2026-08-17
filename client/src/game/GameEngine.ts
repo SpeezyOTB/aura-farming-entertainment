@@ -586,7 +586,6 @@ export class GameEngine {
           defender.stateTimer = 3.0;
           defender.vx = (defender.facingRight ? -1 : 1) * 180;
           defender.consecutiveHits = 0;
-          defender.energy = 0;
           defender.hitFlash = 0.1;
           const sweepDmg = Math.max(1, Math.round(attacker.boostActive ? base * 2 : base));
           defender.health = Math.max(0, defender.health - sweepDmg);
@@ -801,7 +800,6 @@ export class GameEngine {
       target.health = Math.max(0, target.health - damage);
       target.hitFlash = 0.14;
       target.consecutiveHits = 0;
-      target.energy = 0;
       fighter.grappleSqueezeApplied = true;
       fighter.onAttackLanded();
       this.sound.play('block-impact', 0.82);
@@ -849,7 +847,6 @@ export class GameEngine {
     opponent.health = Math.max(0, opponent.health - damage);
     opponent.hitFlash = 0.18;
     opponent.consecutiveHits = 0;
-    opponent.energy = 0;
     opponent.vx = direction * (opponent.isBlocking ? 260 : 420);
     if (!opponent.isBlocking && opponent.isAlive) {
       opponent.state = 'thrown';

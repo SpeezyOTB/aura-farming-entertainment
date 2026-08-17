@@ -28,6 +28,10 @@ export const KICK_DAMAGE     = 2;
 export const BLOCK_DAMAGE_MULT = 0.0;  // blocking = zero damage
 export const ENERGY_PER_PUNCH = 5;
 export const ENERGY_PER_KICK  = 7;
+export const ENERGY_PER_LANDED_HIT = 5;
+export const LIGHT_SPECIAL_COST = 10;
+export const HEAVY_SPECIAL_COST = 15;
+export const FINISHER_SPECIAL_COST = 20;
 export const BOOST_DURATION   = 15;
 export const BOOST_DAMAGE_MULT = 2;
 

@@ -50,3 +50,6 @@
 - [x] Implement a match pause state that freezes the timer, AI, fighters, projectiles, inputs, and active effects.
 - [x] Add a visible mobile pause button plus `P` and `Esc` keyboard toggles with resume, restart, character-select, and controls actions.
 - [x] Verify pause and resume behavior in desktop and mobile game layouts, then document the implementation for review.
+- [x] Remove energy loss from normal punches, kicks, blocks, throws, and ordinary damage outcomes.
+- [x] Restrict energy expenditure to special moves and boost activation while preserving intended charge and gain behavior.
+- [x] Verify standard hits reduce health only and special moves consume energy as designed.

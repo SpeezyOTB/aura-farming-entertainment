@@ -10,7 +10,8 @@ import {
   STAGE_LEFT, STAGE_RIGHT, BLOCK_DAMAGE_MULT,
   BACKJUMP_VX, BACKJUMP_VY, LAND_SQUASH,
   PRONE_RECOVERY_TIME, CHARGED_PUNCH_MULT, CHARGED_KICK_MULT,
-  CHARGE_HOLD_TIME, COUNTER_WINDOW,
+  CHARGE_HOLD_TIME, COUNTER_WINDOW, ENERGY_PER_LANDED_HIT,
+  LIGHT_SPECIAL_COST, HEAVY_SPECIAL_COST, FINISHER_SPECIAL_COST,
 } from './constants';
 import type { FighterConfig, FighterState } from './types';
 
@@ -441,9 +442,8 @@ export class Fighter {
       this.counterWindowTimer = COUNTER_WINDOW;
     }
 
-    // Taking a hit breaks consecutive hit streak
+    // Taking a hit breaks the combo streak, but never wipes stored energy.
     this.consecutiveHits = 0;
-    this.energy = 0;
 
     if (this.health <= 0) { this.state = 'ko'; this.stateTimer = 999; }
     return dmg;
@@ -463,12 +463,29 @@ export class Fighter {
     // Energy is now driven by consecutive hits — see onAttackLanded
   }
   activateBoost() {
-    if (this.boostCooldown > 0) return;
+    if (this.boostCooldown > 0 || this.energy < MAX_ENERGY) return false;
     this.boostActive = true;
     this.boostTimer = this.boostInfinite ? 9999 : (this.boostDurationOverride ?? BOOST_DURATION);
-    this.energy = MAX_ENERGY;
+    // A full meter is the boost cost; the boost timer becomes the active-power display.
+    this.energy = 0;
     this.consecutiveHits = 0;
     this.cinematicFired = false; // will be set true by GameEngine after cinematic triggers
+    return true;
+  }
+
+  /** Spend meter only when an ability successfully activates. During a timed boost,
+      finite boosts spend duration proportionally; Galva's infinite boost stays identity-specific. */
+  spendSpecialEnergy(cost: number): boolean {
+    if (this.boostActive) {
+      if (this.boostInfinite) return true;
+      const durationCost = BOOST_DURATION * (cost / MAX_ENERGY);
+      if (this.boostTimer < durationCost) return false;
+      this.boostTimer = Math.max(0, this.boostTimer - durationCost);
+      return true;
+    }
+    if (this.energy < cost) return false;
+    this.energy -= cost;
+    return true;
   }
   reset() {
     this.health = this.maxHealth;
@@ -539,10 +556,10 @@ export class Fighter {
       this.spawnTempestWind(gusts, this.attackVariant === 'tempest-counter' ? '#ffffff' : '#8deeff');
     }
     if (this.boostActive || this.boostCooldown > 0) return;
-    this.consecutiveHits += 1;
-    // Energy bar fills proportionally: 10 hits = full
-    this.energy = Math.min(MAX_ENERGY, (this.consecutiveHits / 10) * MAX_ENERGY);
-    if (this.consecutiveHits >= 10) {
+    this.consecutiveHits = Math.min(10, this.consecutiveHits + 1);
+    // Normal hits build meter, but enemy attacks can never reduce it.
+    this.energy = Math.min(MAX_ENERGY, this.energy + ENERGY_PER_LANDED_HIT);
+    if (this.energy >= MAX_ENERGY) {
       this.activateBoost();
     }
   }
@@ -1004,6 +1021,7 @@ export class Fighter {
   // ── Ability: Lightning Blast ──────────────────────────────
   fireLightningBlast(): boolean {
     if (!this.hasLightningBlast || !this.canAttack()) return false;
+    if (!this.spendSpecialEnergy(LIGHT_SPECIAL_COST)) return false;
     const dmg = (PUNCH_DAMAGE + this.punchDamageBonus) * (this.boostActive ? 2 : 1);
     this.projectiles.push({
       x: this.facingRight ? this.x + FIGHTER_WIDTH + 10 : this.x - 10,
@@ -1024,6 +1042,7 @@ export class Fighter {
   // Galva can only call down this finisher while his infinite full-power mode is active.
   activateGroundSlam(): boolean {
     if (!this.hasGroundSlam || !this.boostActive || this.groundSlamActive || this.groundSlamCooldown > 0 || !this.canAttack() || !this.isOnGround) return false;
+    if (!this.spendSpecialEnergy(FINISHER_SPECIAL_COST)) return false;
     this.groundSlamActive = true;
     this.groundSlamTimer = 0.72;
     this.groundSlamCooldown = 8.5;
@@ -1037,6 +1056,7 @@ export class Fighter {
   // ── Ability: Lightning Teleport (Galva) ──────────────────
   activateTeleport(opponent: Fighter): boolean {
     if (!this.hasTeleport || this.teleportCooldown > 0 || this.state === 'ko' || this.state === 'dead') return false;
+    if (!this.spendSpecialEnergy(LIGHT_SPECIAL_COST)) return false;
     // Record vanish position
     this.teleportFlashX = this.x + FIGHTER_WIDTH / 2;
     this.teleportFlashY = this.y + FIGHTER_HEIGHT / 2;
@@ -1058,6 +1078,7 @@ export class Fighter {
   // ── Ability: Shadow Barrier ───────────────────────────────
   activateShadowBarrier(): boolean {
     if (!this.hasShadowBarrier || this.barrierActive || this.barrierCooldown > 0) return false;
+    if (!this.spendSpecialEnergy(HEAVY_SPECIAL_COST)) return false;
     this.barrierActive = true;
     this.barrierTimer = 5.0;
     this.barrierCooldown = 240; // 4 minutes
@@ -1069,6 +1090,7 @@ export class Fighter {
   // ── Ability: Tornado ──────────────────────────────────────
   activateTornado(): boolean {
     if (!this.hasTornado || this.tornadoActive || !this.canAttack()) return false;
+    if (!this.spendSpecialEnergy(HEAVY_SPECIAL_COST)) return false;
     this.tornadoActive = true;
     this.tornadoTimer = 2.0;
     this.state = 'special';
@@ -1079,6 +1101,7 @@ export class Fighter {
   // Kai's high-skill special: a brief counter window with a modest cooldown.
   activateTempestGuard(): boolean {
     if (!this.hasTempestStyle || this.tempestGuardTimer > 0 || this.tempestGuardCooldown > 0 || !this.canAttack()) return false;
+    if (!this.spendSpecialEnergy(LIGHT_SPECIAL_COST)) return false;
     this.tempestGuardTimer = 0.30;
     this.tempestGuardCooldown = 2.2;
     this.state = 'special';
@@ -1107,6 +1130,7 @@ export class Fighter {
   grab(target: Fighter): boolean {
     if (!this.hasGrab || !this.canAttack() || !this.isOnGround) return false;
     if (Math.abs(this.centerX - target.centerX) > 135) return false; // must be close
+    if (!this.spendSpecialEnergy(HEAVY_SPECIAL_COST)) return false;
     this.state = 'grab';
     this.stateTimer = 1.78;
     this.grabTarget = target;
