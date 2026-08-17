@@ -202,8 +202,8 @@ function FighterHUD({ d, flip, energyGain }: { d: HUDData; flip?: boolean; energ
           <div className="flex-1">
             <EnergyBar value={d.energy} boostActive={d.boostActive} boostTimer={d.boostTimer} boostCooldown={d.boostCooldown} energyColor={d.energyColor} flip={flip} gain={energyGain} />
           </div>
-          {!d.boostActive && d.boostCooldown <= 0 && d.consecutiveHits > 0 && (
-            <span className="text-[10px] font-semibold" style={{ color: d.energyColor }}>{d.consecutiveHits}/10</span>
+          {!d.boostActive && d.boostCooldown <= 0 && d.energy > 0 && (
+            <span className="text-[10px] font-semibold" style={{ color: d.energyColor }}>{d.energy}/{MAX_ENERGY}</span>
           )}
           {!d.boostActive && d.boostCooldown > 0 && (
             <span className="text-[10px] font-semibold text-gray-400">⏳{Math.ceil(d.boostCooldown)}s</span>

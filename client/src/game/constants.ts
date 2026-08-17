@@ -22,17 +22,21 @@ export const LAND_SQUASH     = 0.09;   // readable landing squash duration
 
 // ── Combat ────────────────────────────────────────────────────
 export const MAX_HEALTH      = 250;
-export const MAX_ENERGY      = 50;
+// Meter is deliberately slower than health damage: a boost should be a
+// meaningful mid- or late-match moment, not an automatic reward for one exchange.
+export const MAX_ENERGY      = 100;
 export const PUNCH_DAMAGE    = 1;
 export const KICK_DAMAGE     = 2;
 export const BLOCK_DAMAGE_MULT = 0.0;  // blocking = zero damage
-export const ENERGY_PER_PUNCH = 5;
-export const ENERGY_PER_KICK  = 7;
-export const ENERGY_PER_LANDED_HIT = 5;
-export const LIGHT_SPECIAL_COST = 10;
-export const HEAVY_SPECIAL_COST = 15;
-export const FINISHER_SPECIAL_COST = 20;
-export const BOOST_DURATION   = 15;
+export const ENERGY_PER_PUNCH = 2;
+export const ENERGY_PER_KICK  = 3;
+export const ENERGY_PER_LANDED_HIT = 2;
+export const ENERGY_PER_SUCCESSFUL_BLOCK = 1;
+export const LIGHT_SPECIAL_COST = 20;
+export const HEAVY_SPECIAL_COST = 30;
+export const FINISHER_SPECIAL_COST = 45;
+export const BOOST_DURATION   = 8;
+export const BOOST_COOLDOWN   = 24;
 export const BOOST_DAMAGE_MULT = 2;
 
 // Punch: fast startup, short stun

@@ -407,6 +407,7 @@ export class Fighter {
     // Blocking = zero damage
     if (this.isBlocking) {
       this.hitFlash = 0.05;
+      this.gainEnergy(1);
       return 0;
     }
     let dmg = baseDamage;
@@ -459,8 +460,12 @@ export class Fighter {
   }
 
   // ── Energy / Boost ────────────────────────────────────────────
-  gainEnergy(_amount: number) {
-    // Energy is now driven by consecutive hits — see onAttackLanded
+  gainEnergy(amount: number) {
+    if (amount <= 0 || this.boostActive || this.boostCooldown > 0) return 0;
+    const before = this.energy;
+    this.energy = Math.min(MAX_ENERGY, this.energy + amount);
+    if (this.energy >= MAX_ENERGY) this.activateBoost();
+    return this.energy - before;
   }
   activateBoost() {
     if (this.boostCooldown > 0 || this.energy < MAX_ENERGY) return false;
@@ -556,12 +561,9 @@ export class Fighter {
       this.spawnTempestWind(gusts, this.attackVariant === 'tempest-counter' ? '#ffffff' : '#8deeff');
     }
     if (this.boostActive || this.boostCooldown > 0) return;
-    this.consecutiveHits = Math.min(10, this.consecutiveHits + 1);
+    this.consecutiveHits = Math.min(50, this.consecutiveHits + 1);
     // Normal hits build meter, but enemy attacks can never reduce it.
-    this.energy = Math.min(MAX_ENERGY, this.energy + ENERGY_PER_LANDED_HIT);
-    if (this.energy >= MAX_ENERGY) {
-      this.activateBoost();
-    }
+    this.gainEnergy(ENERGY_PER_LANDED_HIT);
   }
 
   // ── Particles ─────────────────────────────────────────────────
@@ -764,7 +766,7 @@ export class Fighter {
           this.boostActive = false;
           this.boostTimer = 0;
           this.energy = 0;
-          this.boostCooldown = 32; // 32-second cooldown
+          this.boostCooldown = 24; // longer than the boost itself; prevents immediate re-powering
           this.consecutiveHits = 0;
           this.cinematicFired = false;
         }
