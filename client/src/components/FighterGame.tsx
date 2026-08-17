@@ -140,12 +140,13 @@ function HealthBar({ value, maxHealth, flip, hitFlash }: { value: number; maxHea
   );
 }
 
-function EnergyBar({ value, boostActive, boostTimer, boostCooldown, energyColor, flip }:
-  { value: number; boostActive: boolean; boostTimer: number; boostCooldown: number; energyColor: string; flip?: boolean }) {
+function EnergyBar({ value, boostActive, boostTimer, boostCooldown, energyColor, flip, gain }:
+  { value: number; boostActive: boolean; boostTimer: number; boostCooldown: number; energyColor: string; flip?: boolean; gain?: { tick: number; amount: number } }) {
   const pct = Math.max(0, (value / MAX_ENERGY) * 100);
   const onCooldown = !boostActive && boostCooldown > 0;
   return (
-    <div className={`relative h-3 w-full overflow-hidden bg-black/60 border border-white/15 ${flip ? '[direction:rtl]' : ''}`}>
+    <div className={`relative h-3 w-full overflow-hidden bg-black/60 border border-white/15 ${gain ? 'energy-meter-gain' : ''} ${flip ? '[direction:rtl]' : ''}`}
+      style={{ '--energy-color': energyColor } as React.CSSProperties}>
       {boostActive
         ? <div className="h-full animate-pulse"
             style={{ width: `${(boostTimer/BOOST_DURATION)*100}%`, background: `linear-gradient(90deg,${energyColor},#fff8)`, boxShadow: `0 0 14px ${energyColor}` }} />
@@ -155,11 +156,19 @@ function EnergyBar({ value, boostActive, boostTimer, boostCooldown, energyColor,
         : <div className="h-full transition-all duration-150"
             style={{ width: `${pct}%`, background: `linear-gradient(90deg,${energyColor}88,${energyColor})`, boxShadow: `0 0 8px ${energyColor}` }} />
       }
+      {gain && !boostActive && !onCooldown && (
+        <>
+          <div key={`flow-${gain.tick}`} className="energy-meter-flow absolute inset-y-0 w-2/5 pointer-events-none"
+            style={{ background: `linear-gradient(90deg, transparent, #fff, ${energyColor}, transparent)` }} />
+          <span key={`gain-${gain.tick}`} className={`energy-gain-label absolute -top-5 z-10 text-[10px] font-black tracking-wide ${flip ? 'left-1' : 'right-1'}`}
+            style={{ color: energyColor, textShadow: `0 0 8px ${energyColor}` }}>+{gain.amount} ⚡</span>
+        </>
+      )}
     </div>
   );
 }
 
-function FighterHUD({ d, flip }: { d: HUDData; flip?: boolean }) {
+function FighterHUD({ d, flip, energyGain }: { d: HUDData; flip?: boolean; energyGain?: { tick: number; amount: number } }) {
   return (
     <div className={`flex items-center gap-2 w-full px-2 py-1 ${flip ? 'flex-row-reverse' : ''}`}
       style={{
@@ -191,7 +200,7 @@ function FighterHUD({ d, flip }: { d: HUDData; flip?: boolean }) {
         <div className={`flex items-center gap-1 ${flip ? 'flex-row-reverse' : ''}`}>
           <span className="text-[10px] font-semibold whitespace-nowrap" style={{ color: d.energyColor }}>⚡ ENERGY</span>
           <div className="flex-1">
-            <EnergyBar value={d.energy} boostActive={d.boostActive} boostTimer={d.boostTimer} boostCooldown={d.boostCooldown} energyColor={d.energyColor} flip={flip} />
+            <EnergyBar value={d.energy} boostActive={d.boostActive} boostTimer={d.boostTimer} boostCooldown={d.boostCooldown} energyColor={d.energyColor} flip={flip} gain={energyGain} />
           </div>
           {!d.boostActive && d.boostCooldown <= 0 && d.consecutiveHits > 0 && (
             <span className="text-[10px] font-semibold" style={{ color: d.energyColor }}>{d.consecutiveHits}/10</span>
@@ -476,6 +485,7 @@ export default function FighterGame() {
   const engineRef = useRef<GameEngine | null>(null);
   const soundRef  = useRef<SoundManager | null>(null);
   const hudRaf    = useRef<number>(0);
+  const previousEnergy = useRef({ p1: 0, p2: 0 });
 
   const [screen, setScreen] = useState<'select' | 'fight'>('select');
   const [gameOver, setGameOver] = useState<GameState | null>(null);
@@ -487,6 +497,7 @@ export default function FighterGame() {
   const [currentMode, setCurrentMode] = useState<GameMode>('cpu');
   const [isPaused, setIsPaused] = useState(false);
   const [showPauseControls, setShowPauseControls] = useState(false);
+  const [energyGains, setEnergyGains] = useState<{ p1?: { tick: number; amount: number }; p2?: { tick: number; amount: number } }>({});
 
   // Share link state
   const [showShare, setShowShare] = useState(false);
@@ -693,6 +704,8 @@ export default function FighterGame() {
     setGameOver(null);
     setIsPaused(false);
     setShowPauseControls(false);
+    previousEnergy.current = { p1: 0, p2: 0 };
+    setEnergyGains({});
     setCurrentMode(cfg.mode);
     setModeLabel(cfg.mode === 'cpu' ? 'VS CPU' : cfg.mode === 'cvc' ? 'SPECTATOR' : 'VS PLAYER');
     hudRaf.current = requestAnimationFrame(pollHUD);
@@ -712,8 +725,20 @@ export default function FighterGame() {
       comboCount: f.id === 1 ? (eng as any).p1ComboCount ?? 0 : (eng as any).p2ComboCount ?? 0,
       hitFlash: f.hitFlash,
     });
-    setP1Data(mk(eng.p1));
-    setP2Data(mk(eng.p2));
+    const nextP1 = mk(eng.p1);
+    const nextP2 = mk(eng.p2);
+    const p1Gain = nextP1.boostActive ? 0 : nextP1.energy - previousEnergy.current.p1;
+    const p2Gain = nextP2.boostActive ? 0 : nextP2.energy - previousEnergy.current.p2;
+    if (p1Gain > 0 || p2Gain > 0) {
+      const tick = performance.now();
+      setEnergyGains(prev => ({
+        p1: p1Gain > 0 ? { tick, amount: Math.round(p1Gain) } : prev.p1,
+        p2: p2Gain > 0 ? { tick, amount: Math.round(p2Gain) } : prev.p2,
+      }));
+    }
+    previousEnergy.current = { p1: nextP1.energy, p2: nextP2.energy };
+    setP1Data(nextP1);
+    setP2Data(nextP2);
     setRoundTime(Math.ceil(eng.roundTimer));
     hudRaf.current = requestAnimationFrame(pollHUD);
   }, []);
@@ -825,7 +850,7 @@ export default function FighterGame() {
       {p1Data && p2Data && (
         <div className="absolute top-0 z-10 flex items-start gap-3 px-3 pt-2"
           style={{ width: `min(${CANVAS_WIDTH * scale}px, 100vw)`, left: '50%', transform: 'translateX(-50%)' }}>
-          <div className="flex-1"><FighterHUD d={p1Data} /></div>
+          <div className="flex-1"><FighterHUD d={p1Data} energyGain={energyGains.p1} /></div>
           <div className="flex flex-col items-center min-w-[56px] pt-1">
             <div className="text-white font-black text-3xl tabular-nums"
               style={{ fontFamily: "'Bebas Neue',sans-serif", textShadow: '0 0 20px #f59e0b' }}>
@@ -833,7 +858,7 @@ export default function FighterGame() {
             </div>
             <div className="text-amber-400 text-[9px] font-bold tracking-widest">{modeLabel}</div>
           </div>
-          <div className="flex-1"><FighterHUD d={p2Data} flip /></div>
+          <div className="flex-1"><FighterHUD d={p2Data} flip energyGain={energyGains.p2} /></div>
         </div>
       )}
 

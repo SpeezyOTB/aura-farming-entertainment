@@ -53,3 +53,5 @@
 - [x] Remove energy loss from normal punches, kicks, blocks, throws, and ordinary damage outcomes.
 - [x] Restrict energy expenditure to special moves and boost activation while preserving intended charge and gain behavior.
 - [x] Verify standard hits reduce health only and special moves consume energy as designed.
+- [x] Add a visible energy-bar pulse, charge-flow, and gain indicator whenever a successful hit adds meter.
+- [x] Verify the energy-gain feedback for both fighters during live combat without triggering on blocked or missed attacks.
