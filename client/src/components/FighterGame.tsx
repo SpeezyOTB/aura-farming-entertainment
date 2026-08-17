@@ -432,8 +432,9 @@ function VictoryScreen({
 }
 
 // ── On-screen Touch Controller ────────────────────────────────
-function TouchPad({ engineRef, scale: _scale }: { engineRef: React.RefObject<GameEngine | null>; scale: number }) {
+function TouchPad({ engineRef, scale: _scale, paused }: { engineRef: React.RefObject<GameEngine | null>; scale: number; paused: boolean }) {
   const press = (action: string, down: boolean) => {
+    if (paused) return;
     const eng = engineRef.current;
     if (!eng) return;
     const p1 = eng.p1;
@@ -484,6 +485,8 @@ export default function FighterGame() {
   const [roundTime, setRoundTime] = useState(99);
   const [modeLabel, setModeLabel] = useState('');
   const [currentMode, setCurrentMode] = useState<GameMode>('cpu');
+  const [isPaused, setIsPaused] = useState(false);
+  const [showPauseControls, setShowPauseControls] = useState(false);
 
   // Share link state
   const [showShare, setShowShare] = useState(false);
@@ -563,6 +566,28 @@ export default function FighterGame() {
     setAudioSuspended(false);
   };
 
+  const togglePause = useCallback(() => {
+    const paused = engineRef.current?.togglePause();
+    if (typeof paused === 'boolean') {
+      setIsPaused(paused);
+      setShowPauseControls(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (screen !== 'fight') return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      // P remains Player 2's special-move control in local versus mode.
+      const canUsePForPause = currentMode !== 'pvp';
+      if (event.repeat || (event.code !== 'Escape' && !(event.code === 'KeyP' && canUsePForPause))) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      togglePause();
+    };
+    window.addEventListener('keydown', onKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', onKeyDown, { capture: true });
+  }, [screen, currentMode, togglePause]);
+
   useEffect(() => {
     if (screen === 'select') {
       // Create audio element immediately but play on first user interaction
@@ -632,6 +657,7 @@ export default function FighterGame() {
     const eng = new GameEngine(canvas, p1Cfg, p2Cfg, BG_URL, cfg.mode, soundRef.current!);
     eng.onStateChange = (s) => {
       setGameOver(s);
+      setIsPaused(false);
       cancelAnimationFrame(hudRaf.current);
     };
     engineRef.current = eng;
@@ -665,6 +691,8 @@ export default function FighterGame() {
       }, 180);
     }
     setGameOver(null);
+    setIsPaused(false);
+    setShowPauseControls(false);
     setCurrentMode(cfg.mode);
     setModeLabel(cfg.mode === 'cpu' ? 'VS CPU' : cfg.mode === 'cvc' ? 'SPECTATOR' : 'VS PLAYER');
     hudRaf.current = requestAnimationFrame(pollHUD);
@@ -709,6 +737,8 @@ export default function FighterGame() {
     setLoading(true);
     setLoadProgress(0);
     pendingFight.current = { p1Key, p2Key, mode };
+    setIsPaused(false);
+    setShowPauseControls(false);
 
     // Animate loading bar over ~600ms then switch screen
     let p = 0;
@@ -749,6 +779,8 @@ export default function FighterGame() {
     setGameOver(null);
     setLoading(false);
     setLoadProgress(0);
+    setIsPaused(false);
+    setShowPauseControls(false);
   }, []);
 
   useEffect(() => () => {
@@ -833,6 +865,36 @@ export default function FighterGame() {
         <div style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT, position: 'absolute', left: 0, top: 0, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block" />
 
+          {/* Match pause overlay — the engine keeps the rendered frame and every simulation system frozen. */}
+          {isPaused && !gameOver && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center p-5"
+              style={{ background: 'rgba(8,4,14,0.78)', backdropFilter: 'blur(3px)' }}>
+              <div className="w-full max-w-sm border border-amber-300/50 px-6 py-7 text-center shadow-2xl"
+                style={{ background: 'linear-gradient(145deg, rgba(40,15,8,0.96), rgba(21,8,36,0.98))', boxShadow: '0 0 36px rgba(245,158,11,0.35)' }}>
+                <p className="text-amber-300 text-xs font-black tracking-[0.35em]">DRAGON FIST X</p>
+                <h2 className="mt-2 text-5xl font-black tracking-widest text-white" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>PAUSED</h2>
+                <p className="mt-2 text-xs text-white/60">Match clock, AI, fighters, attacks, projectiles, and effects are frozen.</p>
+                <div className="mt-6 grid grid-cols-2 gap-3">
+                  <button type="button" onClick={togglePause} className="col-span-2 px-5 py-3 font-black tracking-widest text-white transition-transform hover:scale-[1.02] active:scale-95"
+                    style={{ background: 'linear-gradient(135deg,#f59e0b,#ef4444)', boxShadow: '0 0 18px #f59e0b77' }}>RESUME</button>
+                  <button type="button" onClick={() => { soundRef.current?.stopAllAudio?.(); engineRef.current?.start(); setIsPaused(false); hudRaf.current = requestAnimationFrame(pollHUD); }}
+                    className="px-3 py-3 font-black text-xs tracking-widest text-white border border-white/20 hover:bg-white/10">RESTART</button>
+                  <button type="button" onClick={backToSelect}
+                    className="px-3 py-3 font-black text-xs tracking-widest text-white border border-white/20 hover:bg-white/10">SELECT</button>
+                  <button type="button" onClick={() => setShowPauseControls(v => !v)}
+                    className="col-span-2 px-3 py-3 font-black text-xs tracking-widest text-amber-200 border border-amber-300/35 hover:bg-amber-100/10">CONTROLS</button>
+                </div>
+                {showPauseControls && (
+                  <div className="mt-4 border-t border-white/15 pt-4 text-left text-[11px] leading-5 text-white/75">
+                    <p><b className="text-white">Pause:</b> Esc, or P outside Player-versus-Player mode</p>
+                    <p><b className="text-white">P1:</b> A/D move, W jump, S block, F punch, G kick, E special</p>
+                    <p><b className="text-white">P2:</b> ←/→ move, ↑ jump, ↓ block, L punch, K kick, P special</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Game Over overlay */}
           {gameOver && (
             <div className="absolute inset-0 flex flex-col items-center justify-center"
@@ -886,8 +948,15 @@ export default function FighterGame() {
         </button>
       )}
 
+      {/* A pause control is always available, including spectator mode and mobile layouts. */}
+      <button type="button" aria-label={isPaused ? 'Resume game' : 'Pause game'} onClick={togglePause}
+        className="absolute right-3 top-20 z-30 flex h-11 min-w-11 items-center justify-center rounded-full border border-white/35 bg-black/65 px-3 font-black text-white shadow-lg active:scale-90"
+        style={{ boxShadow: '0 0 14px rgba(245,158,11,0.45)' }}>
+        {isPaused ? '▶' : 'Ⅱ'}
+      </button>
+
       {/* On-screen touch controller — hidden in Spectator Mode */}
-      {currentMode !== 'cvc' && <TouchPad engineRef={engineRef} scale={scale} />}
+      {currentMode !== 'cvc' && <TouchPad engineRef={engineRef} scale={scale} paused={isPaused} />}
 
       {/* Bottom bar */}
       <div className="absolute bottom-2 flex items-center gap-4 text-[11px] text-amber-700 hidden sm:flex">

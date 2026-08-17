@@ -33,6 +33,7 @@ export class GameEngine {
   p2: Fighter;
 
   gameState: GameState = { running: false, winner: 0 as 0 | 1 | 2 };
+  private paused = false;
   roundTimer = 99;
   private roundEnded = false;
   countdown = 3;
@@ -133,6 +134,7 @@ export class GameEngine {
     this.p1.reset();
     this.p2.reset();
     this.gameState = { running: false, winner: 0 };
+    this.paused = false;
     this.roundEnded = false;
     this.countdown = 3;
     this.countdownTimer = 1.0;
@@ -167,7 +169,25 @@ export class GameEngine {
     this.input.dispose();
   }
 
+  /** Freezes the simulation and input without reusing match-end state. */
+  togglePause() {
+    if (!this.countdownDone || !this.gameState.running || this.roundEnded) return this.paused;
+    this.paused = !this.paused;
+    this.input.flush();
+    return this.paused;
+  }
+
+  isPaused() {
+    return this.paused;
+  }
+
   private loop = (now: number) => {
+    if (this.paused) {
+      // Keep the last rendered frame fully still while React displays the pause menu.
+      this.lastTime = now;
+      this.rafId = requestAnimationFrame(this.loop);
+      return;
+    }
     const dt = Math.min((now - this.lastTime) / 1000, 0.05);
     this.lastTime = now;
     this.update(dt);

@@ -47,3 +47,6 @@
 - [ ] Capture a fresh Shuraku-versus-Akari gameplay clip to verify the refined animation before release.
 - [ ] Create and integrate natural Shuraku hold-and-pull contact presentation for Ryu, Galva, and Kai.
 - [ ] Verify Ryu, Galva, and Kai each have a distinct readable resistance, release, throw arc, landing, and recovery when thrown by Shuraku.
+- [x] Implement a match pause state that freezes the timer, AI, fighters, projectiles, inputs, and active effects.
+- [x] Add a visible mobile pause button plus `P` and `Esc` keyboard toggles with resume, restart, character-select, and controls actions.
+- [x] Verify pause and resume behavior in desktop and mobile game layouts, then document the implementation for review.
