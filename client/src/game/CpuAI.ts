@@ -12,6 +12,8 @@ export class CpuAI {
   private blockTimer = 0;
   private comboCount = 0;
   private reactionCooldown = 0;
+  private reactionDelay = 0;
+  private pendingBlock = false;
   private shurakuGrapplesUsed = 0;
 
   constructor(personality: Personality = 'ryu') {
@@ -22,6 +24,7 @@ export class CpuAI {
     this.startDelay = 0.7 + Math.random() * 0.6;
     this.actionTimer = 0; this.pauseTimer = 0;
     this.blockTimer = 0; this.comboCount = 0; this.reactionCooldown = 0;
+    this.reactionDelay = 0; this.pendingBlock = false;
     this.shurakuGrapplesUsed = 0;
   }
 
@@ -33,17 +36,23 @@ export class CpuAI {
     this.pauseTimer  = Math.max(0, this.pauseTimer  - dt);
     this.blockTimer  = Math.max(0, this.blockTimer  - dt);
     this.reactionCooldown = Math.max(0, this.reactionCooldown - dt);
+    this.reactionDelay = Math.max(0, this.reactionDelay - dt);
 
     const dist = Math.abs(cpu.centerX - opp.centerX);
     const goLeft = cpu.centerX > opp.centerX;
     const attackRange = FIGHTER_WIDTH + 100;
     const closeRange  = FIGHTER_WIDTH + 60;
 
-    // ── Reactive block: if opponent is attacking and in range ──────────────
-    if (this.reactionCooldown <= 0 && dist < attackRange + 30 && opp.isAttacking) {
+    // ── Reactive block: the CPU observes an attack before responding. ──────
+    if (this.pendingBlock && this.reactionDelay <= 0) {
+      this.pendingBlock = false;
+      this.blockTimer = 0.16 + Math.random() * 0.10;
+      this.reactionCooldown = 0.65 + Math.random() * 0.35;
+    }
+    if (!this.pendingBlock && this.reactionCooldown <= 0 && dist < attackRange + 18 && opp.isAttacking) {
       if (Math.random() < this.getReactionChance()) {
-        this.blockTimer = 0.18 + Math.random() * 0.12;
-        this.reactionCooldown = 0.4 + Math.random() * 0.3;
+        this.pendingBlock = true;
+        this.reactionDelay = this.getReactionDelay();
       }
     }
 
@@ -55,7 +64,7 @@ export class CpuAI {
     cpu.stopBlock();
 
     // ── Natural pause between bursts ───────────────────────────────────────
-    if (this.pauseTimer > 0 || cpu.isStunned || cpu.isAttacking) return;
+    if (this.pauseTimer > 0 || this.actionTimer > 0 || cpu.isStunned || cpu.isAttacking) return;
 
     switch (this.personality) {
       case 'ryu':     this.updateRyu(cpu, opp, dist, attackRange, closeRange, goLeft); break;
@@ -68,12 +77,23 @@ export class CpuAI {
 
   private getReactionChance(): number {
     switch (this.personality) {
-      case 'akari':   return 0.72;
-      case 'shuraku': return 0.65;
-      case 'kai':     return 0.60;
-      case 'ryu':     return 0.35;
-      case 'galva':   return 0.25;
-      default:        return 0.40;
+      case 'akari':   return 0.46;
+      case 'shuraku': return 0.42;
+      case 'kai':     return 0.44;
+      case 'ryu':     return 0.28;
+      case 'galva':   return 0.20;
+      default:        return 0.30;
+    }
+  }
+
+  private getReactionDelay(): number {
+    switch (this.personality) {
+      case 'akari':   return 0.15 + Math.random() * 0.12;
+      case 'kai':     return 0.18 + Math.random() * 0.14;
+      case 'shuraku': return 0.22 + Math.random() * 0.16;
+      case 'ryu':     return 0.24 + Math.random() * 0.18;
+      case 'galva':   return 0.30 + Math.random() * 0.18;
+      default:        return 0.25;
     }
   }
 
@@ -149,11 +169,11 @@ export class CpuAI {
   private updateGalva(cpu: Fighter, opp: Fighter,
     dist: number, attackRange: number, closeRange: number, goLeft: boolean) {
     const r = Math.random();
-    if (cpu.boostActive && dist <= closeRange + 35 && r < 0.18) {
+    if (cpu.boostActive && dist <= closeRange + 35 && r < 0.08) {
       if (cpu.activateGroundSlam()) { this.pauseTimer = 0.8; return; }
     }
-    // Teleport: 12% chance at any range when off cooldown (not always, but can happen)
-    if (r < 0.12 && (cpu as any).teleportCooldown <= 0) {
+    // Teleport is a rare surprise tool instead of a constant escape or punish.
+    if (r < 0.045 && (cpu as any).teleportCooldown <= 0) {
       if ((cpu as any).activateTeleport?.(opp)) { this.pauseTimer = 0.5; return; }
     }
     if (dist > attackRange + 120) {
@@ -177,7 +197,7 @@ export class CpuAI {
   private updateKai(cpu: Fighter, opp: Fighter,
     dist: number, attackRange: number, closeRange: number, goLeft: boolean) {
     const r = Math.random();
-    if (opp.isAttacking && dist <= attackRange + 35 && r < 0.48) {
+    if (opp.isAttacking && dist <= attackRange + 35 && r < 0.28) {
       if (cpu.activateTempestGuard()) {
         this.pauseTimer = 0.34;
         return;
@@ -219,16 +239,16 @@ export class CpuAI {
       goLeft ? cpu.moveLeft(0.016) : cpu.moveRight(0.016);
       if (r < 0.10) { (cpu as any).activateShadowBarrier?.(); this.pauseTimer = 0.5; }
     } else if (dist <= closeRange) {
-      if (this.shurakuGrapplesUsed < 3 && !opp.isBlocking && r < 0.18) {
+      if (this.shurakuGrapplesUsed < 3 && !opp.isBlocking && r < 0.09) {
         if (cpu.grab(opp)) {
           this.shurakuGrapplesUsed += 1;
           this.pauseTimer = 1.0;
           return;
         }
       }
-      if (oppLowHealth && r < 0.30) {
-        cpu.punch(); this.pauseTimer = 0.15;
-        setTimeout(() => cpu.kick(), 120);
+      if (oppLowHealth && r < 0.16) {
+        cpu.punch(); this.pauseTimer = 0.28;
+        setTimeout(() => cpu.kick(), 180);
       } else if (r < 0.46) {
         cpu.punch(); this.pauseTimer = 0.42 + Math.random() * 0.2;
       } else if (r < 0.66) {

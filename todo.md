@@ -55,3 +55,5 @@
 - [x] Verify standard hits reduce health only and special moves consume energy as designed.
 - [x] Add a visible energy-bar pulse, charge-flow, and gain indicator whenever a successful hit adds meter.
 - [x] Verify the energy-gain feedback for both fighters during live combat without triggering on blocked or missed attacks.
+- [x] Rebalance CPU reaction delay, pursuit pressure, attack cadence, blocking, recovery, and special-move frequency.
+- [x] Playtest the tuned CPU profile against a human-controlled opponent and retain only fair, readable behavior.
