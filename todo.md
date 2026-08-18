@@ -59,3 +59,5 @@
 - [x] Playtest the tuned CPU profile against a human-controlled opponent and retain only fair, readable behavior.
 - [x] Rebalance meter gain, boost threshold, duration, cooldown, and special costs so power-ups do not occur too early.
 - [x] Playtest full-match pacing to ensure energy gain remains rewarding without allowing repeated immediate boosts.
+- [x] Remove Joseph Johnson’s name from public Aura Farming Entertainment copy and use broader property-creation language.
+- [x] Verify the website content and public metadata no longer expose the removed name.

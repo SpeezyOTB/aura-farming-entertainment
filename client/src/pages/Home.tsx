@@ -335,17 +335,15 @@ export default function Home() {
               <p className="text-white/70 leading-relaxed mb-4">
                 Aura Farming Entertainment is a subdivision of{" "}
                 <span className="text-white/90 font-semibold">International Playing Field LLC</span>,
-                founded by Joseph Johnson — known professionally as{" "}
-                <span className="text-white/90 font-semibold">Speezy OTB</span>. Joseph is the
-                creator of Shadow'Khan TCG and Dragon Fist X, two properties he first conceived at
-                the age of 13. Over the years, he has taken the time to carefully refine these
-                concepts, and is now bringing them to life through a combination of traditional
-                creative methods and modern technology.
+                an independent media company developing original entertainment properties across
+                video games, trading card games, and animation. Shadow'Khan TCG and Dragon Fist X
+                are long-running creative concepts shaped over time through traditional storytelling,
+                visual development, and modern technology.
               </p>
               <p className="text-white/70 leading-relaxed mb-4">
-                In 2015, Joseph lost his eyesight — yet his creative vision never wavered. He has
-                continued to develop, build, and push forward, proving that the most powerful
-                stories are born from resilience.
+                Each property is developed with an emphasis on imagination, resilience, and
+                experimentation—taking early ideas through refinement toward distinct worlds,
+                characters, and experiences for audiences to explore.
               </p>
               <p className="text-white/70 leading-relaxed mb-8">
                 The mission of Aura Farming Entertainment is to become a major force in the
